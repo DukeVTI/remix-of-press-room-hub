@@ -130,6 +130,7 @@ export type Database = {
           is_verified: boolean
           languages: string[]
           owner_id: string
+          profile_photo_alt: string
           profile_photo_url: string
           slug: string
           status: Database["public"]["Enums"]["blog_status"]
@@ -146,6 +147,7 @@ export type Database = {
           is_verified?: boolean
           languages?: string[]
           owner_id: string
+          profile_photo_alt?: string
           profile_photo_url: string
           slug: string
           status?: Database["public"]["Enums"]["blog_status"]
@@ -162,6 +164,7 @@ export type Database = {
           is_verified?: boolean
           languages?: string[]
           owner_id?: string
+          profile_photo_alt?: string
           profile_photo_url?: string
           slug?: string
           status?: Database["public"]["Enums"]["blog_status"]
