@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { CharacterCountInput } from "@/components/CharacterCountInput";
@@ -36,10 +37,7 @@ const MAX_CUSTOM_FIELD_CHARS = 50;
 const CreateBlog = () => {
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
-  // Auth state
-  const [userId, setUserId] = useState<string | null>(null);
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const { user, isLoading: authLoading } = useAuth({ requireAuth: true });
   
   // Form data
   const [blogName, setBlogName] = useState("");
@@ -61,18 +59,10 @@ const CreateBlog = () => {
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Check auth and load reference data
+  // Load reference data when user is available
   useEffect(() => {
-    const init = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        navigate("/login");
-        return;
-      }
-      
-      setUserId(session.user.id);
-      setIsCheckingAuth(false);
+    const loadData = async () => {
+      if (!user) return;
 
       // Load categories and languages
       const [categoriesRes, languagesRes] = await Promise.all([
@@ -85,9 +75,8 @@ const CreateBlog = () => {
       setIsLoadingData(false);
     };
 
-    init();
-  }, [navigate]);
-
+    loadData();
+  }, [user]);
   // Handle photo selection
   const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -185,14 +174,14 @@ const CreateBlog = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!validateForm() || !userId) return;
+    if (!validateForm() || !user) return;
 
     setIsLoading(true);
 
     try {
       // 1. Upload photo to storage
       const fileExt = profilePhoto!.name.split(".").pop();
-      const fileName = `${userId}/${Date.now()}.${fileExt}`;
+      const fileName = `${user.id}/${Date.now()}.${fileExt}`;
       
       const { error: uploadError } = await supabase.storage
         .from("blog-photos")
@@ -212,7 +201,7 @@ const CreateBlog = () => {
       const { data: blog, error: blogError } = await supabase
         .from("blogs")
         .insert({
-          owner_id: userId,
+          owner_id: user.id,
           blog_name: blogName.trim(),
           description: description.trim(),
           category_id: categoryId,
@@ -254,7 +243,7 @@ const CreateBlog = () => {
     }
   };
 
-  if (isCheckingAuth || isLoadingData) {
+  if (authLoading || isLoadingData) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-accent" aria-label="Loading" />
