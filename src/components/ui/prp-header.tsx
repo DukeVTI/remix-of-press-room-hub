@@ -21,10 +21,9 @@ export function PRPHeader({ isAuthenticated = false }: PRPHeaderProps) {
     { label: 'Our story', href: '/about' },
   ];
 
-  // Navigation links for authenticated users
+  // Navigation links for authenticated users - single Dashboard link only
   const authLinks = [
     { label: 'Dashboard', href: '/dashboard' },
-    { label: 'Write', href: '/dashboard', icon: Edit3 },
   ];
 
   const links = isAuthenticated ? authLinks : visitorLinks;
@@ -109,14 +108,13 @@ export function PRPHeader({ isAuthenticated = false }: PRPHeaderProps) {
               </Link>
             </div>
           ) : (
-            <Link to="/dashboard" className="ml-2">
+            <Link to="/blogs/create" className="ml-2">
               <Button 
                 size="sm"
-                variant="ghost"
-                className="text-muted-foreground hover:text-foreground"
+                className="bg-accent text-accent-foreground hover:bg-accent/90 rounded-full px-4"
               >
                 <Edit3 className="h-4 w-4 mr-2" aria-hidden="true" />
-                Write
+                New Story
               </Button>
             </Link>
           )}
@@ -218,12 +216,12 @@ export function PRPHeader({ isAuthenticated = false }: PRPHeaderProps) {
 
             {isAuthenticated && (
               <div className="absolute bottom-0 left-0 right-0 border-t border-border p-4 bg-background">
-                <Link to="/dashboard" className="block" onClick={() => setOpen(false)}>
+                <Link to="/blogs/create" className="block" onClick={() => setOpen(false)}>
                   <Button 
                     className="w-full h-11 bg-accent text-accent-foreground hover:bg-accent/90 rounded-full"
                   >
                     <Edit3 className="h-4 w-4 mr-2" aria-hidden="true" />
-                    Write a story
+                    New Story
                   </Button>
                 </Link>
               </div>

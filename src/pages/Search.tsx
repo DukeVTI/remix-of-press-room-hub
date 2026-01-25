@@ -13,11 +13,12 @@ import {
   Search as SearchIcon,
   Loader2,
   Users,
-  FileText,
   Calendar,
   Eye,
   ThumbsUp,
-  ArrowRight
+  BookOpen,
+  TrendingUp,
+  Clock
 } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 
@@ -38,7 +39,7 @@ const Search = () => {
   
   const [query, setQuery] = useState(initialQuery);
   const [searchQuery, setSearchQuery] = useState(initialQuery);
-  const [activeTab, setActiveTab] = useState("blogs");
+  const [activeTab, setActiveTab] = useState("publications");
   const [isLoading, setIsLoading] = useState(false);
   const [blogs, setBlogs] = useState<BlogWithCategory[]>([]);
   const [posts, setPosts] = useState<PostWithBlog[]>([]);
@@ -53,8 +54,6 @@ const Search = () => {
       }
     };
     checkAuth();
-
-    // Load initial blogs when page loads
     loadInitialBlogs();
   }, []);
 
@@ -67,7 +66,6 @@ const Search = () => {
   const loadInitialBlogs = async () => {
     setIsLoading(true);
     try {
-      // Load recent/featured blogs
       const { data: blogsData } = await supabase
         .from("blogs")
         .select("*, blog_categories(name)")
@@ -79,7 +77,6 @@ const Search = () => {
         setBlogs(blogsData as BlogWithCategory[]);
       }
 
-      // Load recent posts
       const { data: postsData } = await supabase
         .from("posts")
         .select("*, blogs!inner(blog_name, slug, profile_photo_url)")
@@ -105,8 +102,7 @@ const Search = () => {
     const searchTerm = q.trim().toLowerCase();
 
     try {
-      // Search blogs - use ilike with proper escaping
-      const { data: blogsData, error: blogsError } = await supabase
+      const { data: blogsData } = await supabase
         .from("blogs")
         .select("*, blog_categories(name)")
         .eq("status", "active")
@@ -114,18 +110,9 @@ const Search = () => {
         .order("follower_count", { ascending: false })
         .limit(20);
 
-      if (blogsError) {
-        console.error("Blogs search error:", blogsError);
-      }
+      setBlogs(blogsData ? (blogsData as BlogWithCategory[]) : []);
 
-      if (blogsData) {
-        setBlogs(blogsData as BlogWithCategory[]);
-      } else {
-        setBlogs([]);
-      }
-
-      // Search posts
-      const { data: postsData, error: postsError } = await supabase
+      const { data: postsData } = await supabase
         .from("posts")
         .select("*, blogs!inner(blog_name, slug, profile_photo_url)")
         .eq("status", "published")
@@ -133,15 +120,7 @@ const Search = () => {
         .order("published_at", { ascending: false })
         .limit(20);
 
-      if (postsError) {
-        console.error("Posts search error:", postsError);
-      }
-
-      if (postsData) {
-        setPosts(postsData as PostWithBlog[]);
-      } else {
-        setPosts([]);
-      }
+      setPosts(postsData ? (postsData as PostWithBlog[]) : []);
     } catch (error) {
       console.error("Search error:", error);
       setBlogs([]);
@@ -169,13 +148,16 @@ const Search = () => {
   };
 
   const formatNumber = (num: number) => {
-    if (num >= 1000000) {
-      return (num / 1000000).toFixed(1) + "M";
-    }
-    if (num >= 1000) {
-      return (num / 1000).toFixed(1) + "K";
-    }
+    if (num >= 1000000) return (num / 1000000).toFixed(1) + "M";
+    if (num >= 1000) return (num / 1000).toFixed(1) + "K";
     return num.toString();
+  };
+
+  const getReadingTime = (content: string) => {
+    const wordsPerMinute = 200;
+    const words = content.split(/\s+/).length;
+    const minutes = Math.ceil(words / wordsPerMinute);
+    return `${minutes} min read`;
   };
 
   return (
@@ -184,151 +166,178 @@ const Search = () => {
         Skip to main content
       </a>
 
-      {/* Header */}
       <PRPHeader isAuthenticated={!!userId} />
 
-      <main id="main-content" role="main" className="flex-1 section-container py-8 max-w-4xl mx-auto">
-        {/* Search Form */}
-        <section className="mb-8" aria-labelledby="search-heading">
-          <h1 id="search-heading" className="display-lg text-foreground mb-6 text-center">
-            Explore stories
-          </h1>
-
-          <form onSubmit={handleSearch} className="max-w-2xl mx-auto" role="search">
-            <div className="relative">
-              <SearchIcon 
-                className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" 
-                aria-hidden="true" 
-              />
-              <Input
-                type="search"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search publications and stories..."
-                className="input-modern pl-12 pr-24 py-6 text-lg"
-                aria-label="Search query"
-              />
-              <Button
-                type="submit"
-                className="absolute right-2 top-1/2 -translate-y-1/2 btn-accent rounded-full"
-                disabled={!query.trim() || isLoading}
-                aria-label="Submit search"
-              >
-                {isLoading ? (
-                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-                ) : (
-                  "Search"
-                )}
-              </Button>
+      <main id="main-content" role="main" className="flex-1">
+        {/* Hero Search Section */}
+        <section className="relative border-b border-border bg-gradient-to-b from-muted/30 to-background">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 py-16 sm:py-20">
+            <div className="text-center mb-10">
+              <h1 className="font-serif text-4xl sm:text-5xl font-bold text-foreground mb-4 tracking-tight">
+                Explore Stories
+              </h1>
+              <p className="text-lg text-muted-foreground max-w-xl mx-auto">
+                Discover publications and stories that inform, inspire, and engage.
+              </p>
             </div>
-          </form>
+
+            <form onSubmit={handleSearch} className="max-w-2xl mx-auto" role="search">
+              <div className="relative group">
+                <div className="absolute inset-0 bg-accent/5 rounded-2xl blur-xl group-focus-within:bg-accent/10 transition-colors" />
+                <div className="relative flex items-center bg-card border border-border rounded-2xl shadow-sm overflow-hidden focus-within:border-accent/50 focus-within:ring-2 focus-within:ring-accent/20 transition-all">
+                  <SearchIcon 
+                    className="ml-5 h-5 w-5 text-muted-foreground flex-shrink-0" 
+                    aria-hidden="true" 
+                  />
+                  <Input
+                    type="search"
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    placeholder="Search publications, stories, topics..."
+                    className="flex-1 border-0 bg-transparent py-5 px-4 text-base placeholder:text-muted-foreground/60 focus-visible:ring-0 focus-visible:ring-offset-0"
+                    aria-label="Search query"
+                  />
+                  <Button
+                    type="submit"
+                    className="m-2 rounded-xl bg-accent text-accent-foreground hover:bg-accent/90 px-6"
+                    disabled={!query.trim() || isLoading}
+                    aria-label="Submit search"
+                  >
+                    {isLoading ? (
+                      <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                    ) : (
+                      "Search"
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </form>
+          </div>
         </section>
 
-        {/* Results Header */}
-        {hasSearched && searchQuery && (
-          <div className="mb-4">
-            <p className="text-muted-foreground">
-              Showing results for "<span className="font-medium text-foreground">{searchQuery}</span>"
-            </p>
-          </div>
-        )}
+        {/* Results Section */}
+        <section className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
+          {/* Results Header */}
+          {hasSearched && searchQuery && (
+            <div className="mb-8 pb-6 border-b border-border">
+              <p className="text-sm uppercase tracking-wider text-muted-foreground mb-1">
+                Search results for
+              </p>
+              <h2 className="font-serif text-2xl font-semibold text-foreground">
+                "{searchQuery}"
+              </h2>
+            </div>
+          )}
 
-        {!hasSearched && blogs.length > 0 && (
-          <div className="mb-4">
-            <h2 className="headline-sm text-foreground">Browse All</h2>
-            <p className="text-sm text-muted-foreground">Discover blogs and posts on Press Room Publisher</p>
-          </div>
-        )}
+          {!hasSearched && (blogs.length > 0 || posts.length > 0) && (
+            <div className="mb-8 pb-6 border-b border-border">
+              <div className="flex items-center gap-2 text-sm uppercase tracking-wider text-muted-foreground mb-1">
+                <TrendingUp className="h-4 w-4" />
+                <span>Trending</span>
+              </div>
+              <h2 className="font-serif text-2xl font-semibold text-foreground">
+                Discover What's Popular
+              </h2>
+            </div>
+          )}
 
-        {/* Results */}
-        {(hasSearched || blogs.length > 0 || posts.length > 0) && (
-          <section aria-label="Search results">
+          {/* Tabs */}
+          {(hasSearched || blogs.length > 0 || posts.length > 0) && (
             <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="w-full justify-start mb-6" aria-label="Result type filter">
-                <TabsTrigger value="blogs" className="flex items-center gap-2">
-                  <Newspaper className="h-4 w-4" aria-hidden="true" />
-                  Blogs ({blogs.length})
+              <TabsList className="w-full justify-start bg-transparent border-b border-border rounded-none p-0 h-auto mb-8" aria-label="Result type filter">
+                <TabsTrigger 
+                  value="publications" 
+                  className="relative rounded-none border-b-2 border-transparent data-[state=active]:border-accent data-[state=active]:bg-transparent data-[state=active]:shadow-none px-1 pb-3 mr-6 text-base font-medium"
+                >
+                  <Newspaper className="h-4 w-4 mr-2 inline" aria-hidden="true" />
+                  Publications
+                  <span className="ml-2 text-xs text-muted-foreground">({blogs.length})</span>
                 </TabsTrigger>
-                <TabsTrigger value="posts" className="flex items-center gap-2">
-                  <FileText className="h-4 w-4" aria-hidden="true" />
-                  Posts ({posts.length})
+                <TabsTrigger 
+                  value="stories" 
+                  className="relative rounded-none border-b-2 border-transparent data-[state=active]:border-accent data-[state=active]:bg-transparent data-[state=active]:shadow-none px-1 pb-3 text-base font-medium"
+                >
+                  <BookOpen className="h-4 w-4 mr-2 inline" aria-hidden="true" />
+                  Stories
+                  <span className="ml-2 text-xs text-muted-foreground">({posts.length})</span>
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="blogs">
+              {/* Publications Tab */}
+              <TabsContent value="publications" className="mt-0">
                 {isLoading ? (
-                  <div className="text-center py-12">
-                    <Loader2 className="h-8 w-8 animate-spin text-accent mx-auto" aria-label="Loading blogs" />
+                  <div className="flex items-center justify-center py-20">
+                    <Loader2 className="h-8 w-8 animate-spin text-accent" aria-label="Loading publications" />
                   </div>
                 ) : blogs.length === 0 ? (
-                  <div className="text-center py-12">
-                    <Newspaper className="h-12 w-12 text-muted-foreground mx-auto mb-4" aria-hidden="true" />
-                    <p className="text-muted-foreground">
+                  <div className="text-center py-20">
+                    <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-muted flex items-center justify-center">
+                      <Newspaper className="h-8 w-8 text-muted-foreground" aria-hidden="true" />
+                    </div>
+                    <h3 className="font-serif text-xl font-semibold text-foreground mb-2">
+                      No publications found
+                    </h3>
+                    <p className="text-muted-foreground max-w-sm mx-auto">
                       {hasSearched 
-                        ? `No blogs found for "${searchQuery}"` 
-                        : "No blogs available yet. Be the first to create one!"}
+                        ? `We couldn't find any publications matching "${searchQuery}". Try a different search term.` 
+                        : "No publications available yet. Be the first to create one!"}
                     </p>
                     {!hasSearched && (
-                      <Link to="/register" className="mt-4 inline-block">
-                        <Button className="btn-gold" aria-label="Get started creating a blog">
-                          Get Started
+                      <Link to="/register" className="mt-6 inline-block">
+                        <Button className="bg-accent text-accent-foreground hover:bg-accent/90 rounded-full px-6">
+                          Start Publishing
                         </Button>
                       </Link>
                     )}
                   </div>
                 ) : (
-                  <div className="space-y-4" role="list" aria-label="Blog search results">
+                  <div className="grid gap-6 md:grid-cols-2" role="list" aria-label="Publication search results">
                     {blogs.map((blog) => (
                       <Link 
                         key={blog.id} 
                         to={`/blog/${blog.slug}`}
-                        className="block"
+                        className="block group"
                       >
                         <article 
-                          className="editorial-card hover:border-accent/50 transition-colors"
+                          className="relative h-full p-6 bg-card border border-border rounded-xl transition-all duration-200 hover:border-accent/40 hover:shadow-lg hover:shadow-accent/5"
                           role="listitem"
                         >
                           <div className="flex items-start gap-4">
-                            <Avatar className="h-16 w-16 border-2 border-accent/20 flex-shrink-0">
+                            <Avatar className="h-14 w-14 border-2 border-border group-hover:border-accent/30 transition-colors flex-shrink-0">
                               <AvatarImage 
                                 src={blog.profile_photo_url} 
                                 alt={`${blog.blog_name} profile photo`}
                               />
-                              <AvatarFallback className="bg-accent/10 text-accent text-lg">
+                              <AvatarFallback className="bg-accent/10 text-accent font-serif text-lg">
                                 {blog.blog_name.charAt(0).toUpperCase()}
                               </AvatarFallback>
                             </Avatar>
 
                             <div className="flex-1 min-w-0">
-                              <div className="flex items-start justify-between gap-2">
-                                <div>
-                                  <h2 className="headline-sm text-foreground mb-1">
-                                    {blog.blog_name}
-                                  </h2>
-                                  {blog.blog_categories && (
-                                    <Badge variant="secondary" className="mb-2">
-                                      {blog.blog_categories.name}
-                                    </Badge>
-                                  )}
-                                </div>
-                                <ArrowRight className="h-5 w-5 text-muted-foreground flex-shrink-0" aria-hidden="true" />
-                              </div>
-
-                              <p className="body-md text-muted-foreground line-clamp-2 mb-3">
-                                {blog.description}
-                              </p>
-
-                              <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                                <span className="flex items-center gap-1">
-                                  <Users className="h-4 w-4" aria-hidden="true" />
-                                  {formatNumber(blog.follower_count)} followers
-                                </span>
-                                <span className="flex items-center gap-1">
-                                  <Calendar className="h-4 w-4" aria-hidden="true" />
-                                  Since {formatDate(blog.created_at)}
-                                </span>
-                              </div>
+                              <h3 className="font-serif text-lg font-semibold text-foreground mb-1 group-hover:text-accent transition-colors line-clamp-1">
+                                {blog.blog_name}
+                              </h3>
+                              {blog.blog_categories && (
+                                <Badge variant="secondary" className="text-xs font-normal">
+                                  {blog.blog_categories.name}
+                                </Badge>
+                              )}
                             </div>
+                          </div>
+
+                          <p className="mt-4 text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+                            {blog.description}
+                          </p>
+
+                          <div className="mt-4 pt-4 border-t border-border flex items-center gap-4 text-xs text-muted-foreground">
+                            <span className="flex items-center gap-1.5">
+                              <Users className="h-3.5 w-3.5" aria-hidden="true" />
+                              {formatNumber(blog.follower_count)} followers
+                            </span>
+                            <span className="flex items-center gap-1.5">
+                              <Calendar className="h-3.5 w-3.5" aria-hidden="true" />
+                              Since {new Date(blog.created_at).getFullYear()}
+                            </span>
                           </div>
                         </article>
                       </Link>
@@ -337,71 +346,89 @@ const Search = () => {
                 )}
               </TabsContent>
 
-              <TabsContent value="posts">
+              {/* Stories Tab */}
+              <TabsContent value="stories" className="mt-0">
                 {isLoading ? (
-                  <div className="text-center py-12">
-                    <Loader2 className="h-8 w-8 animate-spin text-accent mx-auto" aria-label="Loading posts" />
+                  <div className="flex items-center justify-center py-20">
+                    <Loader2 className="h-8 w-8 animate-spin text-accent" aria-label="Loading stories" />
                   </div>
                 ) : posts.length === 0 ? (
-                  <div className="text-center py-12">
-                    <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" aria-hidden="true" />
-                    <p className="text-muted-foreground">
+                  <div className="text-center py-20">
+                    <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-muted flex items-center justify-center">
+                      <BookOpen className="h-8 w-8 text-muted-foreground" aria-hidden="true" />
+                    </div>
+                    <h3 className="font-serif text-xl font-semibold text-foreground mb-2">
+                      No stories found
+                    </h3>
+                    <p className="text-muted-foreground max-w-sm mx-auto">
                       {hasSearched 
-                        ? `No posts found for "${searchQuery}"` 
-                        : "No posts published yet."}
+                        ? `We couldn't find any stories matching "${searchQuery}". Try a different search term.` 
+                        : "No stories published yet."}
                     </p>
                   </div>
                 ) : (
-                  <div className="space-y-4" role="list" aria-label="Post search results">
+                  <div className="divide-y divide-border" role="list" aria-label="Story search results">
                     {posts.map((post) => (
                       <Link 
                         key={post.id} 
                         to={`/blog/${post.blogs?.slug}/post/${post.id}`}
-                        className="block"
+                        className="block group"
                       >
                         <article 
-                          className="editorial-card hover:border-accent/50 transition-colors"
+                          className="py-6 transition-colors"
                           role="listitem"
                         >
-                          <div className="flex items-start gap-4">
-                            <Avatar className="h-12 w-12 border border-border flex-shrink-0">
-                              <AvatarImage 
-                                src={post.blogs?.profile_photo_url} 
-                                alt={`${post.blogs?.blog_name} profile photo`}
-                              />
-                              <AvatarFallback className="bg-muted text-muted-foreground">
-                                {post.blogs?.blog_name?.charAt(0).toUpperCase()}
-                              </AvatarFallback>
-                            </Avatar>
-
+                          <div className="flex gap-4">
                             <div className="flex-1 min-w-0">
-                              <p className="text-sm text-accent mb-1">
-                                {post.blogs?.blog_name}
-                              </p>
-                              <h2 className="headline-sm text-foreground mb-1 line-clamp-2">
+                              {/* Publication info */}
+                              <div className="flex items-center gap-2 mb-3">
+                                <Avatar className="h-6 w-6 border border-border">
+                                  <AvatarImage 
+                                    src={post.blogs?.profile_photo_url} 
+                                    alt={post.blogs?.blog_name}
+                                  />
+                                  <AvatarFallback className="text-xs bg-muted">
+                                    {post.blogs?.blog_name?.charAt(0)}
+                                  </AvatarFallback>
+                                </Avatar>
+                                <span className="text-sm font-medium text-foreground">
+                                  {post.blogs?.blog_name}
+                                </span>
+                                <span className="text-muted-foreground">·</span>
+                                <span className="text-sm text-muted-foreground">
+                                  {post.byline}
+                                </span>
+                              </div>
+
+                              {/* Headline */}
+                              <h3 className="font-serif text-xl font-semibold text-foreground mb-2 group-hover:text-accent transition-colors line-clamp-2">
                                 {post.headline}
-                              </h2>
+                              </h3>
+
+                              {/* Subtitle */}
                               {post.subtitle && (
-                                <p className="body-md text-muted-foreground line-clamp-1 mb-2">
+                                <p className="text-muted-foreground line-clamp-2 mb-3">
                                   {post.subtitle}
                                 </p>
                               )}
-                              <p className="text-sm text-muted-foreground mb-3">
-                                By {post.byline}
-                              </p>
 
-                              <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                                <span className="flex items-center gap-1">
-                                  <Calendar className="h-4 w-4" aria-hidden="true" />
+                              {/* Meta */}
+                              <div className="flex items-center flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                                <span className="flex items-center gap-1.5">
+                                  <Calendar className="h-3.5 w-3.5" aria-hidden="true" />
                                   {formatDate(post.published_at)}
                                 </span>
-                                <span className="flex items-center gap-1">
-                                  <Eye className="h-4 w-4" aria-hidden="true" />
-                                  {formatNumber(post.view_count)} views
+                                <span className="flex items-center gap-1.5">
+                                  <Clock className="h-3.5 w-3.5" aria-hidden="true" />
+                                  {getReadingTime(post.content)}
                                 </span>
-                                <span className="flex items-center gap-1">
-                                  <ThumbsUp className="h-4 w-4" aria-hidden="true" />
-                                  {formatNumber(post.approval_count)} approvals
+                                <span className="flex items-center gap-1.5">
+                                  <Eye className="h-3.5 w-3.5" aria-hidden="true" />
+                                  {formatNumber(post.view_count)}
+                                </span>
+                                <span className="flex items-center gap-1.5">
+                                  <ThumbsUp className="h-3.5 w-3.5" aria-hidden="true" />
+                                  {formatNumber(post.approval_count)}
                                 </span>
                               </div>
                             </div>
@@ -413,26 +440,23 @@ const Search = () => {
                 )}
               </TabsContent>
             </Tabs>
-          </section>
-        )}
+          )}
 
-        {/* Initial State */}
-        {!searchQuery && (
-          <section className="text-center py-12" aria-label="Search suggestions">
-            <div 
-              className="w-20 h-20 mx-auto mb-6 rounded-full bg-accent/10 flex items-center justify-center"
-              aria-hidden="true"
-            >
-              <SearchIcon className="h-10 w-10 text-accent" />
+          {/* Empty Initial State */}
+          {!hasSearched && blogs.length === 0 && posts.length === 0 && !isLoading && (
+            <div className="text-center py-20">
+              <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-accent/10 flex items-center justify-center">
+                <SearchIcon className="h-10 w-10 text-accent" />
+              </div>
+              <h2 className="font-serif text-2xl font-semibold text-foreground mb-3">
+                Discover stories that matter
+              </h2>
+              <p className="text-muted-foreground max-w-md mx-auto">
+                Search for publications by name or topic, or find stories about subjects you're interested in.
+              </p>
             </div>
-            <h2 className="heading-lg text-foreground mb-3">
-              Discover stories that matter
-            </h2>
-            <p className="body-md text-muted-foreground max-w-md mx-auto">
-              Search for publications by name or topic, or find stories about subjects you're interested in.
-            </p>
-          </section>
-        )}
+          )}
+        </section>
       </main>
 
       <Footer />
