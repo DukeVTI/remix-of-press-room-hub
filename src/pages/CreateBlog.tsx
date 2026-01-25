@@ -24,7 +24,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import type { Tables } from "@/integrations/supabase/types";
-import { MediaUploader } from "@/components/MediaUploader";
+import { Input } from "@/components/ui/input";
 import { Footer } from "@/components/Footer";
 
 type BlogCategory = Tables<"blog_categories">;
@@ -200,25 +200,7 @@ const CreateBlog = () => {
         .from("blog-photos")
         .getPublicUrl(fileName);
 
-      // 2. Save media info (alt, description) to media table
-      const { data: media, error: mediaError } = await supabase
-        .from("media")
-        .insert({
-          post_id: null, // No post, this is for blog profile
-          media_type: "image",
-          file_url: urlData.publicUrl,
-          description: photoDescription,
-          file_size: profilePhoto.size,
-          order_position: 0,
-          created_at: new Date().toISOString(),
-          alt: photoAlt,
-          blog_id: null // Optionally, add blog_id after blog is created
-        })
-        .select()
-        .single();
-      if (mediaError) throw mediaError;
-
-      // 3. Create the blog
+      // 2. Create the blog (profile photo URL stored directly in blogs table)
       const selectedCategory = categories.find(c => c.id === categoryId);
       const othersLanguage = languages.find(l => l.code === "other");
 
@@ -265,10 +247,6 @@ const CreateBlog = () => {
       setIsLoading(false);
     }
   };
-
-  // Add state for alt text and description from MediaUploader
-  const [photoAlt, setPhotoAlt] = useState("");
-  const [photoDescription, setPhotoDescription] = useState("");
 
   if (isCheckingAuth || isLoadingData) {
     return (
@@ -317,27 +295,59 @@ const CreateBlog = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-8" noValidate>
-            {/* Blog Profile Photo field (replace custom upload logic with MediaUploader) */}
-            <MediaUploader
-              onUpload={(file, alt, description) => {
-                setProfilePhoto(file);
-                setPhotoPreview(URL.createObjectURL(file));
-                setPhotoAlt(alt);
-                setPhotoDescription(description);
-                setErrors(prev => ({ ...prev, photo: "" }));
-              }}
-              maxAltLength={120}
-              maxDescriptionLength={300}
-              accept="image/*"
-              disabled={isLoading}
-              className="w-full"
-            />
-            {errors.photo && (
-              <p id="photo-error" className="text-sm text-destructive flex items-center gap-1" role="alert">
-                <AlertCircle className="h-4 w-4" aria-hidden="true" />
-                {errors.photo}
-              </p>
-            )}
+            {/* Blog Profile Photo */}
+            <div className="space-y-3">
+              <Label htmlFor="profile-photo" className="form-label">
+                Blog Profile Photo <span className="text-destructive" aria-hidden="true">*</span>
+              </Label>
+              
+              <div className="flex items-start gap-4">
+                {photoPreview ? (
+                  <div className="relative">
+                    <img 
+                      src={photoPreview} 
+                      alt="Blog profile preview" 
+                      className="w-24 h-24 rounded-lg object-cover border-2 border-border"
+                    />
+                    <button
+                      type="button"
+                      onClick={removePhoto}
+                      className="absolute -top-2 -right-2 p-1 bg-destructive text-destructive-foreground rounded-full hover:bg-destructive/90 transition-colors"
+                      aria-label="Remove photo"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="w-24 h-24 rounded-lg border-2 border-dashed border-border flex items-center justify-center bg-muted/30">
+                    <ImageIcon className="h-8 w-8 text-muted-foreground" aria-hidden="true" />
+                  </div>
+                )}
+                
+                <div className="flex-1 space-y-2">
+                  <Input
+                    id="profile-photo"
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handlePhotoSelect}
+                    className="cursor-pointer"
+                    disabled={isLoading}
+                    aria-describedby={errors.photo ? "photo-error" : "photo-hint"}
+                  />
+                  <p id="photo-hint" className="text-xs text-muted-foreground">
+                    Upload a square image (JPG, PNG, WebP). Max 5MB.
+                  </p>
+                </div>
+              </div>
+              
+              {errors.photo && (
+                <p id="photo-error" className="text-sm text-destructive flex items-center gap-1" role="alert">
+                  <AlertCircle className="h-4 w-4" aria-hidden="true" />
+                  {errors.photo}
+                </p>
+              )}
+            </div>
 
             {/* Blog Name */}
             <div className="space-y-2">
