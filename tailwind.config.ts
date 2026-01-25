@@ -14,10 +14,10 @@ export default {
     },
     extend: {
       fontFamily: {
-        display: ['Newsreader', 'Georgia', 'serif'],
-        body: ['Inter', 'Source Sans 3', 'sans-serif'],
-        serif: ['Newsreader', 'Georgia', 'serif'],
-        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+        display: ['Source Serif 4', 'Georgia', 'serif'],
+        body: ['DM Sans', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+        serif: ['Source Serif 4', 'Georgia', 'serif'],
+        sans: ['DM Sans', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",
