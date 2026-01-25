@@ -1,39 +1,25 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import React from "react";
+import { useAuth } from "@/hooks/useAuth";
+import { Loader2 } from "lucide-react";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
 }
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
+  const { isLoading, isAuthenticated } = useAuth({ requireAuth: true });
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        navigate("/login");
-      } else {
-        setLoading(false);
-      }
-    };
-    checkAuth();
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "SIGNED_OUT") {
-        navigate("/login");
-      }
-    });
-    return () => subscription.unsubscribe();
-  }, [navigate]);
-
-  if (loading) {
+  if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <span className="text-muted-foreground">Loading...</span>
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-accent" aria-label="Loading" />
       </div>
     );
   }
+
+  if (!isAuthenticated) {
+    return null; // Hook handles redirect
+  }
+
   return <>{children}</>;
 }

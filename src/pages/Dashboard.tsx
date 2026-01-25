@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -8,7 +9,6 @@ import { Plus, Loader2, Users, FileText, ChevronRight, PenLine } from "lucide-re
 import type { Tables } from "@/integrations/supabase/types";
 import { PRPHeader } from "@/components/ui/prp-header";
 import { Footer } from "@/components/Footer";
-
 interface Profile {
   first_name: string;
   last_name: string;
@@ -23,25 +23,20 @@ interface BlogWithCategory extends Blog {
 }
 
 const Dashboard = () => {
-  const navigate = useNavigate();
+  const { user, isLoading: authLoading, signOut } = useAuth({ requireAuth: true });
   const [profile, setProfile] = useState<Profile | null>(null);
   const [blogs, setBlogs] = useState<BlogWithCategory[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingData, setIsLoadingData] = useState(true);
 
   useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        navigate("/login");
-        return;
-      }
+    const loadData = async () => {
+      if (!user) return;
 
       // Fetch profile
       const { data: profileData } = await supabase
         .from("profiles")
         .select("first_name, last_name, screen_name")
-        .eq("id", session.user.id)
+        .eq("id", user.id)
         .maybeSingle();
 
       setProfile(profileData);
@@ -50,7 +45,7 @@ const Dashboard = () => {
       const { data: blogsData } = await supabase
         .from("blogs")
         .select("*, blog_categories(name)")
-        .eq("owner_id", session.user.id)
+        .eq("owner_id", user.id)
         .neq("status", "deleted")
         .order("created_at", { ascending: false });
 
@@ -70,24 +65,11 @@ const Dashboard = () => {
         setBlogs(blogsWithCounts as BlogWithCategory[]);
       }
 
-      setIsLoading(false);
+      setIsLoadingData(false);
     };
 
-    checkAuth();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "SIGNED_OUT") {
-        navigate("/login");
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, [navigate]);
-
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    navigate("/");
-  };
+    loadData();
+  }, [user]);
 
   const formatNumber = (num: number) => {
     if (num >= 1000000) {
@@ -99,7 +81,7 @@ const Dashboard = () => {
     return num.toString();
   };
 
-  if (isLoading) {
+  if (authLoading || isLoadingData) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-accent" aria-label="Loading dashboard" />
