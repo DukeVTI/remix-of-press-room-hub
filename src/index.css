@@ -412,11 +412,15 @@
      ============================================ */
   
   .section-container {
-    @apply max-w-6xl mx-auto px-4 sm:px-6 lg:px-8;
+    @apply w-full max-w-6xl mx-auto px-4 sm:px-6;
   }
   
   .section-narrow {
-    @apply max-w-3xl mx-auto px-4 sm:px-6;
+    @apply w-full max-w-3xl mx-auto px-4 sm:px-6;
+  }
+  
+  .section-wide {
+    @apply w-full max-w-7xl mx-auto px-4 sm:px-6;
   }
   
   .section-hero {
