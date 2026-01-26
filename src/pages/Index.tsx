@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { PRPHeader } from "@/components/ui/prp-header";
 import { Footer } from "@/components/Footer";
+import { TrendingSection } from "@/components/TrendingSection";
 import { 
   Users, 
   PenLine, 
@@ -58,48 +59,7 @@ const Index = () => {
         </section>
 
         {/* Trending Section */}
-        <section 
-          className="section-default border-b border-border"
-          aria-labelledby="trending-heading"
-        >
-          <div className="section-container">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center">
-                <Zap className="h-4 w-4 text-accent" aria-hidden="true" />
-              </div>
-              <h2 id="trending-heading" className="text-sm font-semibold uppercase tracking-wider text-foreground">
-                Trending on Press Room
-              </h2>
-            </div>
-
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {/* Trending cards placeholder */}
-              {[1, 2, 3, 4, 5, 6].map((i) => (
-                <article key={i} className="group">
-                  <div className="flex gap-4">
-                    <span className="text-3xl font-bold text-muted-foreground/30">
-                      0{i}
-                    </span>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className="w-5 h-5 rounded-full bg-muted" />
-                        <span className="text-sm text-muted-foreground">Publisher Name</span>
-                      </div>
-                      <h3 className="heading-sm text-foreground group-hover:text-accent transition-colors line-clamp-2 mb-2">
-                        This is a sample trending headline that captures attention
-                      </h3>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <span>Jan 25</span>
-                        <span>·</span>
-                        <span>5 min read</span>
-                      </div>
-                    </div>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
+        <TrendingSection />
 
         {/* Features Section - Clean Grid */}
         <section 
