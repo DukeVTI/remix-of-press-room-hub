@@ -25,6 +25,10 @@ import Settings from "./pages/Settings";
 import SecuritySettings from "./pages/SecuritySettings";
 import Search from "./pages/Search";
 import CategoryBrowse from "./pages/CategoryBrowse";
+import About from "./pages/About";
+import Help from "./pages/Help";
+import Terms from "./pages/Terms";
+import Privacy from "./pages/Privacy";
 import NotFound from "./pages/NotFound";
 
 import SkipToContent from "@/components/SkipToContent";
@@ -66,6 +70,10 @@ const App = () => (
           <Route path="/blog/:blogSlug/post/:postId" element={<PostView />} />
           <Route path="/search" element={<Search />} />
           <Route path="/category/:categorySlug" element={<CategoryBrowse />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/help" element={<Help />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/privacy" element={<Privacy />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
