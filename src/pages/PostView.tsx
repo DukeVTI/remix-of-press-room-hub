@@ -94,9 +94,6 @@ const PostView = () => {
   const [reactionLoading, setReactionLoading] = useState(false);
   
   // Comment state
-  const [newComment, setNewComment] = useState("");
-  const [replyingTo, setReplyingTo] = useState<string | null>(null);
-  const [replyContent, setReplyContent] = useState("");
   const [commentLoading, setCommentLoading] = useState(false);
   
   // Report state
@@ -271,7 +268,7 @@ const PostView = () => {
     setReactionLoading(false);
   };
 
-  const handleSubmitComment = async (parentId?: string) => {
+  const handleSubmitComment = async (content: string, parentId?: string) => {
     if (!userId || !post) {
       toast.error("Please sign in to comment");
       return;
@@ -282,7 +279,6 @@ const PostView = () => {
       return;
     }
 
-    const content = parentId ? replyContent : newComment;
     if (!content.trim()) {
       toast.error("Please enter a comment");
       return;
@@ -305,14 +301,6 @@ const PostView = () => {
 
       // Update comment count locally
       setPost(prev => prev ? { ...prev, comment_count: prev.comment_count + 1 } : null);
-
-      // Clear input
-      if (parentId) {
-        setReplyContent("");
-        setReplyingTo(null);
-      } else {
-        setNewComment("");
-      }
 
       toast.success("Comment posted!");
     } catch (error) {
@@ -615,7 +603,7 @@ const PostView = () => {
             canComment={!!userId}
             commentsLocked={post.comments_locked}
             onAddComment={async (content, parentId) => {
-              await handleSubmitComment(parentId);
+              await handleSubmitComment(content, parentId);
             }}
             onEditComment={async () => {}}
             onDeleteComment={async () => {}}
