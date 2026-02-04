@@ -32,6 +32,7 @@ type CommentSectionProps = {
   currentUserId?: string;
   canComment: boolean;
   commentsLocked: boolean;
+  userReactions?: Record<string, "approve" | "disapprove" | null>;
   onAddComment: (content: string, parentId?: string) => Promise<void>;
   onEditComment: (commentId: string, content: string) => Promise<void>;
   onDeleteComment: (commentId: string) => Promise<void>;
@@ -47,6 +48,7 @@ export function CommentSection({
   currentUserId,
   canComment,
   commentsLocked,
+  userReactions = {},
   onAddComment,
   onEditComment,
   onDeleteComment,
@@ -178,8 +180,24 @@ export function CommentSection({
         )}
         {!isDeleted && (
           <div className="flex gap-2 items-center mt-1">
-            <Button size="sm" variant="ghost" onClick={() => onApprove(comment.id)} aria-label="Approve comment">👍 {comment.approvalCount}</Button>
-            <Button size="sm" variant="ghost" onClick={() => onDisapprove(comment.id)} aria-label="Disapprove comment">👎 {comment.disapprovalCount}</Button>
+            <Button 
+              size="sm" 
+              variant="ghost" 
+              onClick={() => onApprove(comment.id)} 
+              aria-label="Approve comment"
+              className={userReactions[comment.id] === "approve" ? "bg-green-600 text-white hover:bg-green-700" : ""}
+            >
+              👍 {comment.approvalCount}
+            </Button>
+            <Button 
+              size="sm" 
+              variant="ghost" 
+              onClick={() => onDisapprove(comment.id)} 
+              aria-label="Disapprove comment"
+              className={userReactions[comment.id] === "disapprove" ? "bg-red-600 text-white hover:bg-red-700" : ""}
+            >
+              👎 {comment.disapprovalCount}
+            </Button>
             {canComment && !commentsLocked && (
               <Button size="sm" variant="ghost" onClick={() => setReplyTo(comment.id)} aria-label="Reply to comment">Reply</Button>
             )}

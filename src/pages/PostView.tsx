@@ -95,6 +95,7 @@ const PostView = () => {
   
   // Comment state
   const [commentLoading, setCommentLoading] = useState(false);
+  const [commentReactions, setCommentReactions] = useState<Record<string, "approve" | "disapprove" | null>>({});
   
   // Report state
   const [reportDialogOpen, setReportDialogOpen] = useState(false);
@@ -199,7 +200,104 @@ const PostView = () => {
       });
 
       setComments(topLevel);
+
+      // Fetch user's reactions to these comments
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        const commentIds = commentsData.map(c => c.id);
+        const { data: reactionsData } = await supabase
+          .from("comment_reactions")
+          .select("comment_id, reaction_type")
+          .eq("user_id", session.user.id)
+          .in("comment_id", commentIds);
+
+        if (reactionsData) {
+          const reactionsMap: Record<string, "approve" | "disapprove" | null> = {};
+          reactionsData.forEach((r) => {
+            reactionsMap[r.comment_id] = r.reaction_type as "approve" | "disapprove";
+          });
+          setCommentReactions(reactionsMap);
+        }
+      }
     }
+  };
+
+  const handleCommentReaction = async (commentId: string, type: "approve" | "disapprove") => {
+    if (!userId) {
+      toast.error("Please sign in to react to comments");
+      return;
+    }
+
+    const currentReaction = commentReactions[commentId];
+
+    try {
+      if (currentReaction === type) {
+        // Remove reaction (toggle off)
+        await supabase
+          .from("comment_reactions")
+          .delete()
+          .eq("user_id", userId)
+          .eq("comment_id", commentId);
+
+        setCommentReactions(prev => ({ ...prev, [commentId]: null }));
+        
+        // Update count locally
+        setComments(prev => updateCommentCount(prev, commentId, type, -1));
+      } else if (currentReaction) {
+        // Change reaction type
+        await supabase
+          .from("comment_reactions")
+          .update({ reaction_type: type })
+          .eq("user_id", userId)
+          .eq("comment_id", commentId);
+
+        setCommentReactions(prev => ({ ...prev, [commentId]: type }));
+        
+        // Update counts: decrement old, increment new
+        setComments(prev => {
+          let updated = updateCommentCount(prev, commentId, currentReaction, -1);
+          updated = updateCommentCount(updated, commentId, type, 1);
+          return updated;
+        });
+      } else {
+        // Add new reaction
+        await supabase
+          .from("comment_reactions")
+          .insert({ user_id: userId, comment_id: commentId, reaction_type: type });
+
+        setCommentReactions(prev => ({ ...prev, [commentId]: type }));
+        
+        // Update count locally
+        setComments(prev => updateCommentCount(prev, commentId, type, 1));
+      }
+    } catch (error) {
+      toast.error("Failed to update reaction");
+    }
+  };
+
+  // Helper to update comment counts in nested structure
+  const updateCommentCount = (
+    comments: CommentWithProfile[],
+    commentId: string,
+    type: "approve" | "disapprove",
+    delta: number
+  ): CommentWithProfile[] => {
+    return comments.map(comment => {
+      if (comment.id === commentId) {
+        return {
+          ...comment,
+          approval_count: type === "approve" ? comment.approval_count + delta : comment.approval_count,
+          disapproval_count: type === "disapprove" ? comment.disapproval_count + delta : comment.disapproval_count,
+        };
+      }
+      if (comment.replies && comment.replies.length > 0) {
+        return {
+          ...comment,
+          replies: updateCommentCount(comment.replies, commentId, type, delta),
+        };
+      }
+      return comment;
+    });
   };
 
   const handleReaction = async (type: "approve" | "disapprove") => {
@@ -602,13 +700,18 @@ const PostView = () => {
             currentUserId={userId || undefined}
             canComment={!!userId}
             commentsLocked={post.comments_locked}
+            userReactions={commentReactions}
             onAddComment={async (content, parentId) => {
               await handleSubmitComment(content, parentId);
             }}
             onEditComment={async () => {}}
             onDeleteComment={async () => {}}
-            onApprove={async () => {}}
-            onDisapprove={async () => {}}
+            onApprove={async (commentId) => {
+              await handleCommentReaction(commentId, "approve");
+            }}
+            onDisapprove={async (commentId) => {
+              await handleCommentReaction(commentId, "disapprove");
+            }}
             onPin={async () => {}}
             onUnpin={async () => {}}
           />
