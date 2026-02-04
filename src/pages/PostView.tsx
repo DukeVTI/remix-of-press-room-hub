@@ -300,6 +300,46 @@ const PostView = () => {
     });
   };
 
+  const handlePinComment = async (commentId: string) => {
+    if (!userId || !post) {
+      toast.error("Please sign in to pin comments");
+      return;
+    }
+
+    try {
+      await supabase
+        .from("comments")
+        .update({ is_pinned: true })
+        .eq("id", commentId);
+
+      // Refresh comments to reflect the change
+      await fetchComments();
+      toast.success("Comment pinned!");
+    } catch (error) {
+      toast.error("Failed to pin comment");
+    }
+  };
+
+  const handleUnpinComment = async (commentId: string) => {
+    if (!userId || !post) {
+      toast.error("Please sign in to unpin comments");
+      return;
+    }
+
+    try {
+      await supabase
+        .from("comments")
+        .update({ is_pinned: false })
+        .eq("id", commentId);
+
+      // Refresh comments to reflect the change
+      await fetchComments();
+      toast.success("Comment unpinned!");
+    } catch (error) {
+      toast.error("Failed to unpin comment");
+    }
+  };
+
   const handleReaction = async (type: "approve" | "disapprove") => {
     if (!userId || !post) {
       toast.error("Please sign in to react to posts");
@@ -712,8 +752,12 @@ const PostView = () => {
             onDisapprove={async (commentId) => {
               await handleCommentReaction(commentId, "disapprove");
             }}
-            onPin={async () => {}}
-            onUnpin={async () => {}}
+            onPin={async (commentId) => {
+              await handlePinComment(commentId);
+            }}
+            onUnpin={async (commentId) => {
+              await handleUnpinComment(commentId);
+            }}
           />
         </article>
       </main>
