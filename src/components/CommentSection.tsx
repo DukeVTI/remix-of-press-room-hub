@@ -86,7 +86,41 @@ export function CommentSection({
     }
   };
 
-  const renderComment = (comment: Comment, depth = 0) => {
+  // Helper to normalize comment data (handles both camelCase and snake_case from Supabase)
+  const normalizeComment = (comment: Comment | any): Comment => {
+    // If the comment already has the expected structure, return it
+    if (comment.user) return comment;
+    
+    // Otherwise, transform from Supabase snake_case format
+    const profiles = comment.profiles;
+    return {
+      id: comment.id,
+      postId: comment.post_id || comment.postId,
+      userId: comment.user_id || comment.userId,
+      parentCommentId: comment.parent_comment_id || comment.parentCommentId,
+      content: comment.content,
+      approvalCount: comment.approval_count ?? comment.approvalCount ?? 0,
+      disapprovalCount: comment.disapproval_count ?? comment.disapprovalCount ?? 0,
+      isPinned: comment.is_pinned ?? comment.isPinned ?? false,
+      status: comment.status || "active",
+      createdAt: comment.created_at || comment.createdAt,
+      updatedAt: comment.updated_at || comment.updatedAt,
+      user: profiles ? {
+        firstName: profiles.first_name || "",
+        lastName: profiles.last_name || "",
+        screenName: profiles.screen_name || undefined,
+        profilePhotoUrl: profiles.profile_photo_url || undefined,
+        isVerified: profiles.is_verified || false,
+      } : {
+        firstName: "Unknown",
+        lastName: "User",
+      },
+      replies: comment.replies?.map((r: any) => normalizeComment(r)),
+    };
+  };
+
+  const renderComment = (rawComment: Comment | any, depth = 0) => {
+    const comment = normalizeComment(rawComment);
     const isReply = depth === 1;
     const canEdit = currentUserId && comment.userId === currentUserId;
     const canPin = !isReply && (onPin && onUnpin);
@@ -99,7 +133,7 @@ export function CommentSection({
         aria-label={isReply ? "Reply" : "Comment"}
       >
         <div className="flex items-center gap-2">
-          {comment.user.profilePhotoUrl && (
+          {comment.user?.profilePhotoUrl && (
             <img
               src={comment.user.profilePhotoUrl}
               alt={`${comment.user.firstName} ${comment.user.lastName}'s profile photo`}
@@ -107,12 +141,12 @@ export function CommentSection({
             />
           )}
           <span className="font-semibold">
-            {comment.user.firstName} {comment.user.lastName}
+            {comment.user?.firstName || "Unknown"} {comment.user?.lastName || "User"}
           </span>
-          {comment.user.screenName && (
+          {comment.user?.screenName && (
             <span className="text-gray-500 ml-1">@{comment.user.screenName}</span>
           )}
-          {comment.user.isVerified && (
+          {comment.user?.isVerified && (
             <span title="Verified Publisher" aria-label="Verified Publisher" className="ml-1 text-blue-600">✓</span>
           )}
           {comment.isPinned && (
@@ -228,9 +262,9 @@ export function CommentSection({
       {error && <div className="text-red-600 text-sm mb-2" role="alert">{error}</div>}
       <div>
         {comments.length === 0 ? (
-          <div className="text-gray-500">No comments yet. Be the first to comment!</div>
+          <div className="text-muted-foreground">No comments yet. Be the first to comment!</div>
         ) : (
-          comments.filter(c => !c.parentCommentId).map(comment => renderComment(comment))
+          comments.filter(c => !c.parentCommentId && !c.parent_comment_id).map(comment => renderComment(comment))
         )}
       </div>
     </section>
