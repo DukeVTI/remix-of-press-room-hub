@@ -537,11 +537,13 @@ export type Database = {
           email: string
           email_verified: boolean
           first_name: string
+          has_seen_welcome: boolean | null
           hobbies: string | null
           id: string
           is_verified: boolean
           last_name: string
           middle_name: string | null
+          profile_photo_alt: string | null
           profile_photo_url: string | null
           screen_name: string | null
         }
@@ -553,11 +555,13 @@ export type Database = {
           email: string
           email_verified?: boolean
           first_name: string
+          has_seen_welcome?: boolean | null
           hobbies?: string | null
           id: string
           is_verified?: boolean
           last_name: string
           middle_name?: string | null
+          profile_photo_alt?: string | null
           profile_photo_url?: string | null
           screen_name?: string | null
         }
@@ -569,11 +573,13 @@ export type Database = {
           email?: string
           email_verified?: boolean
           first_name?: string
+          has_seen_welcome?: boolean | null
           hobbies?: string | null
           id?: string
           is_verified?: boolean
           last_name?: string
           middle_name?: string | null
+          profile_photo_alt?: string | null
           profile_photo_url?: string | null
           screen_name?: string | null
         }

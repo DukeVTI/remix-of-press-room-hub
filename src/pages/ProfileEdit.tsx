@@ -94,6 +94,9 @@ const ProfileEdit = () => {
       if (profileData.profile_photo_url) {
         setPhotoPreview(profileData.profile_photo_url);
       }
+      
+      // Load profile photo alt text from database
+      setPhotoAlt((profileData as any).profile_photo_alt || "");
 
       setIsCheckingAuth(false);
     };
@@ -156,6 +159,11 @@ const ProfileEdit = () => {
       newErrors.screenName = "Screen name must be at least 3 characters";
     }
 
+    // Require alt text if there's a profile photo (either new or existing)
+    if ((profilePhoto || (photoPreview && !removePhoto)) && !photoAlt.trim()) {
+      newErrors.photoAlt = "Alt text is required for accessibility";
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -215,6 +223,7 @@ const ProfileEdit = () => {
           bio: bio.trim() || null,
           hobbies: hobbies.trim() || null,
           profile_photo_url: photoUrl,
+          profile_photo_alt: photoAlt.trim() || null,
         })
         .eq("id", userId);
 
@@ -347,6 +356,35 @@ const ProfileEdit = () => {
                 </Button>
               )}
             </div>
+
+            {/* Alt Text Input for Profile Photo */}
+            {(photoPreview && !removePhoto) && (
+              <div className="mt-4 space-y-2">
+                <Label htmlFor="photo-alt" className="form-label">
+                  Alt Text <span className="text-destructive" aria-hidden="true">*</span>
+                </Label>
+                <CharacterCountInput
+                  value={photoAlt}
+                  onChange={e => setPhotoAlt(e.target.value)}
+                  maxLength={120}
+                  label="Alt Text"
+                  required
+                  placeholder="Describe your photo for screen readers, e.g. 'Portrait of John smiling outdoors'"
+                  ariaLabel="Image alt text for screen readers"
+                  className={errors.photoAlt ? "border-destructive" : ""}
+                  disabled={isLoading}
+                />
+                <p className="text-xs text-muted-foreground">
+                  This helps visually impaired readers understand your profile photo.
+                </p>
+                {errors.photoAlt && (
+                  <p id="photo-alt-error" className="text-sm text-destructive flex items-center gap-1" role="alert">
+                    <AlertCircle className="h-4 w-4" aria-hidden="true" />
+                    {errors.photoAlt}
+                  </p>
+                )}
+              </div>
+            )}
 
             <MediaUploader
               onUpload={(file, alt, description) => {

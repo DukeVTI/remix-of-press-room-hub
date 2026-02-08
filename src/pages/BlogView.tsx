@@ -192,10 +192,10 @@ const BlogView = () => {
         <section className="flex flex-col items-center justify-center w-full max-w-3xl mx-auto px-4 -mt-24 mb-0 relative z-20">
           <div className="relative flex flex-col items-center">
             <Avatar className="h-32 w-32 border-4 border-background shadow-xl bg-background -mt-12">
-              <AvatarImage 
-                src={blog.profile_photo_url} 
-                alt={`${blog.blog_name} profile photo`}
-              />
+                            <AvatarImage 
+                              src={blog.profile_photo_url} 
+                              alt={blog.profile_photo_alt || `${blog.blog_name} profile photo`}
+                            />
               <AvatarFallback className="text-4xl bg-accent text-accent-foreground">
                 {blog.blog_name.charAt(0).toUpperCase()}
               </AvatarFallback>

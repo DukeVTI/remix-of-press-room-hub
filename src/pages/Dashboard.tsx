@@ -21,12 +21,15 @@ import {
 import type { Tables } from "@/integrations/supabase/types";
 import { PRPHeader } from "@/components/ui/prp-header";
 import { Footer } from "@/components/Footer";
+import { WelcomeModal } from "@/components/WelcomeModal";
 
 interface Profile {
   first_name: string;
   last_name: string;
   screen_name: string | null;
   profile_photo_url: string | null;
+  profile_photo_alt: string | null;
+  has_seen_welcome: boolean;
 }
 
 type Blog = Tables<"blogs">;
@@ -42,6 +45,7 @@ const Dashboard = () => {
   const [blogs, setBlogs] = useState<BlogWithCategory[]>([]);
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [totalStats, setTotalStats] = useState({ followers: 0, posts: 0, views: 0 });
+  const [showWelcomeModal, setShowWelcomeModal] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -50,11 +54,16 @@ const Dashboard = () => {
       // Fetch profile
       const { data: profileData } = await supabase
         .from("profiles")
-        .select("first_name, last_name, screen_name, profile_photo_url")
+        .select("first_name, last_name, screen_name, profile_photo_url, profile_photo_alt, has_seen_welcome")
         .eq("id", user.id)
         .maybeSingle();
 
       setProfile(profileData);
+
+      // Show welcome modal for new users
+      if (profileData && !profileData.has_seen_welcome) {
+        setShowWelcomeModal(true);
+      }
 
       // Fetch user's blogs
       const { data: blogsData } = await supabase
@@ -144,7 +153,7 @@ const Dashboard = () => {
                 <Avatar className="h-20 w-20 md:h-24 md:w-24 border-4 border-background shadow-xl ring-2 ring-accent/20">
                   <AvatarImage 
                     src={profile?.profile_photo_url || undefined} 
-                    alt="Your profile photo"
+                    alt={profile?.profile_photo_alt || "Your profile photo"}
                   />
                   <AvatarFallback className="bg-accent text-accent-foreground text-2xl md:text-3xl font-bold">
                     {profile?.first_name?.charAt(0) || "P"}
@@ -296,7 +305,7 @@ const Dashboard = () => {
                       <Avatar className="h-16 w-16 rounded-xl border-2 border-border group-hover:border-accent/30 transition-colors flex-shrink-0 shadow-md">
                         <AvatarImage 
                           src={blog.profile_photo_url} 
-                          alt={`${blog.blog_name} profile photo`}
+                          alt={blog.profile_photo_alt || `${blog.blog_name} profile photo`}
                         />
                         <AvatarFallback className="rounded-xl bg-gradient-to-br from-accent to-accent/80 text-accent-foreground text-xl font-bold">
                           {blog.blog_name.charAt(0).toUpperCase()}
@@ -372,6 +381,22 @@ const Dashboard = () => {
       </main>
 
       <Footer />
+
+      {/* Welcome Modal for new subscribers */}
+      <WelcomeModal
+        open={showWelcomeModal}
+        onClose={async () => {
+          setShowWelcomeModal(false);
+          // Mark as seen in database
+          if (user) {
+            await supabase
+              .from("profiles")
+              .update({ has_seen_welcome: true })
+              .eq("id", user.id);
+          }
+        }}
+        type="subscriber"
+      />
     </div>
   );
 };

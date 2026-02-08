@@ -1,4 +1,6 @@
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { PRPHeader } from "@/components/ui/prp-header";
 import { Footer } from "@/components/Footer";
@@ -14,6 +16,27 @@ import {
 } from "lucide-react";
 
 const Index = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setIsAuthenticated(!!session);
+      setIsLoading(false);
+    };
+    checkAuth();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_, session) => {
+        setIsAuthenticated(!!session);
+      }
+    );
+
+    return () => subscription.unsubscribe();
+  }, []);
+
   return (
     <div className="min-h-screen bg-background">
       {/* Skip link for accessibility */}
@@ -22,7 +45,7 @@ const Index = () => {
       </a>
 
       {/* Header */}
-      <PRPHeader isAuthenticated={false} />
+      <PRPHeader isAuthenticated={isAuthenticated} />
 
       {/* Hero Section - Medium-Inspired Clean */}
       <main id="main-content" role="main">
@@ -44,13 +67,13 @@ const Index = () => {
               </p>
               
               <div className="animate-fade-up" style={{ animationDelay: '0.15s' }}>
-                <Link to="/register">
+                <Link to={isAuthenticated ? "/dashboard" : "/register"}>
                   <Button 
                     size="lg" 
                     className="btn-accent text-base px-8 h-12 rounded-full"
-                    aria-label="Start reading stories on Press Room Publisher"
+                    aria-label={isAuthenticated ? "Go to your dashboard" : "Start reading stories on Press Room Publisher"}
                   >
-                    Start reading
+                    {isAuthenticated ? "Go to Dashboard" : "Start reading"}
                   </Button>
                 </Link>
               </div>
@@ -188,13 +211,13 @@ const Index = () => {
             <p className="body-lg text-background/70 mb-8 max-w-lg mx-auto">
               Join thousands of writers sharing ideas that matter. Your first blog is free, forever.
             </p>
-            <Link to="/register">
+            <Link to={isAuthenticated ? "/blogs/create" : "/register"}>
               <Button 
                 size="lg" 
                 className="bg-background text-foreground hover:bg-background/90 text-base px-8 h-12 rounded-full"
-                aria-label="Create your free Press Room Publisher account"
+                aria-label={isAuthenticated ? "Create a new publication" : "Create your free Press Room Publisher account"}
               >
-                Get started
+                {isAuthenticated ? "Create publication" : "Get started"}
                 <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
               </Button>
             </Link>
