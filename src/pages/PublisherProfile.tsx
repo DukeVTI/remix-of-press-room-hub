@@ -151,7 +151,7 @@ const PublisherProfile = () => {
           <Avatar className="h-32 w-32 mx-auto mb-6 border-4 border-accent">
             <AvatarImage 
               src={publisher.profile_photo_url || undefined} 
-              alt={`${publisher.first_name} ${publisher.last_name} profile photo`}
+              alt={(publisher as any).profile_photo_alt || `${publisher.first_name} ${publisher.last_name} profile photo`}
             />
             <AvatarFallback className="text-3xl bg-accent text-accent-foreground">
               {publisher.first_name.charAt(0)}{publisher.last_name.charAt(0)}
@@ -234,7 +234,7 @@ const PublisherProfile = () => {
                   <Avatar className="h-16 w-16 flex-shrink-0">
                     <AvatarImage 
                       src={b.profile_photo_url} 
-                      alt={`${b.blog_name} profile photo`}
+                      alt={b.profile_photo_alt || `${b.blog_name} profile photo`}
                     />
                     <AvatarFallback>
                       {b.blog_name.charAt(0).toUpperCase()}
