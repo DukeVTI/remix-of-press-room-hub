@@ -1,110 +1,123 @@
 
-# Plan: Fix Accessibility and UX Issues for Blind User
 
-Based on the blind user's detailed feedback, I've identified 4 distinct issues that need to be addressed:
+# Resend Email Integration for Press Room Publisher
 
----
+## Overview
 
-## Issue Analysis
-
-### Issue 1: "Create a New Publication" and "Start Reading" Links Redirect to Registration
-**Root Cause:** The Index.tsx homepage always shows `isAuthenticated={false}` in the PRPHeader component (hardcoded on line 25). This means even logged-in users see "Start reading" and "Get started" buttons that link to `/register` instead of appropriate authenticated destinations.
-
-**Impact:** Authenticated users clicking these links are sent to the registration page instead of the dashboard or content.
-
-### Issue 2: Alt Text for Profile Photos Not Being Displayed
-**Root Cause:** While the blogs table has `profile_photo_alt` column and it's properly collected during blog creation, it's not being used in the `alt` attribute of images when displaying blog profile photos. The BlogView.tsx uses a generic `alt` attribute: `alt="${blog.blog_name} profile photo"` instead of using the actual alt text stored in the database.
-
-**Impact:** Screen reader users cannot access the meaningful alt text they provided for their images.
-
-### Issue 3: Welcome Notification Not Appearing
-**Root Cause:** The `WelcomeModal` component exists but is never imported or rendered anywhere in the application. The Register.tsx page just navigates to `/dashboard` after successful registration without showing the welcome modal. Additionally, there's no database flag to track whether a user has seen the welcome message.
-
-**Impact:** New users don't receive the welcome confirmation experience that was designed for them.
-
-### Issue 4: Profile Photos Collected But Alt Text Not Stored (User Profiles)
-**Root Cause:** The profiles table schema doesn't have a `profile_photo_alt` column to store alt text. While blogs have this field, user profiles do not. The ProfileEdit.tsx page doesn't persist alt text to the database.
+This plan adds professional, beautifully designed email delivery to PRP using Resend, covering welcome emails, password reset emails, and email verification -- all sent from `prp.broadcasterscommunity.com`.
 
 ---
 
-## Implementation Plan
+## Step 1: Store the Resend API Key
 
-### Part 1: Fix Homepage Navigation for Authenticated Users
+Before any code changes, we'll securely store your `RESEND_API_KEY` as a backend secret so the edge functions can access it.
 
-**File: `src/pages/Index.tsx`**
-- Import the `useAuth` hook (or check session directly with Supabase)
-- Dynamically set `isAuthenticated` prop on PRPHeader based on actual auth state
-- Change the "Start reading" button to link to `/dashboard` when authenticated
-- Change the "Get started" CTA button to link to `/blogs/create` when authenticated
+---
 
-### Part 2: Display Alt Text for Blog Profile Photos
+## Step 2: Create Edge Functions
 
-**File: `src/pages/BlogView.tsx`**
-- Update the AvatarImage component to use `blog.profile_photo_alt` if available
-- Fallback to `${blog.blog_name} profile photo` if no alt text
+### Edge Function 1: `send-welcome-email`
+- Triggered after successful registration (called from the frontend)
+- Sends a professionally designed HTML welcome email with the PRP branding
+- Witty, warm copy welcoming the user to the PRP community
+- Sender: `noreply@prp.broadcasterscommunity.com`
 
-**File: `src/pages/Dashboard.tsx`**
-- Update blog profile photo images to use the stored alt text
+### Edge Function 2: `send-password-reset-email`
+- Called from the `ForgotPassword.tsx` page instead of relying on the default auth email
+- Sends a branded password reset email with a secure link
+- Professional copy with clear instructions
+- Sender: `noreply@prp.broadcasterscommunity.com`
 
-**File: `src/components/BlogCard.tsx`** (if exists)
-- Check and update any blog card components
+### Edge Function 3: `send-verification-email`
+- Called after registration to send a branded email verification link
+- Clean design with a prominent "Verify Email" button
+- Sender: `noreply@prp.broadcasterscommunity.com`
 
-### Part 3: Implement Welcome Modal for New Users
+Each function will include:
+- CORS headers for browser requests
+- Resend SDK (`npm:resend@2.0.0`)
+- Professional HTML email templates with inline CSS
+- Error handling with meaningful responses
 
-**Database Changes:**
-- Add `has_seen_welcome` boolean column to profiles table (default: false)
+---
 
-**File: `src/pages/Dashboard.tsx`**
-- Import the `WelcomeModal` component
-- Add state to track modal visibility
-- On initial load, check if `has_seen_welcome` is false
-- If false, show the welcome modal (type: "subscriber")
-- When modal is closed, update the database to set `has_seen_welcome` to true
+## Step 3: Email Template Design
 
-**File: `src/pages/CreateBlog.tsx` (after successful creation)**
-- After blog creation, navigate to manage page
-- Add logic to show blog welcome modal on first blog creation
+All emails will share a consistent PRP-branded design:
+- Dark header with "PRESS ROOM PUBLISHER" branding
+- Clean white content area with professional typography
+- Accent-colored call-to-action buttons
+- Footer with "The Press Room Publisher Team" sign-off
+- Fully accessible (alt text, semantic HTML, sufficient color contrast)
 
-### Part 4: Add Alt Text Support for User Profile Photos
+### Welcome Email Copy (witty + professional):
+- Subject: "Your Digital Pen is Ready -- Welcome to Press Room Publisher"
+- Warm congratulations, overview of what they can do (comment, react, follow, share)
+- Encouragement to explore and engage
 
-**Database Changes:**
-- Add `profile_photo_alt` column to profiles table (nullable text)
+### Password Reset Email Copy:
+- Subject: "Reset Your Password -- Press Room Publisher"
+- Clear instructions, prominent reset button, expiry notice
+- Reassurance if they didn't request it
 
-**File: `src/pages/ProfileEdit.tsx`**
-- Update the form to include alt text field (similar to CreateBlog.tsx)
-- Save alt text when updating profile
-- Make alt text required when uploading a photo
+### Email Verification Copy:
+- Subject: "Verify Your Email -- Press Room Publisher"
+- Quick verification CTA, explanation of why verification matters
 
-**File: `src/pages/PublisherProfile.tsx`**
-- Use stored alt text for publisher profile photos
+---
 
-**File: `src/pages/Dashboard.tsx`**
-- Use stored alt text for user's own profile photo
+## Step 4: Update Frontend Pages
+
+### `src/pages/Register.tsx`
+- After successful signup, call the `send-welcome-email` and `send-verification-email` edge functions with the user's name and email
+- Update the success toast to mention checking their email
+
+### `src/pages/ForgotPassword.tsx`
+- Instead of using the default auth reset email, call the `send-password-reset-email` edge function
+- Still use `supabase.auth.resetPasswordForEmail()` for the actual token generation, but send the branded email through Resend
+
+### `src/pages/ResetPassword.tsx`
+- Minor fix: handle the token from the auth redirect URL properly (Supabase uses hash fragments, not query params for the access token)
+
+---
+
+## Step 5: Auth Configuration
+
+- Update `supabase/config.toml` to set `verify_jwt = false` for the three new edge functions so they can be called from the frontend without authentication (registration happens before login)
 
 ---
 
 ## Technical Details
 
-### Database Migration SQL
-```sql
--- Add welcome flag to profiles
-ALTER TABLE public.profiles 
-ADD COLUMN IF NOT EXISTS has_seen_welcome BOOLEAN DEFAULT FALSE;
-
--- Add alt text column for profile photos
-ALTER TABLE public.profiles 
-ADD COLUMN IF NOT EXISTS profile_photo_alt TEXT;
+### Edge Function File Structure
+```text
+supabase/functions/
+  send-welcome-email/index.ts
+  send-password-reset-email/index.ts  
+  send-verification-email/index.ts
 ```
 
-### Key Components to Modify
-1. `src/pages/Index.tsx` - Auth state detection
-2. `src/pages/BlogView.tsx` - Alt text display
-3. `src/pages/Dashboard.tsx` - Auth display, alt text, welcome modal
-4. `src/pages/ProfileEdit.tsx` - Alt text collection
-5. `src/pages/PublisherProfile.tsx` - Alt text display
+### Email HTML Template Structure (shared pattern)
+```html
+<!-- Inline-styled responsive email -->
+<div style="max-width:600px; margin:0 auto; font-family:Georgia,serif;">
+  <header> PRP Logo / Name </header>
+  <main> Content + CTA Button </main>
+  <footer> Team sign-off + unsubscribe note </footer>
+</div>
+```
 
-### Accessibility Considerations
-- All image alt texts will be used directly from the database when available
-- Fallback alt texts will be descriptive and meaningful
-- Welcome modal will be fully accessible with proper focus management
-- Screen readers will announce the modal title and content correctly
+### Frontend Integration Pattern
+```typescript
+// Example: calling edge function after registration
+await supabase.functions.invoke('send-welcome-email', {
+  body: { email, firstName }
+});
+```
+
+### Secret Required
+- `RESEND_API_KEY` -- your Resend API key
+
+### Sender Address
+- `noreply@prp.broadcasterscommunity.com` (using your verified domain)
+
