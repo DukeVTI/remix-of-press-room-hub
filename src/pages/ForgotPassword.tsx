@@ -18,13 +18,27 @@ export default function ForgotPassword() {
     e.preventDefault();
     setLoading(true);
     try {
+      // Generate the reset token via Supabase auth
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/reset-password`,
       });
       if (error) throw error;
+
+      // Send branded reset email via Resend
+      try {
+        await supabase.functions.invoke('send-password-reset-email', {
+          body: {
+            email,
+            resetUrl: `${window.location.origin}/reset-password`,
+          },
+        });
+      } catch (emailErr) {
+        console.error("Failed to send branded reset email:", emailErr);
+      }
+
       setSent(true);
       toast({
-        title: "Check your email!",
+        title: "Check your email! 📬",
         description: "A password reset link has been sent to your email.",
         variant: "default",
       });
@@ -81,7 +95,7 @@ export default function ForgotPassword() {
               {loading ? "Sending..." : sent ? "Email Sent" : "Send Reset Link"}
             </Button>
             {sent && (
-              <div className="text-green-600 text-sm mt-2 text-center" aria-live="polite">
+              <div className="text-accent text-sm mt-2 text-center" aria-live="polite">
                 If your email is registered, you'll receive a reset link shortly.
               </div>
             )}

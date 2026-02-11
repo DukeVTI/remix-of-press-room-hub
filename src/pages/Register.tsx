@@ -91,9 +91,30 @@ const Register = () => {
 
       if (error) throw error;
 
+      // Send welcome and verification emails (fire-and-forget, don't block registration)
+      const sendEmails = async () => {
+        try {
+          await Promise.all([
+            supabase.functions.invoke('send-welcome-email', {
+              body: { email: formData.email, firstName: formData.firstName },
+            }),
+            supabase.functions.invoke('send-verification-email', {
+              body: {
+                email: formData.email,
+                firstName: formData.firstName,
+                verificationUrl: `${window.location.origin}/verify-email`,
+              },
+            }),
+          ]);
+        } catch (emailErr) {
+          console.error("Failed to send emails:", emailErr);
+        }
+      };
+      sendEmails();
+
       toast({
-        title: "Welcome to Press Room Publisher!",
-        description: "Your account has been created successfully.",
+        title: "Welcome to Press Room Publisher! 🎉",
+        description: "Check your email to verify your account.",
       });
 
       navigate("/dashboard");

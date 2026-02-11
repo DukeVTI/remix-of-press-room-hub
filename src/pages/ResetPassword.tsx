@@ -17,7 +17,9 @@ export default function ResetPassword() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  const accessToken = searchParams.get("access_token");
+  // Supabase sends tokens via hash fragments or query params
+  const accessToken = searchParams.get("access_token") || 
+    (typeof window !== 'undefined' && new URLSearchParams(window.location.hash.substring(1)).get("access_token"));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
