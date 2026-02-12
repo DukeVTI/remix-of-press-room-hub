@@ -1,123 +1,103 @@
 
 
-# Resend Email Integration for Press Room Publisher
+# Birthday and Account Anniversary Celebration Feature
 
-## Overview
+## What This Does
 
-This plan adds professional, beautifully designed email delivery to PRP using Resend, covering welcome emails, password reset emails, and email verification -- all sent from `prp.broadcasterscommunity.com`.
-
----
-
-## Step 1: Store the Resend API Key
-
-Before any code changes, we'll securely store your `RESEND_API_KEY` as a backend secret so the edge functions can access it.
+Per the PRP brief, when it's a user's birthday or account creation anniversary, the system automatically creates a celebratory post that appears on the homepage of their blog accounts for 24 hours. Followers also get notified.
 
 ---
 
-## Step 2: Create Edge Functions
+## What Already Exists
 
-### Edge Function 1: `send-welcome-email`
-- Triggered after successful registration (called from the frontend)
-- Sends a professionally designed HTML welcome email with the PRP branding
-- Witty, warm copy welcoming the user to the PRP community
-- Sender: `noreply@prp.broadcasterscommunity.com`
+- The `celebration_posts` database table is ready with `birthday` and `account_anniversary` types, `active`/`expired` statuses, and an `expires_at` timestamp
+- Birthday (month + day) is already stored in `profiles.date_of_birth`
+- Account creation date is in `profiles.created_at`
 
-### Edge Function 2: `send-password-reset-email`
-- Called from the `ForgotPassword.tsx` page instead of relying on the default auth email
-- Sends a branded password reset email with a secure link
-- Professional copy with clear instructions
-- Sender: `noreply@prp.broadcasterscommunity.com`
+## What Needs to Be Built
 
-### Edge Function 3: `send-verification-email`
-- Called after registration to send a branded email verification link
-- Clean design with a prominent "Verify Email" button
-- Sender: `noreply@prp.broadcasterscommunity.com`
+### 1. Edge Function: `check-celebrations`
 
-Each function will include:
-- CORS headers for browser requests
-- Resend SDK (`npm:resend@2.0.0`)
-- Professional HTML email templates with inline CSS
-- Error handling with meaningful responses
+A backend function that:
+- Queries all profiles where today's month/day matches their `date_of_birth` (birthday) or `created_at` (anniversary)
+- For each match, finds all their blog accounts
+- Creates a `celebration_posts` entry for each blog with a warm, branded message (24-hour expiry)
+- Also expires any old celebration posts that have passed their `expires_at`
+- Sends a notification email to the account owner via Resend (branded, witty)
 
----
+This function will be designed to be called daily (manually or via an external cron service like cron-job.org pointing at the function URL).
 
-## Step 3: Email Template Design
+### 2. Edge Function: `send-celebration-email`
 
-All emails will share a consistent PRP-branded design:
-- Dark header with "PRESS ROOM PUBLISHER" branding
-- Clean white content area with professional typography
-- Accent-colored call-to-action buttons
-- Footer with "The Press Room Publisher Team" sign-off
-- Fully accessible (alt text, semantic HTML, sufficient color contrast)
+Sends branded celebration emails via Resend:
+- **Birthday**: Warm birthday greeting with PRP branding
+- **Anniversary**: Congratulations on their PRP membership anniversary
 
-### Welcome Email Copy (witty + professional):
-- Subject: "Your Digital Pen is Ready -- Welcome to Press Room Publisher"
-- Warm congratulations, overview of what they can do (comment, react, follow, share)
-- Encouragement to explore and engage
+Sender: `noreply@prp.broadcasterscommunity.com`
 
-### Password Reset Email Copy:
-- Subject: "Reset Your Password -- Press Room Publisher"
-- Clear instructions, prominent reset button, expiry notice
-- Reassurance if they didn't request it
+### 3. Frontend: Celebration Banner on Blog View
 
-### Email Verification Copy:
-- Subject: "Verify Your Email -- Press Room Publisher"
-- Quick verification CTA, explanation of why verification matters
+On `BlogView.tsx`, query `celebration_posts` for the current blog. If an active celebration exists, display a festive banner at the top of the blog page:
+- Birthday: cake icon, confetti-style accent, "It's [Publisher]'s birthday today!"
+- Anniversary: sparkle icon, "Celebrating [X] year(s) on Press Room Publisher!"
 
----
+The banner is visible to all visitors for 24 hours.
 
-## Step 4: Update Frontend Pages
+### 4. Frontend: Celebration Banner on Dashboard
 
-### `src/pages/Register.tsx`
-- After successful signup, call the `send-welcome-email` and `send-verification-email` edge functions with the user's name and email
-- Update the success toast to mention checking their email
+On `Dashboard.tsx`, if the logged-in user has an active birthday or anniversary celebration, show a personal celebratory card in the hero section.
 
-### `src/pages/ForgotPassword.tsx`
-- Instead of using the default auth reset email, call the `send-password-reset-email` edge function
-- Still use `supabase.auth.resetPasswordForEmail()` for the actual token generation, but send the branded email through Resend
+### 5. Database: Expire Old Celebrations
 
-### `src/pages/ResetPassword.tsx`
-- Minor fix: handle the token from the auth redirect URL properly (Supabase uses hash fragments, not query params for the access token)
-
----
-
-## Step 5: Auth Configuration
-
-- Update `supabase/config.toml` to set `verify_jwt = false` for the three new edge functions so they can be called from the frontend without authentication (registration happens before login)
+The `check-celebrations` edge function will also run an UPDATE to set `status = 'expired'` on any `celebration_posts` where `expires_at < now()`.
 
 ---
 
 ## Technical Details
 
-### Edge Function File Structure
+### Edge Function: `check-celebrations`
+
 ```text
-supabase/functions/
-  send-welcome-email/index.ts
-  send-password-reset-email/index.ts  
-  send-verification-email/index.ts
+supabase/functions/check-celebrations/index.ts
 ```
 
-### Email HTML Template Structure (shared pattern)
-```html
-<!-- Inline-styled responsive email -->
-<div style="max-width:600px; margin:0 auto; font-family:Georgia,serif;">
-  <header> PRP Logo / Name </header>
-  <main> Content + CTA Button </main>
-  <footer> Team sign-off + unsubscribe note </footer>
-</div>
-```
+Logic:
+1. Use service role key to query all profiles
+2. Extract today's month/day
+3. Find birthday matches: `EXTRACT(MONTH FROM date_of_birth) = current_month AND EXTRACT(DAY FROM date_of_birth) = current_day`
+4. Find anniversary matches: same logic on `created_at`
+5. Check no duplicate celebration already exists for today
+6. Create celebration_posts entries with `expires_at = now() + 24 hours`
+7. Call `send-celebration-email` for each celebrant
+8. Expire old posts: `UPDATE celebration_posts SET status = 'expired' WHERE expires_at < now() AND status = 'active'`
 
-### Frontend Integration Pattern
-```typescript
-// Example: calling edge function after registration
-await supabase.functions.invoke('send-welcome-email', {
-  body: { email, firstName }
-});
-```
+### Celebration Post Content (generated by the function)
 
-### Secret Required
-- `RESEND_API_KEY` -- your Resend API key
+**Birthday message:**
+"Happy Birthday, [First Name]! The entire Press Room Publisher community celebrates with you today. May your stories continue to inspire, inform, and ignite change. Here's to another remarkable year of impactful publishing!"
 
-### Sender Address
-- `noreply@prp.broadcasterscommunity.com` (using your verified domain)
+**Anniversary message:**
+"Congratulations, [First Name]! Today marks [N] year(s) since you joined Press Room Publisher. Your voice matters, your stories count, and your contributions make the world a better-informed place. Thank you for being part of the PRP family!"
+
+### Frontend Component: `CelebrationBanner.tsx`
+
+A reusable component that:
+- Takes a `blogId` prop
+- Queries `celebration_posts` where `blog_id = blogId`, `status = 'active'`, and `expires_at > now()`
+- Renders a themed banner (birthday or anniversary)
+- Fully accessible with alt text and ARIA labels
+
+### Files to Create
+- `supabase/functions/check-celebrations/index.ts` -- daily celebration checker
+- `supabase/functions/send-celebration-email/index.ts` -- branded email sender
+- `src/components/CelebrationBanner.tsx` -- frontend banner component
+
+### Files to Modify
+- `src/pages/BlogView.tsx` -- add CelebrationBanner above the posts section
+- `src/pages/Dashboard.tsx` -- add personal celebration card in hero
+- `supabase/config.toml` -- add `verify_jwt = false` for `check-celebrations`
+
+### Scheduling
+
+Since Lovable Cloud doesn't support native cron jobs, the `check-celebrations` function will be a publicly callable endpoint. You can set up a free external cron service (like cron-job.org) to call it once daily, or trigger it manually. The function is idempotent -- calling it multiple times on the same day won't create duplicate celebrations.
 
