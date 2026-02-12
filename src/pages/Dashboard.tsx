@@ -22,6 +22,7 @@ import type { Tables } from "@/integrations/supabase/types";
 import { PRPHeader } from "@/components/ui/prp-header";
 import { Footer } from "@/components/Footer";
 import { WelcomeModal } from "@/components/WelcomeModal";
+import { CelebrationBanner } from "@/components/CelebrationBanner";
 
 interface Profile {
   first_name: string;
@@ -185,6 +186,13 @@ const Dashboard = () => {
             </div>
           </div>
         </section>
+
+        {/* Celebration Banner */}
+        {user && (
+          <div className="section-container pt-6">
+            <CelebrationBanner userId={user.id} variant="dashboard" />
+          </div>
+        )}
 
         {/* Stats Overview */}
         {blogs.length > 0 && (
