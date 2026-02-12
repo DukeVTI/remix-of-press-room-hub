@@ -8,6 +8,7 @@ import { Users, Eye, ThumbsUp, MessageSquare, ArrowLeft, Loader2, Pin, Clock, Us
 import type { Tables } from "@/integrations/supabase/types";
 import { PRPHeader } from "@/components/ui/prp-header";
 import { Footer } from "@/components/Footer";
+import { CelebrationBanner } from "@/components/CelebrationBanner";
 
 type Blog = Tables<"blogs">;
 type Post = Tables<"posts">;
@@ -249,6 +250,11 @@ const BlogView = () => {
             <Link to={`/blog/${blogSlug}/editors`} className="hover:text-accent focus:text-accent transition px-3 py-1 rounded-full">Editors</Link>
           </div>
         </section>
+
+        {/* Celebration Banner */}
+        <div className="max-w-3xl mx-auto px-4 mb-6">
+          <CelebrationBanner blogId={blog.id} variant="blog" />
+        </div>
 
         {/* Posts Section */}
         <section 
