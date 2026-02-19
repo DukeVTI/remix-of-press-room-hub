@@ -94,12 +94,29 @@ const Search = () => {
     }
   };
 
+  // Sanitize search term: strip characters that could break PostgREST filter syntax
+  const sanitizeSearchTerm = (raw: string): string => {
+    return raw
+      .trim()
+      .slice(0, 100) // hard length cap
+      .replace(/[%_\\]/g, "\\$&") // escape LIKE wildcards
+      .replace(/[(),'"]/g, "") // strip PostgREST filter-breaking chars
+      .toLowerCase();
+  };
+
   const performSearch = async (q: string) => {
     if (!q.trim()) return;
 
     setIsLoading(true);
     setHasSearched(true);
-    const searchTerm = q.trim().toLowerCase();
+    const searchTerm = sanitizeSearchTerm(q);
+
+    if (!searchTerm) {
+      setBlogs([]);
+      setPosts([]);
+      setIsLoading(false);
+      return;
+    }
 
     try {
       const { data: blogsData } = await supabase

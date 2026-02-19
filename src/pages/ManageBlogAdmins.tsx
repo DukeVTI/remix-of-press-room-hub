@@ -167,12 +167,10 @@ const ManageBlogAdmins = () => {
     setIsAdding(true);
 
     try {
-      // Check if user exists with this email
-      const { data: existingUser } = await supabase
-        .from("profiles")
-        .select("id")
-        .eq("email", email.toLowerCase())
-        .maybeSingle();
+      // Securely look up user by email via server-side RPC (prevents direct profiles table email exposure)
+      const { data: existingUserId } = await supabase
+        .rpc("find_profile_id_by_email", { _email: email.toLowerCase() });
+      const existingUser = existingUserId ? { id: existingUserId as string } : null;
 
       // Create admin record
       const { error } = await supabase

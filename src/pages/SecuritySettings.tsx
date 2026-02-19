@@ -22,6 +22,7 @@ const SecuritySettings = () => {
   
   const [isLoading, setIsLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
   
   // Password form
   const [currentPassword, setCurrentPassword] = useState("");
@@ -41,6 +42,7 @@ const SecuritySettings = () => {
         return;
       }
       
+      setUserEmail(session.user.email ?? null);
       setIsLoading(false);
     };
 
@@ -88,6 +90,19 @@ const SecuritySettings = () => {
     setIsUpdating(true);
 
     try {
+      // Step 1: Verify current password by re-authenticating
+      if (!userEmail) throw new Error("Unable to verify identity. Please sign in again.");
+      const { error: reAuthError } = await supabase.auth.signInWithPassword({
+        email: userEmail,
+        password: currentPassword,
+      });
+      if (reAuthError) {
+        setErrors({ currentPassword: "Current password is incorrect" });
+        setIsUpdating(false);
+        return;
+      }
+
+      // Step 2: Update to new password
       const { error } = await supabase.auth.updateUser({
         password: newPassword
       });
