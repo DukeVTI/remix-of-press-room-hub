@@ -19,7 +19,13 @@ import { PRPHeader } from "@/components/ui/prp-header";
 import { Footer } from "@/components/Footer";
 
 type Blog = Tables<"blogs">;
-type Profile = Tables<"profiles">;
+
+// Public profile fields only — excludes email, email_verified, has_seen_welcome (PII)
+type PublicProfile = Pick<Tables<"profiles">,
+  | "id" | "first_name" | "last_name" | "middle_name" | "screen_name"
+  | "profile_photo_url" | "profile_photo_alt" | "bio" | "hobbies"
+  | "date_of_birth" | "created_at" | "account_status" | "is_verified"
+>;
 
 interface BlogWithCategory extends Blog {
   blog_categories: { name: string } | null;
@@ -29,7 +35,7 @@ const PublisherProfile = () => {
   const { blogSlug } = useParams<{ blogSlug: string }>();
   
   const [blog, setBlog] = useState<Blog | null>(null);
-  const [publisher, setPublisher] = useState<Profile | null>(null);
+  const [publisher, setPublisher] = useState<PublicProfile | null>(null);
   const [publisherBlogs, setPublisherBlogs] = useState<BlogWithCategory[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
@@ -57,10 +63,10 @@ const PublisherProfile = () => {
 
       setBlog(blogData);
 
-      // Fetch publisher profile
+      // Fetch publisher profile — only non-sensitive public fields (no email, no full DOB)
       const { data: profileData } = await supabase
         .from("profiles")
-        .select("*")
+        .select("id, first_name, last_name, middle_name, screen_name, profile_photo_url, profile_photo_alt, bio, hobbies, date_of_birth, created_at, account_status, is_verified")
         .eq("id", blogData.owner_id)
         .maybeSingle();
 

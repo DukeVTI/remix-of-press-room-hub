@@ -22,12 +22,41 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data: signInData, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) throw error;
+
+      // Check account status — block deactivated / suspended accounts
+      if (signInData.session) {
+        const { data: profileData } = await supabase
+          .from("profiles")
+          .select("account_status")
+          .eq("id", signInData.session.user.id)
+          .maybeSingle();
+
+        if (profileData?.account_status === "deactivated") {
+          await supabase.auth.signOut();
+          toast({
+            title: "Account deactivated",
+            description: "Your account has been deactivated. Please contact support to reactivate it.",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        if (profileData?.account_status === "suspended") {
+          await supabase.auth.signOut();
+          toast({
+            title: "Account suspended",
+            description: "Your account has been suspended due to a policy violation. Please contact support.",
+            variant: "destructive",
+          });
+          return;
+        }
+      }
 
       toast({
         title: "Welcome back!",

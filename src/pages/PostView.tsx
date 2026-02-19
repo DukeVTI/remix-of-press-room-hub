@@ -136,11 +136,8 @@ const PostView = () => {
 
       setPost(postData as PostWithDetails);
 
-      // Increment view count
-      await supabase
-        .from("posts")
-        .update({ view_count: postData.view_count + 1 })
-        .eq("id", postId);
+      // Increment view count atomically (server-side RPC prevents race condition)
+      await supabase.rpc("increment_view_count", { _post_id: postId });
 
       // Check user's reaction
       if (session) {
