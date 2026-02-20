@@ -4,11 +4,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Users, Eye, ThumbsUp, MessageSquare, ArrowLeft, Loader2, Pin, Clock, User, FileQuestion } from "lucide-react";
+import { Users, Eye, ThumbsUp, MessageSquare, ArrowLeft, Loader2, Pin, Clock, User, FileQuestion, Share2 } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 import { PRPHeader } from "@/components/ui/prp-header";
 import { Footer } from "@/components/Footer";
 import { CelebrationBanner } from "@/components/CelebrationBanner";
+import { toast } from "sonner";
 
 type Blog = Tables<"blogs">;
 type Post = Tables<"posts">;
@@ -99,7 +100,6 @@ const BlogView = () => {
     setFollowLoading(true);
 
     if (isFollowing) {
-      // Unfollow
       await supabase
         .from("follows")
         .delete()
@@ -109,7 +109,6 @@ const BlogView = () => {
       setIsFollowing(false);
       setBlog(prev => prev ? { ...prev, follower_count: prev.follower_count - 1 } : null);
     } else {
-      // Follow
       await supabase
         .from("follows")
         .insert({ follower_id: userId, blog_id: blog.id });
@@ -119,6 +118,26 @@ const BlogView = () => {
     }
 
     setFollowLoading(false);
+  };
+
+  const handleShareBlog = async () => {
+    if (!blog) return;
+    const url = window.location.href;
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: blog.blog_name,
+          text: blog.description,
+          url,
+        });
+      } catch {
+        // User cancelled
+      }
+    } else {
+      await navigator.clipboard.writeText(url);
+      toast.success("Blog link copied to clipboard!");
+    }
   };
 
   const formatDate = (dateString: string | null) => {
@@ -216,7 +235,7 @@ const BlogView = () => {
               {blog.blog_categories?.name || "Uncategorized"}
             </Badge>
           </div>
-          <div className="flex flex-row items-center justify-center gap-4 mb-4">
+          <div className="flex flex-row items-center justify-center gap-4 mb-4 flex-wrap">
             <span className="text-base text-foreground font-medium whitespace-nowrap"><span className="font-semibold">{formatNumber(blog.follower_count)}</span> followers</span>
             <span className="text-base text-muted-foreground whitespace-nowrap">· Since {formatDate(blog.created_at)}</span>
             {userId ? (
@@ -243,6 +262,16 @@ const BlogView = () => {
                 </Button>
               </Link>
             )}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleShareBlog}
+              className="rounded-full"
+              aria-label={`Share ${blog.blog_name} profile link`}
+            >
+              <Share2 className="h-4 w-4 mr-2" aria-hidden="true" />
+              Share
+            </Button>
           </div>
           <div className="flex flex-row flex-wrap gap-2 md:gap-6 text-base font-medium text-muted-foreground justify-center border-b border-border w-full pb-2 mb-8">
             <Link to={`/blog/${blogSlug}/posts`} className="hover:text-accent focus:text-accent transition px-3 py-1 rounded-full">Posts</Link>

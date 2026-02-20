@@ -92,6 +92,7 @@ const PostView = () => {
   const [userId, setUserId] = useState<string | null>(null);
   const [userReaction, setUserReaction] = useState<"approve" | "disapprove" | null>(null);
   const [reactionLoading, setReactionLoading] = useState(false);
+  const [commentsExpanded, setCommentsExpanded] = useState(false);
   
   // Comment state
   const [commentLoading, setCommentLoading] = useState(false);
@@ -730,32 +731,50 @@ const PostView = () => {
 
           <Separator className="my-8" />
 
-          {/* Comments Section */}
-          <CommentSection
-            comments={comments}
-            postId={post.id}
-            currentUserId={userId || undefined}
-            canComment={!!userId}
-            commentsLocked={post.comments_locked}
-            userReactions={commentReactions}
-            onAddComment={async (content, parentId) => {
-              await handleSubmitComment(content, parentId);
-            }}
-            onEditComment={async () => {}}
-            onDeleteComment={async () => {}}
-            onApprove={async (commentId) => {
-              await handleCommentReaction(commentId, "approve");
-            }}
-            onDisapprove={async (commentId) => {
-              await handleCommentReaction(commentId, "disapprove");
-            }}
-            onPin={async (commentId) => {
-              await handlePinComment(commentId);
-            }}
-            onUnpin={async (commentId) => {
-              await handleUnpinComment(commentId);
-            }}
-          />
+          {/* Comments Section - YouTube-style collapsible */}
+          <section aria-label="Comments" className="mb-8">
+            <button
+              onClick={() => setCommentsExpanded(!commentsExpanded)}
+              className="flex items-center gap-2 text-base font-semibold text-foreground hover:text-accent transition-colors mb-4 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 rounded-md px-1"
+              aria-expanded={commentsExpanded}
+              aria-controls="comments-panel"
+            >
+              <MessageSquare className="h-5 w-5" aria-hidden="true" />
+              {commentsExpanded
+                ? "Hide Comments"
+                : `View ${post.comment_count > 0 ? formatNumber(post.comment_count) + " " : ""}Comments`}
+            </button>
+
+            {commentsExpanded && (
+              <div id="comments-panel">
+                <CommentSection
+                  comments={comments}
+                  postId={post.id}
+                  currentUserId={userId || undefined}
+                  canComment={!!userId}
+                  commentsLocked={post.comments_locked}
+                  userReactions={commentReactions}
+                  onAddComment={async (content, parentId) => {
+                    await handleSubmitComment(content, parentId);
+                  }}
+                  onEditComment={async () => {}}
+                  onDeleteComment={async () => {}}
+                  onApprove={async (commentId) => {
+                    await handleCommentReaction(commentId, "approve");
+                  }}
+                  onDisapprove={async (commentId) => {
+                    await handleCommentReaction(commentId, "disapprove");
+                  }}
+                  onPin={async (commentId) => {
+                    await handlePinComment(commentId);
+                  }}
+                  onUnpin={async (commentId) => {
+                    await handleUnpinComment(commentId);
+                  }}
+                />
+              </div>
+            )}
+          </section>
         </article>
       </main>
 

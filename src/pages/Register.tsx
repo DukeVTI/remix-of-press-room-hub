@@ -7,7 +7,6 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Eye, EyeOff, ArrowLeft, Loader2 } from "lucide-react";
-import { PRPHeader } from "@/components/ui/prp-header";
 import { Footer } from "@/components/Footer";
 
 const months = [
@@ -135,14 +134,33 @@ const Register = () => {
         Skip to registration form
       </a>
 
-      {/* Header - Consistent with homepage */}
-      <PRPHeader isAuthenticated={false} />
+      {/* Minimal header - links back to main site */}
+      <header className="border-b border-border py-3 px-4 sm:px-6 bg-background" role="banner">
+        <div className="max-w-2xl mx-auto flex items-center justify-between">
+          <a 
+            href="https://pressroompublisher.broadcasterscommunity.com"
+            className="flex items-center gap-2"
+            aria-label="Back to Press Room Publisher main site"
+          >
+            <img 
+              src="https://pressroompublisher.broadcasterscommunity.com/wp-content/uploads/2026/01/cropped-PRP-ICON_-transparetn-32x32.png"
+              alt="Press Room Publisher logo"
+              className="w-7 h-7"
+            />
+            <span className="font-serif text-base font-medium text-foreground hidden sm:block">Press Room Publisher</span>
+          </a>
+          <a
+            href="https://pressroompublisher.broadcasterscommunity.com"
+            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+            aria-label="Go back to Press Room Publisher main website"
+          >
+            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+            Main site
+          </a>
+        </div>
+      </header>
 
       <main className="flex-1 flex flex-col items-center justify-center px-4 py-12">
-        <Link to="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-8">
-          <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-          <span>Back to home</span>
-        </Link>
 
         <div className="card-premium max-w-2xl w-full p-8 animate-fade-in" id="registration-form">
           <div className="text-center mb-8">
