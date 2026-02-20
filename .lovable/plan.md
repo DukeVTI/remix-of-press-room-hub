@@ -1,103 +1,208 @@
 
+# Integration-First Architecture Refactor
 
-# Birthday and Account Anniversary Celebration Feature
+## Understanding the Brief
 
-## What This Does
+Yes, completely understood. The core requirement is:
 
-Per the PRP brief, when it's a user's birthday or account creation anniversary, the system automatically creates a celebratory post that appears on the homepage of their blog accounts for 24 hours. Followers also get notified.
+- `pressroompublisher.broadcasterscommunity.com` is the PRIMARY public website (already built on WordPress/external). It remains the central interface.
+- This Lovable system must NOT behave as a competing standalone website.
+- Instead, it must function as a set of **embedded modules**: authentication (signup/login), publishing management, and reading/post interaction — all reachable from the main site's buttons.
+- Several specific functional changes are also required alongside the architecture refactor.
 
 ---
 
-## What Already Exists
+## What Changes, and Why
 
-- The `celebration_posts` database table is ready with `birthday` and `account_anniversary` types, `active`/`expired` statuses, and an `expires_at` timestamp
-- Birthday (month + day) is already stored in `profiles.date_of_birth`
-- Account creation date is in `profiles.created_at`
+### 1. Remove the Standalone Homepage (`/` route)
 
-## What Needs to Be Built
+The current `Index.tsx` acts as a full marketing/landing page with a hero, feature grid, and CTAs. This duplicates the main site's role.
 
-### 1. Edge Function: `check-celebrations`
+**New behaviour:** The `/` route should redirect intelligently:
+- If **not logged in** → redirect to `/login` (the main site's Login button will point here)
+- If **logged in** → redirect to `/dashboard`
 
-A backend function that:
-- Queries all profiles where today's month/day matches their `date_of_birth` (birthday) or `created_at` (anniversary)
-- For each match, finds all their blog accounts
-- Creates a `celebration_posts` entry for each blog with a warm, branded message (24-hour expiry)
-- Also expires any old celebration posts that have passed their `expires_at`
-- Sends a notification email to the account owner via Resend (branded, witty)
+This makes our system behave purely as a functional module, not a website.
 
-This function will be designed to be called daily (manually or via an external cron service like cron-job.org pointing at the function URL).
+### 2. Login and Signup as Entry Points (not embedded pages)
 
-### 2. Edge Function: `send-celebration-email`
+The main site's **Sign Up** and **Login** buttons will point to URLs on our system:
+- Sign Up → `[our-domain]/register`
+- Login → `[our-domain]/login`
 
-Sends branded celebration emails via Resend:
-- **Birthday**: Warm birthday greeting with PRP branding
-- **Anniversary**: Congratulations on their PRP membership anniversary
+These pages already exist and work. What changes:
+- Their headers must NOT behave like a standalone website header (no "Our Story" nav, no footer nav to About/Privacy which duplicates the main site).
+- They should have a **minimal, clean header** — just the PRP logo + a link back to `pressroompublisher.broadcasterscommunity.com` (the main site), not back to `/`.
+- The "Back to home" link on Login currently points to `/` — it should point to the **main site URL**.
 
-Sender: `noreply@prp.broadcasterscommunity.com`
+### 3. Footer Simplification
 
-### 3. Frontend: Celebration Banner on Blog View
+The current Footer links to `/about` and `/privacy` internally. Per the brief:
+- **About** page must align with the main site (avoid duplication) → Footer's "About" link should point to `pressroompublisher.broadcasterscommunity.com/#about` or the main site's about section.
+- **Privacy** must align with the main site → Footer's "Privacy" link should point to the main site's privacy policy.
+- **Help** and **Terms** remain internal (they differ per subdomain).
 
-On `BlogView.tsx`, query `celebration_posts` for the current blog. If an active celebration exists, display a festive banner at the top of the blog page:
-- Birthday: cake icon, confetti-style accent, "It's [Publisher]'s birthday today!"
-- Anniversary: sparkle icon, "Celebrating [X] year(s) on Press Room Publisher!"
+Footer update: Replace About and Privacy links with external links to the main site.
 
-The banner is visible to all visitors for 24 hours.
+### 4. Rename "New Story" / "Create a new publication" → "Publish New Post"
 
-### 4. Frontend: Celebration Banner on Dashboard
+Currently in multiple places:
+- `PRPHeader` (authenticated state): Button says "New Story" → links to `/blogs/create` (which is blog/account creation, not post creation)
+- `Dashboard.tsx`: Button says "New publication" → links to `/blogs/create`
+- `BlogManage.tsx`: "Create a new publication" link
 
-On `Dashboard.tsx`, if the logged-in user has an active birthday or anniversary celebration, show a personal celebratory card in the hero section.
+**Requirement:** The "Publish New Post" button should open the **post creation interface** (`/blog/:blogSlug/post/create`), not blog account creation.
 
-### 5. Database: Expire Old Celebrations
+**Challenge:** Post creation requires a `blogSlug`. If a user has multiple blogs, we need to handle blog selection. The flow should be:
+- If user has **one blog** → go directly to `/blog/{slug}/post/create`
+- If user has **multiple blogs** → show a quick blog-picker modal/dialog, then navigate to the correct post creation route
+- If user has **no blogs** → prompt to create a blog first (the existing flow)
 
-The `check-celebrations` edge function will also run an UPDATE to set `status = 'expired'` on any `celebration_posts` where `expires_at < now()`.
+### 5. YouTube-Style Collapsible Comments
+
+Currently `CommentSection.tsx` renders all comments inline, always visible, beneath every post in `PostView.tsx`.
+
+**Required:** Comments hidden by default. A button shows the comment count and expands/collapses the section on click — identical to YouTube's UX.
+
+**Implementation:** Wrap the entire `<CommentSection />` in `PostView.tsx` with a toggle state. The trigger button shows:
+- `💬 View 42 Comments` (collapsed)
+- `💬 Hide Comments` (expanded)
+
+The `CommentSection` component itself does not need to change — only how it is rendered in `PostView.tsx`.
+
+### 6. Share Post Button (already exists but needs surfacing)
+
+`ShareSheet.tsx` already exists and is already imported in `PostView.tsx`. The `handleShare` function currently uses the native Web Share API with a clipboard fallback. The `ShareSheet` component has full social sharing options.
+
+**What's missing:** The Share button in `PostView.tsx` exists but needs to be made more prominent and consistently placed. Also, a **Share Account/Profile** button is needed on `BlogView.tsx` to share the blog's public URL.
+
+### 7. About and Privacy Page Alignment
+
+Per the brief, About and Privacy should not duplicate the main site. The action:
+- Keep the `/about` and `/privacy` routes but have them redirect externally to the main site's pages, OR
+- Update their content to acknowledge the main site and provide a link to it rather than being full standalone pages.
+
+The cleaner approach: update the pages to redirect to the main site's URLs immediately on load.
+
+---
+
+## Files to Modify
+
+### `src/pages/Index.tsx`
+Replace the full marketing page with a smart redirect component:
+- No session → navigate to `/login`
+- Session → navigate to `/dashboard`
+
+### `src/components/ui/prp-header.tsx`
+- In **unauthenticated mode**: "Get started" button links to `/register`, "Sign In" to `/login` — these are correct. Remove "Our story" nav link (points to `/about` which duplicates main site).
+- In **authenticated mode**: Rename "New Story" button label to "Publish New Post". Change link logic to use the blog-picker modal approach described above.
+- Logo/home link: keep pointing to `/` (which now redirects to login/dashboard).
+
+### `src/pages/Login.tsx`
+- "Back to home" link: change from `to="/"` to an external `href="https://pressroompublisher.broadcasterscommunity.com"`.
+- Minimal header: replace `<PRPHeader>` with a simple logo-only header that links back to the main site.
+
+### `src/pages/Register.tsx`
+- Same minimal header treatment as Login.
+- Keep all existing functionality.
+
+### `src/components/Footer.tsx`
+- "About" link → external: `https://pressroompublisher.broadcasterscommunity.com/about`
+- "Privacy" link → external: `https://pressroompublisher.broadcasterscommunity.com/privacy-policy`
+- Keep "Help" → `/help` (internal)
+- Keep "Terms" → `/terms` (internal)
+
+### `src/pages/Dashboard.tsx`
+- "New publication" button: rename to "Publish New Post", update link/modal logic (if one blog → go straight to post create; if multiple → show picker; if none → go to `/blogs/create`).
+
+### `src/pages/PostView.tsx`
+- Wrap `<CommentSection />` with a collapse toggle (YouTube-style).
+- Make the Share button more prominent and consistently placed.
+
+### `src/pages/BlogView.tsx`
+- Add a "Share this blog" button that copies the blog URL or opens a share sheet with the blog's public link and name.
+
+### `src/pages/About.tsx`
+- Replace content with an immediate redirect to `https://pressroompublisher.broadcasterscommunity.com` (or a bridge page that links there).
+
+### `src/pages/Privacy.tsx`
+- Replace content with an immediate redirect to the main site's privacy policy.
+
+---
+
+## New Component
+
+### `src/components/BlogPickerModal.tsx` (new)
+A small dialog that appears when "Publish New Post" is clicked and the user has multiple blogs. Lists the user's blogs with their logos/names. Selecting one navigates to `/blog/{slug}/post/create`.
+
+---
+
+## Architecture Summary
+
+```text
+pressroompublisher.broadcasterscommunity.com  (MAIN SITE - unchanged)
+  │
+  ├── Sign Up button ──────────────────────► [our-domain]/register
+  │                                               │
+  │                                          Register form
+  │                                          (minimal header, back to main site)
+  │                                               │
+  │                                          → /dashboard
+  │
+  └── Login button  ──────────────────────► [our-domain]/login
+                                                  │
+                                             Login form
+                                             (minimal header, back to main site)
+                                                  │
+                                             → /dashboard
+                                                  │
+                                         ┌────────┴────────┐
+                                     /dashboard        /blog/:slug
+                                   (publisher hub)   (public blog view)
+                                         │
+                              "Publish New Post"
+                                   ├── 1 blog → /blog/:slug/post/create
+                                   ├── N blogs → BlogPickerModal
+                                   └── 0 blogs → /blogs/create
+```
 
 ---
 
 ## Technical Details
 
-### Edge Function: `check-celebrations`
-
+### Collapsible Comments (PostView.tsx)
 ```text
-supabase/functions/check-celebrations/index.ts
+const [commentsExpanded, setCommentsExpanded] = useState(false);
+
+// Replace current <CommentSection /> render with:
+<div>
+  <button onClick={() => setCommentsExpanded(!commentsExpanded)}>
+    {commentsExpanded ? "Hide Comments" : `View ${post.comment_count} Comments`}
+  </button>
+  {commentsExpanded && <CommentSection ... />}
+</div>
 ```
 
-Logic:
-1. Use service role key to query all profiles
-2. Extract today's month/day
-3. Find birthday matches: `EXTRACT(MONTH FROM date_of_birth) = current_month AND EXTRACT(DAY FROM date_of_birth) = current_day`
-4. Find anniversary matches: same logic on `created_at`
-5. Check no duplicate celebration already exists for today
-6. Create celebration_posts entries with `expires_at = now() + 24 hours`
-7. Call `send-celebration-email` for each celebrant
-8. Expire old posts: `UPDATE celebration_posts SET status = 'expired' WHERE expires_at < now() AND status = 'active'`
+### Blog Picker Modal
+Fetches user's blogs from the database on mount inside `Dashboard.tsx` / `PRPHeader`. Since blogs are already fetched on Dashboard, the picker reuses that data. In the header, it fetches on-demand when the button is clicked.
 
-### Celebration Post Content (generated by the function)
+### External Redirects for About/Privacy
+```text
+// In About.tsx and Privacy.tsx:
+useEffect(() => {
+  window.location.href = "https://pressroompublisher.broadcasterscommunity.com/about";
+}, []);
+```
 
-**Birthday message:**
-"Happy Birthday, [First Name]! The entire Press Room Publisher community celebrates with you today. May your stories continue to inspire, inform, and ignite change. Here's to another remarkable year of impactful publishing!"
+### Share Blog Button (BlogView.tsx)
+A button that calls `navigator.share()` with the blog name + URL, with clipboard fallback — consistent with how `PostView.tsx` currently handles sharing.
 
-**Anniversary message:**
-"Congratulations, [First Name]! Today marks [N] year(s) since you joined Press Room Publisher. Your voice matters, your stories count, and your contributions make the world a better-informed place. Thank you for being part of the PRP family!"
+---
 
-### Frontend Component: `CelebrationBanner.tsx`
+## What is NOT Changing
 
-A reusable component that:
-- Takes a `blogId` prop
-- Queries `celebration_posts` where `blog_id = blogId`, `status = 'active'`, and `expires_at > now()`
-- Renders a themed banner (birthday or anniversary)
-- Fully accessible with alt text and ARIA labels
-
-### Files to Create
-- `supabase/functions/check-celebrations/index.ts` -- daily celebration checker
-- `supabase/functions/send-celebration-email/index.ts` -- branded email sender
-- `src/components/CelebrationBanner.tsx` -- frontend banner component
-
-### Files to Modify
-- `src/pages/BlogView.tsx` -- add CelebrationBanner above the posts section
-- `src/pages/Dashboard.tsx` -- add personal celebration card in hero
-- `supabase/config.toml` -- add `verify_jwt = false` for `check-celebrations`
-
-### Scheduling
-
-Since Lovable Cloud doesn't support native cron jobs, the `check-celebrations` function will be a publicly callable endpoint. You can set up a free external cron service (like cron-job.org) to call it once daily, or trigger it manually. The function is idempotent -- calling it multiple times on the same day won't create duplicate celebrations.
-
+- All authentication logic, RLS policies, and database structure remain intact.
+- All publishing, editing, admin management, celebration, and notification features remain intact.
+- `/help` and `/terms` remain as internal pages.
+- The `/blog/:slug`, `/blog/:slug/post/:id`, `/search`, `/category/:slug` public routes remain as-is.
+- No database migrations needed for any of these changes.
