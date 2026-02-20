@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -16,13 +16,15 @@ import {
   Eye,
   BookOpen,
   Sparkles,
-  Calendar
+  Calendar,
+  Edit3
 } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 import { PRPHeader } from "@/components/ui/prp-header";
 import { Footer } from "@/components/Footer";
 import { WelcomeModal } from "@/components/WelcomeModal";
 import { CelebrationBanner } from "@/components/CelebrationBanner";
+import { BlogPickerModal } from "@/components/BlogPickerModal";
 
 interface Profile {
   first_name: string;
@@ -42,11 +44,13 @@ interface BlogWithCategory extends Blog {
 
 const Dashboard = () => {
   const { user, isLoading: authLoading } = useAuth({ requireAuth: true });
+  const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [blogs, setBlogs] = useState<BlogWithCategory[]>([]);
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [totalStats, setTotalStats] = useState({ followers: 0, posts: 0, views: 0 });
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -173,16 +177,23 @@ const Dashboard = () => {
                 </div>
               </div>
 
-              <Link to="/blogs/create">
-                <Button 
+              <Button 
                   size="lg" 
                   className="btn-accent rounded-full shadow-lg hover:shadow-xl transition-all group"
-                  aria-label="Create a new publication"
+                  aria-label="Publish new post"
+                  onClick={() => {
+                    if (blogs.length === 0) {
+                      navigate('/blogs/create');
+                    } else if (blogs.length === 1) {
+                      navigate(`/blog/${blogs[0].slug}/post/create`);
+                    } else {
+                      setPickerOpen(true);
+                    }
+                  }}
                 >
-                  <Plus className="h-5 w-5 mr-2 group-hover:rotate-90 transition-transform" aria-hidden="true" />
-                  New publication
+                  <Edit3 className="h-5 w-5 mr-2 group-hover:rotate-12 transition-transform" aria-hidden="true" />
+                  Publish New Post
                 </Button>
-              </Link>
             </div>
           </div>
         </section>
@@ -395,7 +406,6 @@ const Dashboard = () => {
         open={showWelcomeModal}
         onClose={async () => {
           setShowWelcomeModal(false);
-          // Mark as seen in database
           if (user) {
             await supabase
               .from("profiles")
@@ -404,6 +414,19 @@ const Dashboard = () => {
           }
         }}
         type="subscriber"
+      />
+
+      {/* Blog Picker Modal for "Publish New Post" */}
+      <BlogPickerModal
+        open={pickerOpen}
+        onClose={() => setPickerOpen(false)}
+        blogs={blogs.map(b => ({
+          id: b.id,
+          blog_name: b.blog_name,
+          slug: b.slug,
+          profile_photo_url: b.profile_photo_url,
+          profile_photo_alt: b.profile_photo_alt,
+        }))}
       />
     </div>
   );
