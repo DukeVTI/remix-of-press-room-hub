@@ -25,7 +25,7 @@ interface PostWithMedia extends Post {
 
 const BlogView = () => {
   const { blogSlug } = useParams<{ blogSlug: string }>();
-  
+
   const [blog, setBlog] = useState<BlogWithDetails | null>(null);
   const [posts, setPosts] = useState<PostWithMedia[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -120,26 +120,6 @@ const BlogView = () => {
     setFollowLoading(false);
   };
 
-  const handleShareBlog = async () => {
-    if (!blog) return;
-    const url = window.location.href;
-    
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: blog.blog_name,
-          text: blog.description,
-          url,
-        });
-      } catch {
-        // User cancelled
-      }
-    } else {
-      await navigator.clipboard.writeText(url);
-      toast.success("Blog link copied to clipboard!");
-    }
-  };
-
   const formatDate = (dateString: string | null) => {
     if (!dateString) return "";
     return new Date(dateString).toLocaleDateString("en-US", {
@@ -147,6 +127,51 @@ const BlogView = () => {
       month: "long",
       day: "numeric"
     });
+  };
+
+  const copyToClipboard = (text: string) => {
+    // Universal clipboard copy — works on HTTP/localhost without secure context
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(text).then(() => {
+        toast.success("Link copied to clipboard!");
+      }).catch(() => {
+        legacyCopy(text);
+      });
+    } else {
+      legacyCopy(text);
+    }
+  };
+
+  const legacyCopy = (text: string) => {
+    const el = document.createElement("textarea");
+    el.value = text;
+    el.style.position = "fixed";
+    el.style.opacity = "0";
+    document.body.appendChild(el);
+    el.focus();
+    el.select();
+    try {
+      document.execCommand("copy");
+      toast.success("Link copied to clipboard!");
+    } catch {
+      toast.error("Could not copy. Please copy this URL manually: " + text);
+    }
+    document.body.removeChild(el);
+  };
+
+  const handleShareBlog = async () => {
+    if (!blog) return;
+    const url = window.location.href;
+    const shareText = `Follow ${blog.blog_name} on Press Room Publisher!`;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: blog.blog_name, text: shareText, url });
+        return;
+      } catch {
+        // Fall through to clipboard if user cancelled or share failed
+      }
+    }
+    copyToClipboard(url);
   };
 
   const formatNumber = (num: number) => {
@@ -177,7 +202,7 @@ const BlogView = () => {
         <PRPHeader isAuthenticated={!!userId} />
 
         <main id="main-content" className="flex-1 section-container py-16 text-center">
-          <div 
+          <div
             className="w-20 h-20 mx-auto mb-6 rounded-full bg-muted flex items-center justify-center"
             aria-hidden="true"
           >
@@ -212,10 +237,10 @@ const BlogView = () => {
         <section className="flex flex-col items-center justify-center w-full max-w-3xl mx-auto px-4 -mt-24 mb-0 relative z-20">
           <div className="relative flex flex-col items-center">
             <Avatar className="h-32 w-32 border-4 border-background shadow-xl bg-background -mt-12">
-                            <AvatarImage 
-                              src={blog.profile_photo_url} 
-                              alt={blog.profile_photo_alt || `${blog.blog_name} profile photo`}
-                            />
+              <AvatarImage
+                src={blog.profile_photo_url}
+                alt={blog.profile_photo_alt || `${blog.blog_name} profile photo`}
+              />
               <AvatarFallback className="text-4xl bg-accent text-accent-foreground">
                 {blog.blog_name.charAt(0).toUpperCase()}
               </AvatarFallback>
@@ -239,7 +264,7 @@ const BlogView = () => {
             <span className="text-base text-foreground font-medium whitespace-nowrap"><span className="font-semibold">{formatNumber(blog.follower_count)}</span> followers</span>
             <span className="text-base text-muted-foreground whitespace-nowrap">· Since {formatDate(blog.created_at)}</span>
             {userId ? (
-              <Button 
+              <Button
                 onClick={handleFollow}
                 disabled={followLoading}
                 className={isFollowing ? "btn-outline rounded-full" : "btn-accent rounded-full"}
@@ -286,7 +311,7 @@ const BlogView = () => {
         </div>
 
         {/* Posts Section */}
-        <section 
+        <section
           className="section-default bg-background"
           aria-labelledby="posts-heading"
         >
@@ -297,7 +322,7 @@ const BlogView = () => {
 
             {posts.length === 0 ? (
               <div className="card-premium text-center py-16">
-                <div 
+                <div
                   className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center"
                   aria-hidden="true"
                 >
@@ -311,11 +336,11 @@ const BlogView = () => {
             ) : (
               <div className="grid gap-6">
                 {posts.map((post) => (
-                  <article 
+                  <article
                     key={post.id}
                     className="editorial-card hover:shadow-lg transition-shadow"
                   >
-                    <Link 
+                    <Link
                       to={`/blog/${blogSlug}/post/${post.id}`}
                       className="block"
                       aria-label={`Read article: ${post.headline}`}
@@ -324,7 +349,7 @@ const BlogView = () => {
                         {/* Post Thumbnail */}
                         {post.media && post.media.length > 0 && post.media[0].media_type === "image" && (
                           <div className="md:w-48 md:h-32 flex-shrink-0">
-                            <img 
+                            <img
                               src={post.media[0].file_url}
                               alt={post.media[0].description}
                               className="w-full h-48 md:h-32 object-cover rounded-lg"
@@ -367,21 +392,21 @@ const BlogView = () => {
                           </div>
 
                           <div className="flex flex-wrap items-center gap-4 mt-3 text-sm text-muted-foreground">
-                            <span 
+                            <span
                               className="flex items-center gap-1"
                               aria-label={`${post.view_count} views`}
                             >
                               <Eye className="h-4 w-4" aria-hidden="true" />
                               <span>{formatNumber(post.view_count)}</span>
                             </span>
-                            <span 
+                            <span
                               className="flex items-center gap-1"
                               aria-label={`${post.approval_count} approvals`}
                             >
                               <ThumbsUp className="h-4 w-4" aria-hidden="true" />
                               <span>{formatNumber(post.approval_count)}</span>
                             </span>
-                            <span 
+                            <span
                               className="flex items-center gap-1"
                               aria-label={`${post.comment_count} comments`}
                             >

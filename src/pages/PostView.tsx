@@ -1,4 +1,4 @@
-import {  
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -15,7 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { Calendar, Eye, ThumbsUp, ThumbsDown, MessageSquare, ArrowLeft, Loader2, Pin, User, FileQuestion } from "lucide-react";
+import { Calendar, Eye, ThumbsUp, ThumbsDown, MessageSquare, ArrowLeft, Loader2, Pin, User, FileQuestion, Share2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -45,19 +45,19 @@ interface PostWithDetails extends Post {
     slug: string;
     profile_photo_url: string;
   };
-  media: { 
-    id: string; 
-    file_url: string; 
-    description: string; 
+  media: {
+    id: string;
+    file_url: string;
+    description: string;
     media_type: string;
     order_position: number;
   }[];
 }
 
 interface CommentWithProfile extends Comment {
-  profiles: { 
-    first_name: string; 
-    last_name: string; 
+  profiles: {
+    first_name: string;
+    last_name: string;
     screen_name: string | null;
     profile_photo_url: string | null;
   } | null;
@@ -85,7 +85,7 @@ const REPORT_REASONS = [
 const PostView = () => {
   const { blogSlug, postId } = useParams<{ blogSlug: string; postId: string }>();
   const navigate = useNavigate();
-  
+
   const [post, setPost] = useState<PostWithDetails | null>(null);
   const [comments, setComments] = useState<CommentWithProfile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -93,11 +93,11 @@ const PostView = () => {
   const [userReaction, setUserReaction] = useState<"approve" | "disapprove" | null>(null);
   const [reactionLoading, setReactionLoading] = useState(false);
   const [commentsExpanded, setCommentsExpanded] = useState(false);
-  
+
   // Comment state
   const [commentLoading, setCommentLoading] = useState(false);
   const [commentReactions, setCommentReactions] = useState<Record<string, "approve" | "disapprove" | null>>({});
-  
+
   // Report state
   const [reportDialogOpen, setReportDialogOpen] = useState(false);
   const [reportReason, setReportReason] = useState("");
@@ -238,7 +238,7 @@ const PostView = () => {
           .eq("comment_id", commentId);
 
         setCommentReactions(prev => ({ ...prev, [commentId]: null }));
-        
+
         // Update count locally
         setComments(prev => updateCommentCount(prev, commentId, type, -1));
       } else if (currentReaction) {
@@ -250,7 +250,7 @@ const PostView = () => {
           .eq("comment_id", commentId);
 
         setCommentReactions(prev => ({ ...prev, [commentId]: type }));
-        
+
         // Update counts: decrement old, increment new
         setComments(prev => {
           let updated = updateCommentCount(prev, commentId, currentReaction, -1);
@@ -264,7 +264,7 @@ const PostView = () => {
           .insert({ user_id: userId, comment_id: commentId, reaction_type: type });
 
         setCommentReactions(prev => ({ ...prev, [commentId]: type }));
-        
+
         // Update count locally
         setComments(prev => updateCommentCount(prev, commentId, type, 1));
       }
@@ -446,23 +446,49 @@ const PostView = () => {
     setCommentLoading(false);
   };
 
-  const handleShare = async () => {
+  const legacyCopyPost = (text: string) => {
+    const el = document.createElement("textarea");
+    el.value = text;
+    el.style.position = "fixed";
+    el.style.opacity = "0";
+    document.body.appendChild(el);
+    el.focus();
+    el.select();
+    try {
+      document.execCommand("copy");
+      toast.success("Post link copied to clipboard!");
+    } catch {
+      toast.error("Could not copy. URL: " + text);
+    }
+    document.body.removeChild(el);
+  };
+
+  const handleSharePost = async () => {
+    if (!post) return;
     const url = window.location.href;
-    
+    const snippet = post.subtitle
+      ? `${post.subtitle.slice(0, 120)}${post.subtitle.length > 120 ? '…' : ''}`
+      : post.content
+        ? `${post.content.slice(0, 120)}${post.content.length > 120 ? '…' : ''}`
+        : '';
+    const shareText = snippet ? `${post.headline}\n\n${snippet}` : post.headline;
+
     if (navigator.share) {
       try {
-        await navigator.share({
-          title: post?.headline,
-          text: post?.subtitle || post?.headline,
-          url: url,
-        });
-      } catch (error) {
-        // User cancelled or share failed
+        await navigator.share({ title: post.headline, text: shareText, url });
+        return;
+      } catch {
+        // Fall through to clipboard
       }
+    }
+
+    // Clipboard with execCommand fallback
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(url).then(() => {
+        toast.success("Post link copied to clipboard!");
+      }).catch(() => legacyCopyPost(url));
     } else {
-      // Fallback: copy to clipboard
-      await navigator.clipboard.writeText(url);
-      toast.success("Link copied to clipboard!");
+      legacyCopyPost(url);
     }
   };
 
@@ -550,7 +576,7 @@ const PostView = () => {
         <PRPHeader isAuthenticated={!!userId} />
 
         <main id="main-content" className="flex-1 section-container py-16 text-center">
-          <div 
+          <div
             className="w-20 h-20 mx-auto mb-6 rounded-full bg-muted flex items-center justify-center"
             aria-hidden="true"
           >
@@ -694,9 +720,9 @@ const PostView = () => {
 
           <Separator className="my-8" />
 
-          {/* Reaction Buttons */}
+          {/* Reaction Buttons + Share */}
           <section aria-label="Post reactions" className="mb-8">
-            <div className="flex items-center gap-4">
+            <div className="flex flex-wrap items-center gap-3">
               <Button
                 variant={userReaction === "approve" ? "default" : "outline"}
                 onClick={() => handleReaction("approve")}
@@ -721,8 +747,19 @@ const PostView = () => {
                 Disapprove ({formatNumber(post.disapproval_count)})
               </Button>
 
+              {/* Share Post Button */}
+              <Button
+                variant="outline"
+                onClick={handleSharePost}
+                aria-label="Share this post"
+                className="ml-auto"
+              >
+                <Share2 className="h-4 w-4 mr-2" aria-hidden="true" />
+                Share Post
+              </Button>
+
               {!userId && (
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-muted-foreground w-full">
                   <Link to="/login" className="text-accent hover:underline">Sign in</Link> to react
                 </p>
               )}
@@ -757,8 +794,8 @@ const PostView = () => {
                   onAddComment={async (content, parentId) => {
                     await handleSubmitComment(content, parentId);
                   }}
-                  onEditComment={async () => {}}
-                  onDeleteComment={async () => {}}
+                  onEditComment={async () => { }}
+                  onDeleteComment={async () => { }}
                   onApprove={async (commentId) => {
                     await handleCommentReaction(commentId, "approve");
                   }}
