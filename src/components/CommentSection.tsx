@@ -92,7 +92,7 @@ export function CommentSection({
   const normalizeComment = (comment: Comment | any): Comment => {
     // If the comment already has the expected structure, return it
     if (comment.user) return comment;
-    
+
     // Otherwise, transform from Supabase snake_case format
     const profiles = comment.profiles;
     return {
@@ -131,7 +131,7 @@ export function CommentSection({
     return (
       <div
         key={comment.id}
-        className={`flex flex-col gap-1 border-b pb-3 mb-3 pl-${isReply ? 6 : 0}`}
+        className={`flex flex-col gap-1 border-b pb-3 mb-3 ${isReply ? 'pl-4 sm:pl-6' : 'pl-0'}`}
         aria-label={isReply ? "Reply" : "Comment"}
       >
         <div className="flex items-center gap-2">
@@ -179,20 +179,20 @@ export function CommentSection({
           </div>
         )}
         {!isDeleted && (
-          <div className="flex gap-2 items-center mt-1">
-            <Button 
-              size="sm" 
-              variant="ghost" 
-              onClick={() => onApprove(comment.id)} 
+          <div className="flex flex-wrap gap-1 items-center mt-1">
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => onApprove(comment.id)}
               aria-label="Approve comment"
               className={userReactions[comment.id] === "approve" ? "bg-green-600 text-white hover:bg-green-700" : ""}
             >
               👍 {comment.approvalCount}
             </Button>
-            <Button 
-              size="sm" 
-              variant="ghost" 
-              onClick={() => onDisapprove(comment.id)} 
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => onDisapprove(comment.id)}
               aria-label="Disapprove comment"
               className={userReactions[comment.id] === "disapprove" ? "bg-red-600 text-white hover:bg-red-700" : ""}
             >

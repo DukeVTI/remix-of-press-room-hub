@@ -722,7 +722,7 @@ const PostView = () => {
 
           {/* Reaction Buttons + Share */}
           <section aria-label="Post reactions" className="mb-8">
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-wrap gap-3">
               <Button
                 variant={userReaction === "approve" ? "default" : "outline"}
                 onClick={() => handleReaction("approve")}
@@ -747,23 +747,21 @@ const PostView = () => {
                 Disapprove ({formatNumber(post.disapproval_count)})
               </Button>
 
-              {/* Share Post Button */}
               <Button
                 variant="outline"
                 onClick={handleSharePost}
                 aria-label="Share this post"
-                className="ml-auto"
               >
                 <Share2 className="h-4 w-4 mr-2" aria-hidden="true" />
                 Share Post
               </Button>
-
-              {!userId && (
-                <p className="text-sm text-muted-foreground w-full">
-                  <Link to="/login" className="text-accent hover:underline">Sign in</Link> to react
-                </p>
-              )}
             </div>
+
+            {!userId && (
+              <p className="text-sm text-muted-foreground mt-3">
+                <Link to="/login" className="text-accent hover:underline">Sign in</Link> to react to this post
+              </p>
+            )}
           </section>
 
           <Separator className="my-8" />
