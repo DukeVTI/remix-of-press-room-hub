@@ -1,13 +1,13 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+// Vercel Edge Middleware — no Next.js imports needed (pure Web API)
+// Intercepts bot/crawler requests to /blog/* and injects dynamic OG meta tags.
 
-// Bot user-agents that read OG meta tags
-const BOT_UA = /facebookexternalhit|facebookbot|twitterbot|whatsapp|linkedinbot|slackbot|discordbot|telegrambot|pinterest|redditbot|googlebot|bingbot|applebot|duckduckbot|crawler|spider|prerender/i;
+const BOT_UA =
+    /facebookexternalhit|facebookbot|twitterbot|whatsapp|linkedinbot|slackbot|discordbot|telegrambot|pinterest|redditbot|googlebot|bingbot|applebot|duckduckbot|crawler|spider|prerender/i;
 
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL as string;
 const SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_ANON_KEY as string;
 
-const SUPABASE_HEADERS = {
+const SUPABASE_HEADERS: Record<string, string> = {
     apikey: SUPABASE_ANON_KEY,
     Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
 };
@@ -22,69 +22,71 @@ interface MetaData {
 }
 
 async function getPostMeta(postId: string, baseUrl: string): Promise<MetaData> {
-    const defaults: MetaData = {
+    const fallback: MetaData = {
         title: 'Press Room Publisher',
         description: 'Read this article on Press Room Publisher.',
         ogImageUrl: `${baseUrl}/api/og?type=post&id=${postId}`,
-        url: baseUrl,
+        url: `${baseUrl}/`,
         type: 'article',
     };
-
     try {
         const res = await fetch(
             `${SUPABASE_URL}/rest/v1/posts?id=eq.${postId}&status=eq.published&select=headline,subtitle,content,blogs(blog_name,slug)&limit=1`,
             { headers: SUPABASE_HEADERS }
         );
-        const data = await res.json();
+        const data: any[] = await res.json();
         const post = data[0];
-        if (!post) return defaults;
-
+        if (!post) return fallback;
         return {
-            title: post.headline ?? defaults.title,
-            description: post.subtitle ?? post.content?.slice(0, 160) ?? defaults.description,
+            title: post.headline ?? fallback.title,
+            description: post.subtitle ?? post.content?.slice(0, 160) ?? fallback.description,
             ogImageUrl: `${baseUrl}/api/og?type=post&id=${postId}`,
             url: `${baseUrl}/blog/${post.blogs?.slug ?? ''}/post/${postId}`,
             type: 'article',
             blogName: post.blogs?.blog_name,
         };
     } catch {
-        return defaults;
+        return fallback;
     }
 }
 
 async function getBlogMeta(slug: string, baseUrl: string): Promise<MetaData> {
-    const defaults: MetaData = {
+    const fallback: MetaData = {
         title: 'Press Room Publisher',
         description: 'A publication on Press Room Publisher.',
         ogImageUrl: `${baseUrl}/api/og?type=blog&slug=${slug}`,
         url: `${baseUrl}/blog/${slug}`,
         type: 'website',
     };
-
     try {
         const res = await fetch(
             `${SUPABASE_URL}/rest/v1/blogs?slug=eq.${slug}&status=eq.active&select=blog_name,description&limit=1`,
             { headers: SUPABASE_HEADERS }
         );
-        const data = await res.json();
+        const data: any[] = await res.json();
         const blog = data[0];
-        if (!blog) return defaults;
-
+        if (!blog) return fallback;
         return {
-            title: blog.blog_name ?? defaults.title,
-            description: blog.description ?? defaults.description,
+            title: blog.blog_name ?? fallback.title,
+            description: blog.description ?? fallback.description,
             ogImageUrl: `${baseUrl}/api/og?type=blog&slug=${slug}`,
             url: `${baseUrl}/blog/${slug}`,
             type: 'website',
         };
     } catch {
-        return defaults;
+        return fallback;
     }
 }
 
-function buildBotHtml(meta: MetaData): string {
-    const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+function esc(s: string) {
+    return s
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+}
 
+function buildBotHtml(meta: MetaData): string {
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -108,27 +110,24 @@ function buildBotHtml(meta: MetaData): string {
   <meta name="twitter:description" content="${esc(meta.description)}" />
   <meta name="twitter:image" content="${esc(meta.ogImageUrl)}" />
 
-  ${meta.type === 'article' && meta.blogName ? `<meta property="article:publisher" content="${esc(meta.blogName)}" />` : ''}
+  ${meta.blogName ? `<meta property="article:publisher" content="${esc(meta.blogName)}" />` : ''}
 
-  <!-- Redirect real users to the SPA -->
+  <!-- Redirect real users to the SPA immediately -->
   <meta http-equiv="refresh" content="0; url=${esc(meta.url)}" />
 </head>
 <body>
-  <p>Redirecting to <a href="${esc(meta.url)}">${esc(meta.title)}</a>…</p>
+  <p>Redirecting to <a href="${esc(meta.url)}">${esc(meta.title)}</a>&hellip;</p>
 </body>
 </html>`;
 }
 
-export async function middleware(req: NextRequest) {
-    const ua = req.headers.get('user-agent') ?? '';
-    const isBot = BOT_UA.test(ua);
+export default async function middleware(request: Request): Promise<Response | undefined> {
+    const ua = request.headers.get('user-agent') ?? '';
 
-    if (!isBot) {
-        // Regular users — serve the SPA normally
-        return NextResponse.next();
-    }
+    // Pass through for non-bots — Vercel serves index.html via the rewrite rule
+    if (!BOT_UA.test(ua)) return undefined;
 
-    const url = req.nextUrl;
+    const url = new URL(request.url);
     const path = url.pathname;
     const baseUrl = `${url.protocol}//${url.host}`;
 
@@ -152,7 +151,7 @@ export async function middleware(req: NextRequest) {
         });
     }
 
-    return NextResponse.next();
+    return undefined;
 }
 
 export const config = {
