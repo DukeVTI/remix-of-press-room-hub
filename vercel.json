@@ -6,11 +6,11 @@
     },
     {
       "source": "/blog/:slug/post/:id",
-      "destination": "/api/share"
+      "destination": "/api/share?type=post&slug=:slug&id=:id"
     },
     {
       "source": "/blog/:slug",
-      "destination": "/api/share"
+      "destination": "/api/share?type=blog&slug=:slug"
     },
     {
       "source": "/(.*)",
