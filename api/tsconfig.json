@@ -1,0 +1,13 @@
+{
+    "extends": "../tsconfig.json",
+    "compilerOptions": {
+        "jsx": "react-jsx",
+        "module": "ESNext",
+        "moduleResolution": "bundler",
+        "noEmit": false
+    },
+    "include": [
+        "**/*.ts",
+        "**/*.tsx"
+    ]
+}
