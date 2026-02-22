@@ -1,11 +1,9 @@
 // api/share.ts — Vercel Edge Function
-// Vercel rewrites /blog/:slug → /api/share?type=blog&slug=:slug
-// and /blog/:slug/post/:id → /api/share?type=post&slug=:slug&id=:id
+// Serves index.html to ALL clients (bots + humans) with OG tags injected.
+// Bots read the OG tags; humans get the Vite SPA which React Router handles.
+// No bot detection → no redirect loops on WhatsApp/Telegram in-app browsers.
 
 export const config = { runtime: 'edge' };
-
-const BOT_UA =
-    /facebookexternalhit|facebookbot|twitterbot|whatsapp|linkedinbot|slackbot|discordbot|telegrambot|pinterest|redditbot|googlebot|bingbot|applebot|duckduckbot|crawler|spider|prerender/i;
 
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL as string;
 const SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_ANON_KEY as string;
@@ -93,32 +91,7 @@ async function getBlogMeta(slug: string, origin: string): Promise<Meta> {
     }
 }
 
-function buildOgHtml(meta: Meta): string {
-    return `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>${esc(meta.title)}</title>
-  <meta name="description" content="${esc(meta.description)}" />
-  <meta property="og:title" content="${esc(meta.title)}" />
-  <meta property="og:description" content="${esc(meta.description)}" />
-  <meta property="og:image" content="${esc(meta.image)}" />
-  <meta property="og:url" content="${esc(meta.canonicalUrl)}" />
-  <meta property="og:type" content="${meta.type}" />
-  <meta property="og:site_name" content="Press Room Publisher" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="${esc(meta.title)}" />
-  <meta name="twitter:description" content="${esc(meta.description)}" />
-  <meta name="twitter:image" content="${esc(meta.image)}" />
-  <meta http-equiv="refresh" content="0; url=${esc(meta.canonicalUrl)}" />
-</head>
-<body>
-  <p>Redirecting to <a href="${esc(meta.canonicalUrl)}">${esc(meta.title)}</a>&hellip;</p>
-</body>
-</html>`;
-}
-
-// Cache the SPA shell across edge invocations on the same instance
+// Cache the SPA shell per edge instance to avoid refetching on every request
 let cachedIndex: string | null = null;
 
 async function getSpaShell(origin: string): Promise<string> {
@@ -128,43 +101,42 @@ async function getSpaShell(origin: string): Promise<string> {
     return cachedIndex;
 }
 
+/** Replace the generic OG/Twitter meta tags in index.html with page-specific ones */
+function injectOgTags(html: string, meta: Meta): string {
+    return html
+        .replace(/<title>[^<]*<\/title>/, `<title>${esc(meta.title)} — Press Room Publisher</title>`)
+        .replace(/<meta property="og:title"[^>]*\/>/, `<meta property="og:title" content="${esc(meta.title)}" />`)
+        .replace(/<meta property="og:description"[^>]*\/>/, `<meta property="og:description" content="${esc(meta.description)}" />`)
+        .replace(/<meta property="og:image"[^>]*\/>/, `<meta property="og:image" content="${esc(meta.image)}" />`)
+        .replace(/<meta property="og:type"[^>]*\/>/, `<meta property="og:type" content="${meta.type}" />`)
+        .replace(/<meta name="twitter:card"[^>]*\/>/, `<meta name="twitter:card" content="summary_large_image" />`)
+        .replace(/<meta name="twitter:title"[^>]*\/>/, `<meta name="twitter:title" content="${esc(meta.title)}" />`)
+        .replace(/<meta name="twitter:description"[^>]*\/>/, `<meta name="twitter:description" content="${esc(meta.description)}" />`)
+        .replace(/<meta name="twitter:image"[^>]*\/>/, `<meta name="twitter:image" content="${esc(meta.image)}" />`);
+}
+
 export default async function handler(req: Request): Promise<Response> {
     const url = new URL(req.url);
-    const ua = req.headers.get('user-agent') ?? '';
-
-    // ── Human user: fetch and return the Vite SPA shell ──────────────────
-    if (!BOT_UA.test(ua)) {
-        const html = await getSpaShell(url.origin);
-        return new Response(html, {
-            headers: {
-                'Content-Type': 'text/html; charset=utf-8',
-                'Cache-Control': 'public, max-age=0, must-revalidate',
-            },
-        });
-    }
-
-    // ── Bot / crawler: read the route params Vercel injected as query strings ──
-    const type = url.searchParams.get('type'); // 'post' | 'blog'
+    const type = url.searchParams.get('type'); // 'post' | 'blog' — injected by vercel.json rewrite
     const slug = url.searchParams.get('slug') ?? '';
     const id = url.searchParams.get('id') ?? '';
 
-    let meta: Meta;
+    // Fetch the SPA shell and the page-specific meta in parallel
+    const [shell, meta] = await Promise.all([
+        getSpaShell(url.origin),
+        type === 'post' && id
+            ? getPostMeta(id, slug, url.origin)
+            : type === 'blog' && slug
+                ? getBlogMeta(slug, url.origin)
+                : Promise.resolve(null as Meta | null),
+    ]);
 
-    if (type === 'post' && id) {
-        meta = await getPostMeta(id, slug, url.origin);
-    } else if (type === 'blog' && slug) {
-        meta = await getBlogMeta(slug, url.origin);
-    } else {
-        // Unknown route — just serve the SPA
-        const html = await getSpaShell(url.origin);
-        return new Response(html, {
-            headers: { 'Content-Type': 'text/html; charset=utf-8' },
-        });
-    }
+    const html = meta ? injectOgTags(shell, meta) : shell;
 
-    return new Response(buildOgHtml(meta), {
+    return new Response(html, {
         headers: {
             'Content-Type': 'text/html; charset=utf-8',
+            // Short CDN cache so edits appear quickly; bots re-crawl after 5 min
             'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=60',
         },
     });
