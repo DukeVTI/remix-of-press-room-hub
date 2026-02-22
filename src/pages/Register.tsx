@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -6,8 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Eye, EyeOff, ArrowLeft, Loader2 } from "lucide-react";
+import { Eye, EyeOff, ArrowLeft, Loader2, Info } from "lucide-react";
 import { Footer } from "@/components/Footer";
+import { AboutModal } from "@/components/AboutModal";
 
 const months = [
   "January", "February", "March", "April", "May", "June",
@@ -18,12 +19,27 @@ const currentYear = new Date().getFullYear();
 const years = Array.from({ length: 100 }, (_, i) => currentYear - 18 - i);
 const days = Array.from({ length: 31 }, (_, i) => i + 1);
 
+const SESSION_KEY = "prp_about_seen";
+
 const Register = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  // Show About modal on first visit this session
+  const [showModal, setShowModal] = useState(false);
+  useEffect(() => {
+    if (!sessionStorage.getItem(SESSION_KEY)) {
+      setShowModal(true);
+    }
+  }, []);
+
+  const dismissModal = () => {
+    sessionStorage.setItem(SESSION_KEY, "1");
+    setShowModal(false);
+  };
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -137,12 +153,12 @@ const Register = () => {
       {/* Minimal header - links back to main site */}
       <header className="border-b border-border py-3 px-4 sm:px-6 bg-background" role="banner">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
-          <a 
+          <a
             href="https://pressroompublisher.broadcasterscommunity.com"
             className="flex items-center gap-2"
             aria-label="Back to Press Room Publisher main site"
           >
-            <img 
+            <img
               src="https://pressroompublisher.broadcasterscommunity.com/wp-content/uploads/2026/01/cropped-PRP-ICON_-transparetn-32x32.png"
               alt="Press Room Publisher logo"
               className="w-7 h-7"
@@ -168,9 +184,26 @@ const Register = () => {
             <p className="body-md text-muted-foreground">
               Join Press Room Publisher and start sharing your stories
             </p>
+            <div className="mt-4">
+              <button
+                type="button"
+                onClick={() => setShowModal(true)}
+                className="inline-flex items-center gap-2 text-sm text-accent hover:underline font-medium transition-colors"
+                aria-label="Read why you should join or about us"
+              >
+                <Info className="h-4 w-4" aria-hidden="true" />
+                Why Join? Read About Us
+              </button>
+            </div>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-8" aria-label="Registration form">
+            <AboutModal
+              open={showModal}
+              onContinue={dismissModal}
+              onClose={() => setShowModal(false)}
+            />
+
             {/* Personal Information Section */}
             <fieldset className="space-y-6">
               <legend className="headline-sm text-foreground border-b border-border pb-2 w-full">
