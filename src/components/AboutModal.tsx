@@ -75,16 +75,12 @@ export function AboutModal({ open, onContinue, onClose }: AboutModalProps) {
                 {/* Scrollable body */}
                 <div className="flex-1 overflow-y-auto px-6 py-8 space-y-8">
                     <section>
-                        <h3 className="text-xl font-bold text-foreground mb-3">About Press Room Publisher</h3>
-                        <p className="text-muted-foreground leading-relaxed">
-                            Press Room Publisher is a modern publishing platform designed to empower writers, journalists, and content creators to share their stories with the world.
+                        <h3 className="text-xl font-bold text-foreground mb-3">PRP: Who We Are</h3>
+                        <p className="text-muted-foreground leading-relaxed mb-4">
+                            Press Room Publisher is a digital publishing platform creatively designed to empower writing enthusiasts, independent members of the press, and mainstream journalists. We value and celebrate the endearing vibes of every text-based content creator, where free speech lovers and reading culture advocates can speak their truths and share their stories with the world.
                         </p>
-                    </section>
-
-                    <section>
-                        <h3 className="text-lg font-semibold text-foreground mb-3">Our Mission</h3>
                         <p className="text-muted-foreground leading-relaxed">
-                            We believe everyone has a story worth telling. Our mission is to provide the tools and platform that make publishing accessible, professional, and impactful for creators of all backgrounds.
+                            At PRP, we believe everyone has a story worth telling and sharing with both local and global audiences. Our drive toward this digital publishing reality gave birth to Press Room Publisher, providing the tools and platform that make modern publishing accessible to all without exception. Our creative structural designs with you in mind confirm that Press Room Publisher is intentionally built for creators of all backgrounds.
                         </p>
                     </section>
 
