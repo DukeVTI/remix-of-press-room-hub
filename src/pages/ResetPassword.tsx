@@ -7,8 +7,14 @@ import { useToast } from "@/hooks/use-toast";
 import { PRPHeader } from "@/components/ui/prp-header";
 import { Footer } from "@/components/Footer";
 import { ArrowLeft } from "lucide-react";
+import { useSeo } from "@/hooks/useSeo";
 
 export default function ResetPassword() {
+  useSeo({
+    title: "Set New Password",
+    description: "Create a new password for your Press Room Publisher account.",
+    noindex: true,
+  });
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { toast } = useToast();

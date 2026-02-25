@@ -1,7 +1,13 @@
 import { PRPHeader } from "@/components/ui/prp-header";
 import { Footer } from "@/components/Footer";
+import { useSeo } from "@/hooks/useSeo";
 
 const Terms = () => {
+  useSeo({
+    title: "Terms of Service",
+    description: "Read the Press Room Publisher Terms of Service. Understand your rights and responsibilities as a publisher and user on our platform.",
+    keywords: ["terms of service", "terms and conditions", "user agreement", "legal"],
+  });
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <a href="#main-content" className="skip-link">

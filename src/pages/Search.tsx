@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PRPHeader } from "@/components/ui/prp-header";
 import { Footer } from "@/components/Footer";
+import { useSeo } from "@/hooks/useSeo";
 import { 
   Newspaper, 
   Search as SearchIcon,
@@ -36,6 +37,12 @@ interface PostWithBlog extends Post {
 const Search = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const initialQuery = searchParams.get("q") || "";
+  
+  useSeo({
+    title: searchQuery ? `Search: ${searchQuery}` : "Search",
+    description: "Search for publications and articles on Press Room Publisher. Discover journalism from independent writers and news organizations.",
+    keywords: ["search", "find articles", "discover blogs", "journalism search", "press room search"],
+  });
   
   const [query, setQuery] = useState(initialQuery);
   const [searchQuery, setSearchQuery] = useState(initialQuery);

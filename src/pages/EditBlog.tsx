@@ -28,6 +28,7 @@ import {
 import { toast } from "sonner";
 import type { Tables } from "@/integrations/supabase/types";
 import { Footer } from "@/components/Footer";
+import { useSeo } from "@/hooks/useSeo";
 
 type Blog = Tables<"blogs">;
 type BlogCategory = Tables<"blog_categories">;
@@ -37,6 +38,12 @@ const MAX_DESCRIPTION_CHARS = 500;
 const MAX_CUSTOM_FIELD_CHARS = 50;
 
 const EditBlog = () => {
+  useSeo({
+    title: "Edit Blog Settings",
+    description: "Update your blog settings, including name, description, category, and profile photo.",
+    noindex: true,
+  });
+  
   const { blogSlug } = useParams<{ blogSlug: string }>();
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);

@@ -40,6 +40,7 @@ import {
 import { toast } from "sonner";
 import type { Tables } from "@/integrations/supabase/types";
 import { Footer } from "@/components/Footer";
+import { useSeo } from "@/hooks/useSeo";
 
 type Post = Tables<"posts">;
 type Blog = Tables<"blogs">;
@@ -70,6 +71,12 @@ const MAX_DESCRIPTION_CHARS = 500;
 const MAX_MEDIA_FILES = 10;
 
 const EditPost = () => {
+  useSeo({
+    title: "Edit Post",
+    description: "Edit your published article and update content.",
+    noindex: true,
+  });
+  
   const { blogSlug, postId } = useParams<{ blogSlug: string; postId: string }>();
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);

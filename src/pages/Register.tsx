@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Eye, EyeOff, ArrowLeft, Loader2, Info } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { AboutModal } from "@/components/AboutModal";
+import { useSeo } from "@/hooks/useSeo";
 
 const months = [
   "January", "February", "March", "April", "May", "June",
@@ -22,6 +23,12 @@ const days = Array.from({ length: 31 }, (_, i) => i + 1);
 const SESSION_KEY = "prp_about_seen";
 
 const Register = () => {
+  useSeo({
+    title: "Create Your Account",
+    description: "Join Press Room Publisher and start your journalism journey. Create multiple blogs, publish professional content, and connect with readers worldwide.",
+    keywords: ["sign up", "register", "create account", "press room publisher", "blogging platform", "journalism", "publisher"],
+  });
+  
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);

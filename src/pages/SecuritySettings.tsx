@@ -16,8 +16,15 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { Footer } from "@/components/Footer";
+import { useSeo } from "@/hooks/useSeo";
 
 const SecuritySettings = () => {
+  useSeo({
+    title: "Security Settings",
+    description: "Manage your Press Room Publisher account security. Change your password and configure security preferences.",
+    keywords: ["security", "password", "account security"],
+    noindex: true,
+  });
   const navigate = useNavigate();
   
   const [isLoading, setIsLoading] = useState(true);

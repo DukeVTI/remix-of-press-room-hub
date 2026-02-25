@@ -27,6 +27,7 @@ import { toast } from "sonner";
 import type { Tables } from "@/integrations/supabase/types";
 import { Input } from "@/components/ui/input";
 import { Footer } from "@/components/Footer";
+import { useSeo } from "@/hooks/useSeo";
 
 type BlogCategory = Tables<"blog_categories">;
 type BlogLanguage = Tables<"blog_languages">;
@@ -35,6 +36,13 @@ const MAX_DESCRIPTION_CHARS = 500;
 const MAX_CUSTOM_FIELD_CHARS = 50;
 
 const CreateBlog = () => {
+  useSeo({
+    title: "Create New Blog",
+    description: "Create a new publication on Press Room Publisher. Set up your blog name, category, description, and start publishing professional content.",
+    keywords: ["create blog", "new publication", "start blog"],
+    noindex: true,
+  });
+  
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { user, isLoading: authLoading } = useAuth({ requireAuth: true });

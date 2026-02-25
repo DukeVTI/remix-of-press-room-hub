@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { Tables } from "@/integrations/supabase/types";
 import { PRPHeader } from "@/components/ui/prp-header";
+import { useSeo, useStructuredData } from "@/hooks/useSeo";
 
 type Blog = Tables<"blogs">;
 
@@ -27,6 +28,27 @@ const BlogAbout = () => {
   const [languages, setLanguages] = useState<LanguageInfo[]>([]);
   const [postCount, setPostCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Dynamic SEO based on blog data
+  useSeo({
+    title: blog ? `About ${blog.blog_name}` : "Blog About",
+    description: blog ? blog.description : "Learn more about this publication on Press Room Publisher.",
+    image: blog?.profile_photo_url,
+    type: "website",
+    keywords: blog ? [blog.blog_name, "blog", "about", blog.blog_categories?.name || ""].filter(Boolean) : [],
+  });
+
+  // Structured data for the blog
+  useStructuredData(blog ? {
+    "@context": "https://schema.org",
+    "@type": "Blog",
+    "name": blog.blog_name,
+    "description": blog.description,
+    "url": `https://press-pen-pro.lovable.app/blog/${blog.slug}`,
+    "image": blog.profile_photo_url,
+    "inLanguage": languages.map(l => l.name).join(", "),
+    "genre": blog.blog_categories?.name,
+  } : null);
 
   useEffect(() => {
     const init = async () => {

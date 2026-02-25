@@ -16,6 +16,7 @@ import {
 import type { Tables } from "@/integrations/supabase/types";
 import { PRPHeader } from "@/components/ui/prp-header";
 import { Footer } from "@/components/Footer";
+import { useSeo } from "@/hooks/useSeo";
 
 type Blog = Tables<"blogs">;
 type BlogCategory = Tables<"blog_categories">;
@@ -32,6 +33,12 @@ const CategoryBrowse = () => {
   const [allCategories, setAllCategories] = useState<BlogCategory[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
+
+  useSeo({
+    title: category ? `${category.name} - Browse Category` : "Browse Category",
+    description: category ? `Explore publications in the ${category.name} category on Press Room Publisher.` : "Browse publications by category on Press Room Publisher.",
+    keywords: category ? [category.name, "category", "browse blogs", "publications"] : ["categories", "browse", "discover"],
+  });
 
   useEffect(() => {
     const init = async () => {

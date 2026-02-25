@@ -7,8 +7,15 @@ import { PRPHeader } from "@/components/ui/prp-header";
 import { Footer } from "@/components/Footer";
 import { ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useSeo } from "@/hooks/useSeo";
 
 export default function ForgotPassword() {
+  useSeo({
+    title: "Reset Your Password",
+    description: "Forgot your password? Reset your Press Room Publisher account password to regain access to your blogs and content.",
+    keywords: ["password reset", "forgot password", "account recovery"],
+    noindex: true,
+  });
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();

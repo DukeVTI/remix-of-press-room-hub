@@ -41,6 +41,7 @@ import {
 import { toast } from "sonner";
 import type { Tables } from "@/integrations/supabase/types";
 import { Footer } from "@/components/Footer";
+import { useSeo } from "@/hooks/useSeo";
 
 type Blog = Tables<"blogs">;
 type BlogAdmin = Tables<"blog_admins">;
@@ -52,6 +53,12 @@ interface AdminWithProfile extends BlogAdmin {
 const MAX_ADMINS = 5;
 
 const ManageBlogAdmins = () => {
+  useSeo({
+    title: "Manage Blog Admins",
+    description: "Manage administrators for your blog. Invite and remove team members.",
+    noindex: true,
+  });
+  
   const { blogSlug } = useParams<{ blogSlug: string }>();
   const navigate = useNavigate();
   

@@ -39,6 +39,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import type { Tables } from "@/integrations/supabase/types";
+import { useSeo } from "@/hooks/useSeo";
 import { Footer } from "@/components/Footer";
 
 type Blog = Tables<"blogs">;
@@ -61,6 +62,12 @@ interface AdminWithProfile extends BlogAdmin {
 const BlogManage = () => {
   const { blogSlug } = useParams<{ blogSlug: string }>();
   const navigate = useNavigate();
+  
+  useSeo({
+    title: "Manage Blog",
+    description: "Manage your blog posts, drafts, analytics, and settings.",
+    noindex: true,
+  });
   
   const [userId, setUserId] = useState<string | null>(null);
   const [blog, setBlog] = useState<BlogWithCategory | null>(null);

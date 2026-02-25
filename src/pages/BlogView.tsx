@@ -10,6 +10,7 @@ import { PRPHeader } from "@/components/ui/prp-header";
 import { Footer } from "@/components/Footer";
 import { CelebrationBanner } from "@/components/CelebrationBanner";
 import { toast } from "sonner";
+import { useSeo, useStructuredData } from "@/hooks/useSeo";
 
 type Blog = Tables<"blogs">;
 type Post = Tables<"posts">;
@@ -32,6 +33,30 @@ const BlogView = () => {
   const [isFollowing, setIsFollowing] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [followLoading, setFollowLoading] = useState(false);
+
+  // Dynamic SEO for blog
+  useSeo({
+    title: blog ? blog.blog_name : "Blog",
+    description: blog ? blog.description : "Explore this publication on Press Room Publisher.",
+    image: blog?.profile_photo_url,
+    type: "website",
+    keywords: blog ? [blog.blog_name, "blog", "publication", blog.blog_categories?.name || ""].filter(Boolean) : [],
+  });
+
+  // Structured data for blog
+  useStructuredData(blog ? {
+    "@context": "https://schema.org",
+    "@type": "Blog",
+    "name": blog.blog_name,
+    "description": blog.description,
+    "url": `https://press-pen-pro.lovable.app/blog/${blog.slug}`,
+    "image": blog.profile_photo_url,
+    "author": blog.profiles ? {
+      "@type": "Person",
+      "name": `${blog.profiles.first_name} ${blog.profiles.last_name}`,
+    } : undefined,
+    "genre": blog.blog_categories?.name,
+  } : null);
 
   useEffect(() => {
     const init = async () => {

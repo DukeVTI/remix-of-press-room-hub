@@ -5,8 +5,14 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { PRPHeader } from "@/components/ui/prp-header";
 import { Footer } from "@/components/Footer";
+import { useSeo } from "@/hooks/useSeo";
 
 export default function VerifyEmail() {
+  useSeo({
+    title: "Verify Your Email",
+    description: "Verify your email address to complete your Press Room Publisher account setup.",
+    noindex: true,
+  });
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { toast } = useToast();

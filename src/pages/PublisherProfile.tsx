@@ -17,6 +17,7 @@ import {
 import type { Tables } from "@/integrations/supabase/types";
 import { PRPHeader } from "@/components/ui/prp-header";
 import { Footer } from "@/components/Footer";
+import { useSeo, useStructuredData } from "@/hooks/useSeo";
 
 type Blog = Tables<"blogs">;
 
@@ -38,6 +39,29 @@ const PublisherProfile = () => {
   const [publisher, setPublisher] = useState<PublicProfile | null>(null);
   const [publisherBlogs, setPublisherBlogs] = useState<BlogWithCategory[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Dynamic SEO based on publisher
+  useSeo({
+    title: publisher ? `${publisher.first_name} ${publisher.last_name}` : "Publisher Profile",
+    description: publisher ? (publisher.bio || `View ${publisher.first_name} ${publisher.last_name}'s profile and publications on Press Room Publisher.`) : "Publisher profile on Press Room Publisher.",
+    image: publisher?.profile_photo_url,
+    type: "profile",
+    author: publisher ? `${publisher.first_name} ${publisher.last_name}` : undefined,
+  });
+
+  // Structured data for publisher
+  useStructuredData(publisher ? {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": `${publisher.first_name} ${publisher.last_name}`,
+    "description": publisher.bio,
+    "image": publisher.profile_photo_url,
+    "owns": publisherBlogs.map(blog => ({
+      "@type": "Blog",
+      "name": blog.blog_name,
+      "url": `https://press-pen-pro.lovable.app/blog/${blog.slug}`,
+    })),
+  } : null);
   const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {

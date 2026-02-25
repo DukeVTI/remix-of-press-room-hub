@@ -25,6 +25,7 @@ import {
 import { toast } from "sonner";
 import type { Tables } from "@/integrations/supabase/types";
 import { Footer } from "@/components/Footer";
+import { useSeo } from "@/hooks/useSeo";
 
 type Blog = Tables<"blogs">;
 
@@ -45,6 +46,12 @@ const MAX_DESCRIPTION_CHARS = 500;
 const MAX_MEDIA_FILES = 10;
 
 const CreatePost = () => {
+  useSeo({
+    title: "Create New Post",
+    description: "Write and publish a new article on your Press Room Publisher blog.",
+    noindex: true,
+  });
+  
   const { blogSlug } = useParams<{ blogSlug: string }>();
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);

@@ -7,8 +7,14 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Eye, EyeOff, ArrowLeft, Loader2 } from "lucide-react";
 import { Footer } from "@/components/Footer";
+import { useSeo } from "@/hooks/useSeo";
 
 const Login = () => {
+  useSeo({
+    title: "Sign In to Your Account",
+    description: "Sign in to Press Room Publisher to manage your blogs, create posts, and engage with the journalism community.",
+    keywords: ["login", "sign in", "press room publisher", "blogging platform", "journalist login"],
+  });
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);

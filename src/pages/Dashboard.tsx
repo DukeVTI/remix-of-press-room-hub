@@ -25,6 +25,7 @@ import { Footer } from "@/components/Footer";
 import { WelcomeModal } from "@/components/WelcomeModal";
 import { CelebrationBanner } from "@/components/CelebrationBanner";
 import { BlogPickerModal } from "@/components/BlogPickerModal";
+import { useSeo } from "@/hooks/useSeo";
 
 interface Profile {
   first_name: string;
@@ -43,6 +44,13 @@ interface BlogWithCategory extends Blog {
 }
 
 const Dashboard = () => {
+  useSeo({
+    title: "Your Dashboard",
+    description: "Manage your Press Room Publisher blogs, create new posts, view analytics, and engage with your community from your personal dashboard.",
+    keywords: ["dashboard", "my blogs", "publisher dashboard", "manage blogs"],
+    noindex: true,
+  });
+  
   const { user, isLoading: authLoading } = useAuth({ requireAuth: true });
   const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);

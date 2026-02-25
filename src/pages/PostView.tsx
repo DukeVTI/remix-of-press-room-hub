@@ -31,6 +31,7 @@ import { toast } from "sonner";
 import type { Tables, Database } from "@/integrations/supabase/types";
 import { PRPHeader } from "@/components/ui/prp-header";
 import { Footer } from "@/components/Footer";
+import { useSeo, useStructuredData } from "@/hooks/useSeo";
 
 
 type Post = Tables<"posts">;
@@ -93,6 +94,60 @@ const PostView = () => {
   const [userReaction, setUserReaction] = useState<"approve" | "disapprove" | null>(null);
   const [reactionLoading, setReactionLoading] = useState(false);
   const [commentsExpanded, setCommentsExpanded] = useState(false);
+
+  // Dynamic SEO for post
+  useSeo({
+    title: post ? post.headline : "Post",
+    description: post ? (post.subtitle || post.content.substring(0, 160)) : "Read this article on Press Room Publisher.",
+    image: post?.media[0]?.file_url || post?.blogs?.profile_photo_url,
+    type: "article",
+    author: post?.byline,
+    publishedTime: post?.published_at || undefined,
+    modifiedTime: post?.updated_at || undefined,
+    keywords: post ? [post.headline, post.blogs.blog_name, "article", "post"].filter(Boolean) : [],
+  });
+
+  // Structured data for article
+  useStructuredData(post ? {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": post.headline,
+    "description": post.subtitle || post.content.substring(0, 160),
+    "image": post.media[0]?.file_url || post.blogs.profile_photo_url,
+    "author": {
+      "@type": "Person",
+      "name": post.byline,
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": post.blogs.blog_name,
+      "logo": {
+        "@type": "ImageObject",
+        "url": post.blogs.profile_photo_url,
+      },
+    },
+    "datePublished": post.published_at,
+    "dateModified": post.updated_at,
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": `https://press-pen-pro.lovable.app/blog/${post.blogs.slug}/post/${post.id}`,
+    },
+    "articleBody": post.content,
+    "wordCount": post.content.split(/\s+/).length,
+    "commentCount": post.comment_count,
+    "interactionStatistic": [
+      {
+        "@type": "InteractionCounter",
+        "interactionType": "https://schema.org/LikeAction",
+        "userInteractionCount": post.approval_count,
+      },
+      {
+        "@type": "InteractionCounter",
+        "interactionType": "https://schema.org/CommentAction",
+        "userInteractionCount": post.comment_count,
+      },
+    ],
+  } : null);
 
   // Comment state
   const [commentLoading, setCommentLoading] = useState(false);

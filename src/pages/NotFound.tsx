@@ -4,9 +4,16 @@ import { Button } from "@/components/ui/button";
 import { PRPHeader } from "@/components/ui/prp-header";
 import { Footer } from "@/components/Footer";
 import { ArrowLeft, FileQuestion } from "lucide-react";
+import { useSeo } from "@/hooks/useSeo";
 
 const NotFound = () => {
   const location = useLocation();
+
+  useSeo({
+    title: "Page Not Found - 404",
+    description: "The page you're looking for doesn't exist or has been moved.",
+    noindex: true,
+  });
 
   useEffect(() => {
     console.error("404 Error: User attempted to access non-existent route:", location.pathname);

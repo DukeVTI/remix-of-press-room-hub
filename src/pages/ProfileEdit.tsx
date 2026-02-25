@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import type { Tables } from "@/integrations/supabase/types";
+import { useSeo } from "@/hooks/useSeo";
 import { CharacterCountInput } from "@/components/CharacterCountInput";
 import { MediaUploader } from "@/components/MediaUploader";
 import { Footer } from "@/components/Footer";
@@ -28,6 +29,13 @@ const MAX_BIO_CHARS = 500;
 const MAX_HOBBIES_CHARS = 300;
 
 const ProfileEdit = () => {
+  useSeo({
+    title: "Edit Your Profile",
+    description: "Update your Press Room Publisher profile information, photo, bio, and personal details.",
+    keywords: ["edit profile", "update profile", "profile settings"],
+    noindex: true,
+  });
+  
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
   

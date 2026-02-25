@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { PRPHeader } from "@/components/ui/prp-header";
 import { Footer } from "@/components/Footer";
+import { useSeo } from "@/hooks/useSeo";
 import { 
   Loader2,
   User,
@@ -31,6 +32,13 @@ import {
 import { toast } from "sonner";
 
 const Settings = () => {
+  useSeo({
+    title: "Account Settings",
+    description: "Manage your Press Room Publisher account settings, preferences, and privacy options.",
+    keywords: ["settings", "account settings", "preferences"],
+    noindex: true,
+  });
+  
   const navigate = useNavigate();
   
   const [userId, setUserId] = useState<string | null>(null);

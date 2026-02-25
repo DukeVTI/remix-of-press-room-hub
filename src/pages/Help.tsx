@@ -6,8 +6,14 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { useSeo } from "@/hooks/useSeo";
 
 const Help = () => {
+  useSeo({
+    title: "Help Center",
+    description: "Find answers to common questions about Press Room Publisher. Learn how to create blogs, publish posts, manage your account, and more.",
+    keywords: ["help", "FAQ", "support", "how to", "guide", "press room publisher"],
+  });
   const faqs = [
     {
       question: "How do I create a new blog?",
