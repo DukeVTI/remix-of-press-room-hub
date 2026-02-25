@@ -33,6 +33,7 @@ import NotFound from "./pages/NotFound";
 
 import SkipToContent from "@/components/SkipToContent";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { ProtectedAdminRoute } from "@/components/ProtectedAdminRoute";
 
 const queryClient = new QueryClient();
 
@@ -76,6 +77,15 @@ const App = () => (
           <Route path="/privacy" element={<Privacy />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
+
+          {/* Admin routes */}
+          <Route path="/admin" element={<ProtectedAdminRoute><AdminDashboard /></ProtectedAdminRoute>} />
+          <Route path="/admin/reports" element={<ProtectedAdminRoute><ReportsModeration /></ProtectedAdminRoute>} />
+          <Route path="/admin/users" element={<ProtectedAdminRoute><UserManagement /></ProtectedAdminRoute>} />
+          <Route path="/admin/content" element={<ProtectedAdminRoute><ContentOverview /></ProtectedAdminRoute>} />
+          <Route path="/admin/blogs" element={<ProtectedAdminRoute><BlogManagement /></ProtectedAdminRoute>} />
+          <Route path="/admin/analytics" element={<ProtectedAdminRoute><PlatformAnalytics /></ProtectedAdminRoute>} />
+          <Route path="/admin/activity-log" element={<ProtectedAdminRoute><ActivityLog /></ProtectedAdminRoute>} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
