@@ -6,8 +6,7 @@ import { AdminConfirmDialog } from "@/components/admin/AdminConfirmDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { toast } from "sonner";
-import { Flag, Search, Filter, CheckCircle, XCircle, AlertTriangle, ArrowUp, Ban, ChevronDown, ChevronUp } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { Flag, Search, Filter, CheckCircle, XCircle, AlertTriangle, ArrowUp, Ban, ChevronDown, ChevronUp, ExternalLink, User, FileText, MessageSquare, BookOpen } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -52,6 +51,8 @@ export default function ReportsModeration() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
+  const [reportedContent, setReportedContent] = useState<{ title: string; excerpt: string; meta: string } | null>(null);
+  const [contentLoading, setContentLoading] = useState(false);
   const [confirmAction, setConfirmAction] = useState<{ type: string; label: string; variant: "destructive" | "warning" | "default" } | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
   const [sortAsc, setSortAsc] = useState(false);
@@ -60,14 +61,57 @@ export default function ReportsModeration() {
   const load = useCallback(async () => {
     setLoading(true);
     let q = supabase.from("reports").select("*").order("created_at", { ascending: sortAsc });
-    if (statusFilter !== "all") q = q.eq("status", statusFilter);
-    if (typeFilter !== "all") q = q.eq("reported_item_type", typeFilter);
+    if (statusFilter !== "all") q = q.eq("status", statusFilter as any);
+    if (typeFilter !== "all") q = q.eq("reported_item_type", typeFilter as any);
     const { data } = await q;
     setReports(data as Report[] ?? []);
     setLoading(false);
   }, [statusFilter, typeFilter, sortAsc]);
 
   useEffect(() => { load(); }, [load]);
+
+  // Fetch the actual reported item when a report is selected
+  useEffect(() => {
+    if (!selectedReport) { setReportedContent(null); return; }
+    const { reported_item_type: type, reported_item_id: id } = selectedReport;
+    setContentLoading(true);
+    setReportedContent(null);
+
+    (async () => {
+      try {
+        if (type === "post") {
+          const { data } = await supabase.from("posts").select("headline, body, created_at, profiles(full_name)").eq("id", id).maybeSingle();
+          if (data) setReportedContent({
+            title: (data as any).headline,
+            excerpt: ((data as any).body ?? "").slice(0, 200),
+            meta: `By ${(data as any).profiles?.full_name ?? "Unknown"} · ${format(new Date((data as any).created_at), "MMM d, yyyy")}`,
+          });
+        } else if (type === "comment") {
+          const { data } = await supabase.from("comments").select("body, created_at, profiles(full_name)").eq("id", id).maybeSingle();
+          if (data) setReportedContent({
+            title: "Comment",
+            excerpt: ((data as any).body ?? "").slice(0, 200),
+            meta: `By ${(data as any).profiles?.full_name ?? "Unknown"} · ${format(new Date((data as any).created_at), "MMM d, yyyy")}`,
+          });
+        } else if (type === "blog") {
+          const { data } = await supabase.from("blogs").select("blog_name, description, created_at").eq("id", id).maybeSingle();
+          if (data) setReportedContent({
+            title: (data as any).blog_name,
+            excerpt: ((data as any).description ?? "").slice(0, 200),
+            meta: `Blog · Created ${format(new Date((data as any).created_at), "MMM d, yyyy")}`,
+          });
+        } else if (type === "user") {
+          const { data } = await supabase.from("profiles").select("full_name, email, bio, created_at").eq("id", id).maybeSingle();
+          if (data) setReportedContent({
+            title: (data as any).full_name ?? "Unknown User",
+            excerpt: ((data as any).bio ?? "No bio provided").slice(0, 200),
+            meta: `${(data as any).email ?? ""} · Joined ${format(new Date((data as any).created_at), "MMM d, yyyy")}`,
+          });
+        }
+      } catch (_) { /* noop */ }
+      setContentLoading(false);
+    })();
+  }, [selectedReport]);
 
   const filtered = reports.filter((r) =>
     search === "" ||
@@ -79,13 +123,13 @@ export default function ReportsModeration() {
   const logAction = async (action: string, reportId: string) => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
-    const { data: admin } = await supabase
+    const { data: admin } = await (supabase as any)
       .from("platform_admins")
       .select("id")
       .eq("user_id", session.user.id)
       .maybeSingle();
     if (!admin) return;
-    await supabase.from("admin_activity_log").insert({
+    await (supabase as any).from("admin_activity_log").insert({
       admin_id: admin.id,
       action_type: action,
       target_type: "report",
@@ -263,6 +307,7 @@ export default function ReportsModeration() {
           </SheetHeader>
           {selectedReport && (
             <div className="space-y-4">
+              {/* Report metadata */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="bg-slate-800/60 rounded-lg p-3">
                   <p className="text-slate-500 text-xs mb-1">Type</p>
@@ -283,6 +328,37 @@ export default function ReportsModeration() {
                   <p className="text-slate-200 text-sm">{format(new Date(selectedReport.created_at), "MMM d, yyyy")}</p>
                 </div>
               </div>
+
+              {/* Reported content preview */}
+              <div className="rounded-lg border border-slate-700 bg-slate-800/40 overflow-hidden">
+                <div className="flex items-center gap-2 px-3 py-2 border-b border-slate-700/60 bg-slate-800/60">
+                  {selectedReport.reported_item_type === "post" && <FileText className="w-3.5 h-3.5 text-indigo-400" />}
+                  {selectedReport.reported_item_type === "comment" && <MessageSquare className="w-3.5 h-3.5 text-purple-400" />}
+                  {selectedReport.reported_item_type === "blog" && <BookOpen className="w-3.5 h-3.5 text-blue-400" />}
+                  {selectedReport.reported_item_type === "user" && <User className="w-3.5 h-3.5 text-rose-400" />}
+                  <span className="text-slate-400 text-xs font-medium capitalize">Reported {selectedReport.reported_item_type}</span>
+                </div>
+                <div className="p-3">
+                  {contentLoading ? (
+                    <div className="space-y-2">
+                      <div className="h-4 bg-slate-700 rounded animate-pulse w-3/4" />
+                      <div className="h-3 bg-slate-700 rounded animate-pulse" />
+                      <div className="h-3 bg-slate-700 rounded animate-pulse w-5/6" />
+                    </div>
+                  ) : reportedContent ? (
+                    <>
+                      <p className="text-slate-200 text-sm font-semibold mb-1">{reportedContent.title}</p>
+                      {reportedContent.excerpt && (
+                        <p className="text-slate-400 text-xs leading-relaxed mb-2 line-clamp-4">{reportedContent.excerpt}</p>
+                      )}
+                      <p className="text-slate-500 text-xs">{reportedContent.meta}</p>
+                    </>
+                  ) : (
+                    <p className="text-slate-500 text-xs italic">Could not load content — it may have been deleted.</p>
+                  )}
+                </div>
+              </div>
+
               {selectedReport.custom_reason && (
                 <div className="bg-slate-800/60 rounded-lg p-3">
                   <p className="text-slate-500 text-xs mb-1">Custom Reason</p>

@@ -10,6 +10,9 @@ import {
     ChevronLeft,
     ChevronRight,
     Shield,
+    Settings,
+    AlertTriangle,
+    Megaphone,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
@@ -19,16 +22,20 @@ interface NavItem {
     href: string;
     icon: React.ElementType;
     roles?: string[];
+    dividerBefore?: boolean;
 }
 
 const NAV_ITEMS: NavItem[] = [
     { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
     { label: "Reports", href: "/admin/reports", icon: Flag },
+    { label: "Watch List", href: "/admin/watchlist", icon: AlertTriangle },
     { label: "Users", href: "/admin/users", icon: Users },
     { label: "Content", href: "/admin/content", icon: FileText },
     { label: "Blogs", href: "/admin/blogs", icon: BookOpen },
-    { label: "Analytics", href: "/admin/analytics", icon: BarChart3 },
+    { label: "Analytics", href: "/admin/analytics", icon: BarChart3, dividerBefore: true },
     { label: "Activity Log", href: "/admin/activity-log", icon: ClipboardList },
+    { label: "Announcements", href: "/admin/announcements", icon: Megaphone },
+    { label: "Settings", href: "/admin/settings", icon: Settings, roles: ["super_admin"], dividerBefore: true },
 ];
 
 interface AdminSidebarProps {
@@ -39,6 +46,10 @@ interface AdminSidebarProps {
 export function AdminSidebar({ open, onToggle }: AdminSidebarProps) {
     const location = useLocation();
     const { adminRole } = useAdminAuth();
+
+    const visibleItems = NAV_ITEMS.filter(
+        (item) => !item.roles || item.roles.includes(adminRole ?? "")
+    );
 
     return (
         <aside
@@ -63,8 +74,8 @@ export function AdminSidebar({ open, onToggle }: AdminSidebarProps) {
             </div>
 
             {/* Nav Items */}
-            <nav className="flex-1 py-4 px-2 space-y-1 overflow-y-auto">
-                {NAV_ITEMS.map((item) => {
+            <nav className="flex-1 py-4 px-2 space-y-0.5 overflow-y-auto">
+                {visibleItems.map((item) => {
                     const Icon = item.icon;
                     const isActive =
                         item.href === "/admin"
@@ -72,31 +83,35 @@ export function AdminSidebar({ open, onToggle }: AdminSidebarProps) {
                             : location.pathname.startsWith(item.href);
 
                     return (
-                        <Link
-                            key={item.href}
-                            to={item.href}
-                            title={!open ? item.label : undefined}
-                            className={cn(
-                                "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium",
-                                "transition-all duration-200 group relative",
-                                isActive
-                                    ? "bg-indigo-600/20 text-indigo-300 border border-indigo-500/30 shadow-sm shadow-indigo-900/20"
-                                    : "text-slate-400 hover:text-slate-200 hover:bg-slate-800"
+                        <div key={item.href}>
+                            {item.dividerBefore && (
+                                <div className={cn("border-t border-slate-800/80 my-2", open ? "mx-2" : "mx-1")} />
                             )}
-                        >
-                            <Icon
+                            <Link
+                                to={item.href}
+                                title={!open ? item.label : undefined}
                                 className={cn(
-                                    "flex-shrink-0 w-5 h-5 transition-colors",
-                                    isActive ? "text-indigo-400" : "text-slate-500 group-hover:text-slate-300"
+                                    "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium",
+                                    "transition-all duration-200 group relative",
+                                    isActive
+                                        ? "bg-indigo-600/20 text-indigo-300 border border-indigo-500/30 shadow-sm shadow-indigo-900/20"
+                                        : "text-slate-400 hover:text-slate-200 hover:bg-slate-800"
                                 )}
-                            />
-                            {open && (
-                                <span className="whitespace-nowrap overflow-hidden">{item.label}</span>
-                            )}
-                            {isActive && open && (
-                                <span className="ml-auto w-1.5 h-1.5 rounded-full bg-indigo-400 flex-shrink-0" />
-                            )}
-                        </Link>
+                            >
+                                <Icon
+                                    className={cn(
+                                        "flex-shrink-0 w-5 h-5 transition-colors",
+                                        isActive ? "text-indigo-400" : "text-slate-500 group-hover:text-slate-300"
+                                    )}
+                                />
+                                {open && (
+                                    <span className="whitespace-nowrap overflow-hidden">{item.label}</span>
+                                )}
+                                {isActive && open && (
+                                    <span className="ml-auto w-1.5 h-1.5 rounded-full bg-indigo-400 flex-shrink-0" />
+                                )}
+                            </Link>
+                        </div>
                     );
                 })}
             </nav>

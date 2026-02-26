@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useSeo } from "@/hooks/useSeo";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { supabase } from "@/integrations/supabase/client";
-import { BarChart3, Users, BookOpen, FileText, MessageSquare, ThumbsUp } from "lucide-react";
+import { BarChart3, Users, BookOpen, FileText, MessageSquare, ThumbsUp, TrendingUp, Activity } from "lucide-react";
 import {
   LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
@@ -10,29 +10,11 @@ import {
 import { cn } from "@/lib/utils";
 import { format, subDays } from "date-fns";
 
-interface TopBlog {
-  id: string;
-  blog_name: string;
-  follower_count: number;
-  is_verified: boolean;
-}
+interface TopBlog { id: string; blog_name: string; follower_count: number; is_verified: boolean; }
+interface TopPost { id: string; headline: string; view_count: number; approval_count: number; }
+interface SummaryStats { users: number; blogs: number; posts: number; comments: number; reactions: number; }
 
-interface TopPost {
-  id: string;
-  headline: string;
-  view_count: number;
-  approval_count: number;
-}
-
-interface SummaryStats {
-  users: number;
-  blogs: number;
-  posts: number;
-  comments: number;
-  reactions: number;
-}
-
-const CHART_COLORS = ["#6366f1", "#22d3ee", "#34d399", "#f59e0b", "#f43f5e"];
+const CHART_COLORS = ["#6366f1", "#22d3ee", "#34d399", "#f59e0b", "#f43f5e", "#a78bfa"];
 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;
@@ -46,13 +28,26 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   );
 };
 
+const ChartCard = ({ title, icon: Icon, color, children, loading, colSpan = "" }: {
+  title: string; icon: React.ElementType; color: string; children: React.ReactNode; loading: boolean; colSpan?: string;
+}) => (
+  <div className={cn("rounded-xl border border-slate-800 bg-slate-900/60 p-5", colSpan)}>
+    <div className="flex items-center gap-2 mb-4">
+      <Icon className={cn("w-4 h-4", color)} />
+      <h2 className="text-white font-semibold text-sm">{title}</h2>
+    </div>
+    {loading ? <div className="h-48 bg-slate-800 rounded-lg animate-pulse" /> : children}
+  </div>
+);
+
 export default function PlatformAnalytics() {
   useSeo({ title: "Platform Analytics", description: "Key platform metrics and growth.", noindex: true });
   const [summary, setSummary] = useState<SummaryStats | null>(null);
   const [topBlogs, setTopBlogs] = useState<TopBlog[]>([]);
   const [topPosts, setTopPosts] = useState<TopPost[]>([]);
-  const [postTrend, setPostTrend] = useState<{ date: string; posts: number }[]>([]);
+  const [postTrend, setPostTrend] = useState<{ date: string; posts: number; users: number }[]>([]);
   const [categoryData, setCategoryData] = useState<{ name: string; value: number }[]>([]);
+  const [engagementData, setEngagementData] = useState<{ name: string; posts: number; comments: number; reactions: number }[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -66,8 +61,11 @@ export default function PlatformAnalytics() {
         { data: topBlogsData },
         { data: topPostsData },
         { data: recentPosts },
+        { data: recentUsers },
         { data: catsData },
         { data: blogsWithCats },
+        { data: recentComments },
+        { data: topBlogsForEngagement },
       ] = await Promise.all([
         supabase.from("profiles").select("*", { count: "exact", head: true }),
         supabase.from("blogs").select("*", { count: "exact", head: true }),
@@ -77,26 +75,33 @@ export default function PlatformAnalytics() {
         supabase.from("blogs").select("id,blog_name,follower_count,is_verified").order("follower_count", { ascending: false }).limit(5),
         supabase.from("posts").select("id,headline,view_count,approval_count").eq("status", "published").order("view_count", { ascending: false }).limit(5),
         supabase.from("posts").select("created_at").gte("created_at", subDays(new Date(), 30).toISOString()).order("created_at"),
+        supabase.from("profiles").select("created_at").gte("created_at", subDays(new Date(), 30).toISOString()).order("created_at"),
         supabase.from("blog_categories").select("id, name"),
         supabase.from("blogs").select("category_id"),
+        supabase.from("comments").select("created_at").gte("created_at", subDays(new Date(), 14).toISOString()),
+        supabase.from("blogs").select("id, blog_name").order("follower_count", { ascending: false }).limit(6),
       ]);
 
       setSummary({ users: users ?? 0, blogs: blogs ?? 0, posts: posts ?? 0, comments: comments ?? 0, reactions: reactions ?? 0 });
       setTopBlogs(topBlogsData as TopBlog[] ?? []);
       setTopPosts(topPostsData as TopPost[] ?? []);
 
-      // Build post trend (last 30 days)
-      const days: Record<string, number> = {};
+      // Build 30-day trend (posts + new users)
+      const days: Record<string, { posts: number; users: number }> = {};
       for (let i = 29; i >= 0; i--) {
-        days[format(subDays(new Date(), i), "MMM d")] = 0;
+        days[format(subDays(new Date(), i), "MMM d")] = { posts: 0, users: 0 };
       }
       (recentPosts ?? []).forEach((p: any) => {
         const day = format(new Date(p.created_at), "MMM d");
-        if (day in days) days[day]++;
+        if (day in days) days[day].posts++;
       });
-      setPostTrend(Object.entries(days).map(([date, posts]) => ({ date, posts })));
+      (recentUsers ?? []).forEach((u: any) => {
+        const day = format(new Date(u.created_at), "MMM d");
+        if (day in days) days[day].users++;
+      });
+      setPostTrend(Object.entries(days).map(([date, v]) => ({ date, ...v })));
 
-      // Build category distribution
+      // Category distribution
       const catMap: Record<string, string> = {};
       (catsData ?? []).forEach((c: any) => { catMap[c.id] = c.name; });
       const catCount: Record<string, number> = {};
@@ -105,6 +110,44 @@ export default function PlatformAnalytics() {
         catCount[name] = (catCount[name] ?? 0) + 1;
       });
       setCategoryData(Object.entries(catCount).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([name, value]) => ({ name, value })));
+
+      // Engagement: posts + comments per top blog (comment matching is approximate via blog_id)
+      // Engagement chart: count posts/comments/reactions per top blog
+      if (topBlogsForEngagement && topBlogsForEngagement.length > 0) {
+        const blogIds = (topBlogsForEngagement as any[]).map((b: any) => b.id);
+
+        // Step 1: get all posts for these blogs
+        const { data: blogPostRows } = await supabase.from("posts").select("id, blog_id").in("blog_id", blogIds);
+        const postIds = (blogPostRows ?? []).map((p: any) => p.id);
+
+        // Step 2: count comments and reactions by post_id, then map back to blog
+        const [{ data: commentsForPosts }, { data: reactionsForPosts }] = await Promise.all([
+          postIds.length > 0
+            ? (supabase.from("comments").select("post_id") as any).in("post_id", postIds)
+            : Promise.resolve({ data: [] }),
+          postIds.length > 0
+            ? (supabase.from("post_reactions").select("post_id") as any).in("post_id", postIds)
+            : Promise.resolve({ data: [] }),
+        ]);
+
+        // Build post → blog map
+        const postToBlog: Record<string, string> = {};
+        (blogPostRows ?? []).forEach((p: any) => { postToBlog[p.id] = p.blog_id; });
+
+        const postCountByBlog: Record<string, number> = {};
+        const commentCountByBlog: Record<string, number> = {};
+        const reactionCountByBlog: Record<string, number> = {};
+        (blogPostRows ?? []).forEach((p: any) => { postCountByBlog[p.blog_id] = (postCountByBlog[p.blog_id] ?? 0) + 1; });
+        (commentsForPosts ?? []).forEach((c: any) => { const bid = postToBlog[c.post_id]; if (bid) commentCountByBlog[bid] = (commentCountByBlog[bid] ?? 0) + 1; });
+        (reactionsForPosts ?? []).forEach((r: any) => { const bid = postToBlog[r.post_id]; if (bid) reactionCountByBlog[bid] = (reactionCountByBlog[bid] ?? 0) + 1; });
+
+        setEngagementData((topBlogsForEngagement as any[]).map((b: any) => ({
+          name: b.blog_name.length > 14 ? b.blog_name.slice(0, 14) + "…" : b.blog_name,
+          posts: postCountByBlog[b.id] ?? 0,
+          comments: commentCountByBlog[b.id] ?? 0,
+          reactions: reactionCountByBlog[b.id] ?? 0,
+        })));
+      }
 
       setLoading(false);
     }
@@ -138,48 +181,24 @@ export default function PlatformAnalytics() {
         ))}
       </div>
 
+      {/* Row 1: Growth trend + Category pie */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-        {/* Posts trend chart */}
-        <div className="lg:col-span-2 rounded-xl border border-slate-800 bg-slate-900/60 p-5">
-          <div className="flex items-center gap-2 mb-4">
-            <BarChart3 className="w-4 h-4 text-indigo-400" />
-            <h2 className="text-white font-semibold text-sm">Posts Published — Last 30 Days</h2>
-          </div>
-          {loading ? (
-            <div className="h-48 bg-slate-800 rounded-lg animate-pulse" />
-          ) : (
-            <ResponsiveContainer width="100%" height={200}>
-              <LineChart data={postTrend}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                <XAxis
-                  dataKey="date"
-                  tick={{ fill: "#64748b", fontSize: 10 }}
-                  tickLine={false}
-                  axisLine={false}
-                  interval={4}
-                />
-                <YAxis tick={{ fill: "#64748b", fontSize: 10 }} tickLine={false} axisLine={false} allowDecimals={false} />
-                <Tooltip content={<CustomTooltip />} />
-                <Line
-                  type="monotone"
-                  dataKey="posts"
-                  stroke="#6366f1"
-                  strokeWidth={2}
-                  dot={false}
-                  activeDot={{ r: 5, fill: "#6366f1" }}
-                  name="Posts"
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          )}
-        </div>
+        <ChartCard title="Activity — Last 30 Days" icon={TrendingUp} color="text-indigo-400" loading={loading} colSpan="lg:col-span-2">
+          <ResponsiveContainer width="100%" height={200}>
+            <LineChart data={postTrend}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
+              <XAxis dataKey="date" tick={{ fill: "#64748b", fontSize: 10 }} tickLine={false} axisLine={false} interval={4} />
+              <YAxis tick={{ fill: "#64748b", fontSize: 10 }} tickLine={false} axisLine={false} allowDecimals={false} />
+              <Tooltip content={<CustomTooltip />} />
+              <Legend wrapperStyle={{ fontSize: "11px", color: "#94a3b8" }} iconSize={8} />
+              <Line type="monotone" dataKey="posts" stroke="#6366f1" strokeWidth={2} dot={false} activeDot={{ r: 5 }} name="Posts" />
+              <Line type="monotone" dataKey="users" stroke="#34d399" strokeWidth={2} dot={false} activeDot={{ r: 5 }} name="New Users" />
+            </LineChart>
+          </ResponsiveContainer>
+        </ChartCard>
 
-        {/* Category distribution */}
-        <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-5">
-          <h2 className="text-white font-semibold text-sm mb-4">Blog Categories</h2>
-          {loading ? (
-            <div className="h-48 bg-slate-800 rounded-lg animate-pulse" />
-          ) : categoryData.length === 0 ? (
+        <ChartCard title="Blog Categories" icon={BookOpen} color="text-blue-400" loading={loading}>
+          {categoryData.length === 0 ? (
             <div className="h-48 flex items-center justify-center text-slate-500 text-sm">No data</div>
           ) : (
             <ResponsiveContainer width="100%" height={200}>
@@ -190,20 +209,42 @@ export default function PlatformAnalytics() {
                   ))}
                 </Pie>
                 <Tooltip content={<CustomTooltip />} />
-                <Legend
-                  wrapperStyle={{ fontSize: "11px", color: "#94a3b8" }}
-                  iconSize={8}
-                />
+                <Legend wrapperStyle={{ fontSize: "11px", color: "#94a3b8" }} iconSize={8} />
               </PieChart>
             </ResponsiveContainer>
           )}
-        </div>
+        </ChartCard>
       </div>
 
+      {/* Row 2: Engagement bar chart per blog */}
+      <div className="mb-6">
+        <ChartCard title="Top Blog Engagement (Posts · Comments · Reactions)" icon={Activity} color="text-emerald-400" loading={loading}>
+          {engagementData.length === 0 ? (
+            <div className="h-48 flex items-center justify-center text-slate-500 text-sm">No data</div>
+          ) : (
+            <ResponsiveContainer width="100%" height={220}>
+              <BarChart data={engagementData} barGap={2}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
+                <XAxis dataKey="name" tick={{ fill: "#64748b", fontSize: 10 }} tickLine={false} axisLine={false} />
+                <YAxis tick={{ fill: "#64748b", fontSize: 10 }} tickLine={false} axisLine={false} allowDecimals={false} />
+                <Tooltip content={<CustomTooltip />} />
+                <Legend wrapperStyle={{ fontSize: "11px", color: "#94a3b8" }} iconSize={8} />
+                <Bar dataKey="posts" fill="#6366f1" radius={[3, 3, 0, 0]} name="Posts" />
+                <Bar dataKey="comments" fill="#22d3ee" radius={[3, 3, 0, 0]} name="Comments" />
+                <Bar dataKey="reactions" fill="#34d399" radius={[3, 3, 0, 0]} name="Reactions" />
+              </BarChart>
+            </ResponsiveContainer>
+          )}
+        </ChartCard>
+      </div>
+
+      {/* Row 3: Leaderboards */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Top blogs */}
         <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-5">
-          <h2 className="text-white font-semibold text-sm mb-4">Top Blogs by Followers</h2>
+          <h2 className="text-white font-semibold text-sm mb-4 flex items-center gap-2">
+            <BookOpen className="w-4 h-4 text-blue-400" /> Top Blogs by Followers
+          </h2>
           {loading ? (
             <div className="space-y-3">{Array.from({ length: 5 }).map((_, i) => <div key={i} className="h-10 bg-slate-800 rounded animate-pulse" />)}</div>
           ) : topBlogs.length === 0 ? (
@@ -214,7 +255,7 @@ export default function PlatformAnalytics() {
                 <div key={b.id} className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-800/50 transition-colors">
                   <span className="text-slate-500 text-xs font-bold w-4 text-right">#{i + 1}</span>
                   <p className="flex-1 text-slate-200 text-sm truncate">{b.blog_name}</p>
-                  <span className="text-slate-400 text-xs tabular-nums">{b.follower_count.toLocaleString()} followers</span>
+                  <span className="text-slate-400 text-xs tabular-nums">{(b.follower_count ?? 0).toLocaleString()} followers</span>
                 </div>
               ))}
             </div>
@@ -223,7 +264,9 @@ export default function PlatformAnalytics() {
 
         {/* Top posts */}
         <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-5">
-          <h2 className="text-white font-semibold text-sm mb-4">Top Posts by Views</h2>
+          <h2 className="text-white font-semibold text-sm mb-4 flex items-center gap-2">
+            <FileText className="w-4 h-4 text-emerald-400" /> Top Posts by Views
+          </h2>
           {loading ? (
             <div className="space-y-3">{Array.from({ length: 5 }).map((_, i) => <div key={i} className="h-10 bg-slate-800 rounded animate-pulse" />)}</div>
           ) : topPosts.length === 0 ? (
@@ -234,7 +277,7 @@ export default function PlatformAnalytics() {
                 <div key={p.id} className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-800/50 transition-colors">
                   <span className="text-slate-500 text-xs font-bold w-4 text-right">#{i + 1}</span>
                   <p className="flex-1 text-slate-200 text-sm truncate">{p.headline}</p>
-                  <span className="text-slate-400 text-xs tabular-nums">{p.view_count.toLocaleString()} views</span>
+                  <span className="text-slate-400 text-xs tabular-nums">{(p.view_count ?? 0).toLocaleString()} views</span>
                 </div>
               ))}
             </div>

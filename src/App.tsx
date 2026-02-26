@@ -37,6 +37,9 @@ import ContentOverview from "./pages/ContentOverview";
 import BlogManagement from "./pages/BlogManagement";
 import PlatformAnalytics from "./pages/PlatformAnalytics";
 import ActivityLog from "./pages/ActivityLog";
+import AdminSettings from "./pages/AdminSettings";
+import FlaggedWatchList from "./pages/FlaggedWatchList";
+import AdminAnnouncements from "./pages/AdminAnnouncements";
 
 import SkipToContent from "@/components/SkipToContent";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
@@ -93,6 +96,9 @@ const App = () => (
           <Route path="/admin/blogs" element={<ProtectedAdminRoute><BlogManagement /></ProtectedAdminRoute>} />
           <Route path="/admin/analytics" element={<ProtectedAdminRoute><PlatformAnalytics /></ProtectedAdminRoute>} />
           <Route path="/admin/activity-log" element={<ProtectedAdminRoute><ActivityLog /></ProtectedAdminRoute>} />
+          <Route path="/admin/settings" element={<ProtectedAdminRoute><AdminSettings /></ProtectedAdminRoute>} />
+          <Route path="/admin/watchlist" element={<ProtectedAdminRoute><FlaggedWatchList /></ProtectedAdminRoute>} />
+          <Route path="/admin/announcements" element={<ProtectedAdminRoute><AdminAnnouncements /></ProtectedAdminRoute>} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>

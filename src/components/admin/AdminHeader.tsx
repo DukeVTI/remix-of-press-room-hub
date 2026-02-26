@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { Menu, Bell, LogOut, User, ChevronRight } from "lucide-react";
+import { Menu, LogOut, User, ChevronRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import {
@@ -11,6 +11,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { AdminBadge } from "./AdminBadge";
+import { AdminNotificationsPanel } from "./AdminNotificationsPanel";
+import { AdminGlobalSearch } from "./AdminGlobalSearch";
 
 interface Breadcrumb {
     label: string;
@@ -44,39 +46,39 @@ export function AdminHeader({ title, breadcrumbs = [], onMenuToggle }: AdminHead
             </button>
 
             {/* Breadcrumbs */}
-            <nav className="flex items-center gap-1.5 text-sm flex-1">
-                <Link to="/admin" className="text-slate-500 hover:text-slate-300 transition-colors">
+            <nav className="flex items-center gap-1.5 text-sm flex-1 min-w-0">
+                <Link to="/admin" className="text-slate-500 hover:text-slate-300 transition-colors flex-shrink-0">
                     Admin
                 </Link>
                 {breadcrumbs.map((crumb, i) => (
                     <span key={i} className="flex items-center gap-1.5">
-                        <ChevronRight className="w-3.5 h-3.5 text-slate-600" />
+                        <ChevronRight className="w-3.5 h-3.5 text-slate-600 flex-shrink-0" />
                         {crumb.href ? (
-                            <Link to={crumb.href} className="text-slate-400 hover:text-slate-200 transition-colors">
+                            <Link to={crumb.href} className="text-slate-400 hover:text-slate-200 transition-colors truncate">
                                 {crumb.label}
                             </Link>
                         ) : (
-                            <span className="text-slate-200 font-medium">{crumb.label}</span>
+                            <span className="text-slate-200 font-medium truncate">{crumb.label}</span>
                         )}
                     </span>
                 ))}
                 {breadcrumbs.length === 0 && (
                     <span className="flex items-center gap-1.5">
-                        <ChevronRight className="w-3.5 h-3.5 text-slate-600" />
-                        <span className="text-slate-200 font-medium">{title}</span>
+                        <ChevronRight className="w-3.5 h-3.5 text-slate-600 flex-shrink-0" />
+                        <span className="text-slate-200 font-medium truncate">{title}</span>
                     </span>
                 )}
             </nav>
 
             {/* Right side */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 flex-shrink-0">
+                {/* Global Search */}
+                <AdminGlobalSearch />
+
                 <AdminBadge role={adminRole} />
 
                 {/* Notifications */}
-                <button className="relative text-slate-400 hover:text-slate-200 transition-colors p-1.5 rounded-lg hover:bg-slate-800">
-                    <Bell className="w-5 h-5" />
-                    <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-indigo-400" />
-                </button>
+                <AdminNotificationsPanel />
 
                 {/* Avatar dropdown */}
                 <DropdownMenu>
