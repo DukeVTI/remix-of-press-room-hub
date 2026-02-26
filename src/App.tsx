@@ -30,6 +30,13 @@ import Help from "./pages/Help";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import NotFound from "./pages/NotFound";
+import AdminDashboard from "./pages/AdminDashboard";
+import ReportsModeration from "./pages/ReportsModeration";
+import UserManagement from "./pages/UserManagement";
+import ContentOverview from "./pages/ContentOverview";
+import BlogManagement from "./pages/BlogManagement";
+import PlatformAnalytics from "./pages/PlatformAnalytics";
+import ActivityLog from "./pages/ActivityLog";
 
 import SkipToContent from "@/components/SkipToContent";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
