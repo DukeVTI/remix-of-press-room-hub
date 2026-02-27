@@ -2,9 +2,13 @@ import { Link } from "react-router-dom";
 import { MarketingLayout } from "@/components/marketing/MarketingLayout";
 import { useSeo } from "@/hooks/useSeo";
 
-const HERO_BG = "https://pressroompublisher.broadcasterscommunity.com/wp-content/uploads/2026/01/prp-hero-bg.jpg";
-const SIGNUP_IMG = "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=800&auto=format&fit=crop&q=80";
-const LOGIN_IMG = "https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?w=800&auto=format&fit=crop&q=80";
+// ── Live WordPress asset URLs ──
+const HERO_BG = "https://pressroompublisher.broadcasterscommunity.com/wp-content/uploads/2026/01/african-podcasters.jpeg";
+const PRP_LOGO_WH = "https://pressroompublisher.broadcasterscommunity.com/wp-content/uploads/2026/01/PRP-BRAND-lOGO-TRANSPARENT-white.png";
+const PAVE_LOGO = "https://pressroompublisher.broadcasterscommunity.com/wp-content/uploads/2026/01/PBC-LOGO-1024x518.png";
+const SIGNUP_IMG = "https://pressroompublisher.broadcasterscommunity.com/wp-content/uploads/2026/01/african-lady-reading-from-pc.jpeg";
+const LOGIN_BG = "https://pressroompublisher.broadcasterscommunity.com/wp-content/uploads/2026/01/african-podcasters.jpeg";
+const LOGIN_IMG = "https://pressroompublisher.broadcasterscommunity.com/wp-content/uploads/2026/01/PRP-AFrican-lady-typing.jpeg";
 
 const GreenBtn = ({ to, children }: { to: string; children: React.ReactNode }) => (
   <Link
@@ -13,17 +17,18 @@ const GreenBtn = ({ to, children }: { to: string; children: React.ReactNode }) =
       display: "inline-block",
       backgroundColor: "#00ad00",
       color: "#fff",
-      padding: "14px 32px",
+      padding: "14px 36px",
       fontWeight: 700,
       fontSize: "14px",
-      letterSpacing: "1px",
+      letterSpacing: "1.5px",
       textTransform: "uppercase",
       textDecoration: "none",
-      borderRadius: "4px",
+      borderRadius: "3px",
       transition: "background-color 0.2s",
+      border: "2px solid #00ad00",
     }}
-    onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "#008f00"; }}
-    onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "#00ad00"; }}
+    onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "#008f00"; (e.currentTarget as HTMLAnchorElement).style.borderColor = "#008f00"; }}
+    onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "#00ad00"; (e.currentTarget as HTMLAnchorElement).style.borderColor = "#00ad00"; }}
   >
     {children}
   </Link>
@@ -38,16 +43,18 @@ export default function Index() {
 
   return (
     <MarketingLayout>
+
       {/* ── HERO SECTION ── */}
       <section
         style={{
           position: "relative",
-          minHeight: "500px",
+          minHeight: "560px",
           display: "flex",
+          flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
           textAlign: "center",
-          padding: "80px 24px",
+          padding: "80px 24px 60px",
           backgroundImage: `url(${HERO_BG})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
@@ -55,67 +62,102 @@ export default function Index() {
         }}
       >
         {/* Dark overlay */}
-        <div style={{
-          position: "absolute", inset: 0,
-          backgroundColor: "rgba(0,0,0,0.72)",
-        }} />
-        <div style={{ position: "relative", zIndex: 1, maxWidth: "860px", margin: "0 auto" }}>
+        <div style={{ position: "absolute", inset: 0, backgroundColor: "rgba(0,0,0,0.70)" }} />
+
+        {/* Text */}
+        <div style={{ position: "relative", zIndex: 1, maxWidth: "900px", margin: "0 auto" }}>
           <h1 style={{
             color: "#fff",
-            fontSize: "clamp(22px, 4vw, 40px)",
+            fontSize: "clamp(20px, 3.5vw, 38px)",
             fontWeight: 900,
-            lineHeight: 1.2,
+            lineHeight: 1.25,
             textTransform: "uppercase",
             letterSpacing: "2px",
-            marginBottom: "24px",
+            marginBottom: "20px",
           }}>
             WELCOME TO THE (PEN FIREPOWER) DOMAIN OPTIMIZING VARYING RECORD EVENTS THAT MATTER.
           </h1>
           <p style={{
-            color: "#e0e0e0",
-            fontSize: "clamp(13px, 2vw, 17px)",
+            color: "#e8e8e8",
+            fontSize: "clamp(12px, 1.8vw, 16px)",
             fontWeight: 600,
             textTransform: "uppercase",
             letterSpacing: "1px",
-            lineHeight: 1.6,
+            lineHeight: 1.7,
+            marginBottom: "40px",
           }}>
             WE ARE PRESS ROOM PUBLISHER: PROJECTING CREATIVE WRITINGS AND TRANSFORMING READERS INTO MASTERPIECE WRITERS THAT READS.
           </p>
+
+          {/* Dual logo row */}
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "48px",
+            flexWrap: "wrap",
+          }}>
+            <img
+              src={PRP_LOGO_WH}
+              alt="Press Room Publisher Logo"
+              style={{ height: "90px", objectFit: "contain" }}
+            />
+            <img
+              src={PAVE_LOGO}
+              alt="PAVE Broadcasters Community Logo"
+              style={{ height: "70px", objectFit: "contain" }}
+            />
+          </div>
         </div>
       </section>
 
       {/* ── SIGN UP SECTION ── */}
-      <section style={{ backgroundColor: "#fff", padding: "64px 24px" }}>
-        <div style={{
-          maxWidth: "1100px",
-          margin: "0 auto",
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          gap: "48px",
-          alignItems: "center",
+      <section
+        style={{
+          position: "relative",
+          padding: "64px 24px",
+          backgroundImage: `url(${HERO_BG})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundAttachment: "fixed",
         }}
+      >
+        <div style={{ position: "absolute", inset: 0, backgroundColor: "rgba(0,0,0,0.72)" }} />
+        <div
+          style={{
+            position: "relative",
+            zIndex: 1,
+            maxWidth: "1100px",
+            margin: "0 auto",
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: "48px",
+            alignItems: "center",
+          }}
           className="marketing-two-col"
         >
-          <div style={{ borderRadius: "8px", overflow: "hidden", aspectRatio: "4/3" }}>
+          {/* Image */}
+          <div style={{ borderRadius: "6px", overflow: "hidden", aspectRatio: "4/3" }}>
             <img
               src={SIGNUP_IMG}
-              alt="Writer working on laptop"
-              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              alt="African woman reading from PC"
+              style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
               loading="lazy"
             />
           </div>
+          {/* Text */}
           <div>
             <h2 style={{
-              fontSize: "clamp(16px, 2.5vw, 24px)",
+              fontSize: "clamp(16px, 2.2vw, 22px)",
               fontWeight: 800,
-              color: "#111",
+              color: "#fff",
               lineHeight: 1.4,
               marginBottom: "20px",
             }}>
               Hey charming Bibliophile, did you just discovered PRESS ROOM PUBLISHER blogsite?
               We are absolutely elated to have you chime-in!
             </h2>
-            <p style={{ color: "#444", fontSize: "15px", lineHeight: 1.8, marginBottom: "28px" }}>
+            <p style={{ color: "#e0e0e0", fontSize: "15px", lineHeight: 1.8, marginBottom: "28px" }}>
               Welcome to the Writers and Readers promoter community! Please use the button below to create
               your personal PRESS ROOM PUBLISHER account, start writing, publish unlimited creative content,
               build up your own unique community of readers, and share your blogposts onward with the universe.
@@ -127,44 +169,64 @@ export default function Index() {
       </section>
 
       {/* ── LOG IN SECTION ── */}
-      <section style={{ backgroundColor: "#f7f7f7", padding: "64px 24px" }}>
-        <div style={{
-          maxWidth: "1100px",
-          margin: "0 auto",
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          gap: "48px",
-          alignItems: "center",
-        }}
+      <section style={{ backgroundColor: "#f4f4f4", padding: "64px 24px" }}>
+        <div
+          style={{
+            maxWidth: "1100px",
+            margin: "0 auto",
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: "48px",
+            alignItems: "center",
+          }}
           className="marketing-two-col"
         >
+          {/* Text */}
           <div>
-            <p style={{ color: "#444", fontSize: "15px", lineHeight: 1.8, marginBottom: "16px" }}>
+            <p style={{ color: "#333", fontSize: "15px", lineHeight: 1.9, marginBottom: "16px" }}>
               Dearest returning writing and Reading enthusiastic member of PRESS ROOM PUBLISHER blogsite.
               Thank you! We cherish the best your creativity has added in values thus far.
             </p>
-            <p style={{ color: "#444", fontSize: "15px", lineHeight: 1.8, marginBottom: "28px" }}>
+            <p style={{ color: "#333", fontSize: "15px", lineHeight: 1.9, marginBottom: "28px" }}>
               Please use the button below to access and manage your existing PRP account. The community
               cannot wait to relish your latest update in publication. Do Dive-In Now!
             </p>
             <GreenBtn to="/login">CLICK HERE TO LOG IN</GreenBtn>
           </div>
-          <div style={{ borderRadius: "8px", overflow: "hidden", aspectRatio: "4/3" }}>
+          {/* Image */}
+          <div style={{ borderRadius: "6px", overflow: "hidden", aspectRatio: "4/3" }}>
             <img
               src={LOGIN_IMG}
-              alt="Person at computer"
-              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              alt="African woman typing on laptop at night"
+              style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
               loading="lazy"
             />
           </div>
         </div>
       </section>
 
+      {/* ── BOTTOM TAGLINE BANNER ── */}
+      <section style={{
+        backgroundColor: "#fff",
+        padding: "40px 24px",
+        textAlign: "center",
+        borderTop: "3px solid #00ad00",
+      }}>
+        <h2 style={{
+          color: "#00ad00",
+          fontSize: "clamp(16px, 2.5vw, 26px)",
+          fontWeight: 900,
+          letterSpacing: "2px",
+          textTransform: "uppercase",
+          margin: 0,
+        }}>
+          PRESS ROOM PUBLISHER; THE PEN FIREPOWER ARTISTRIES.
+        </h2>
+      </section>
+
       <style>{`
         @media (max-width: 768px) {
-          .marketing-two-col {
-            grid-template-columns: 1fr !important;
-          }
+          .marketing-two-col { grid-template-columns: 1fr !important; }
         }
       `}</style>
     </MarketingLayout>

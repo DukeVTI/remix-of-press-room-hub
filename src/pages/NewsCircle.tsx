@@ -2,8 +2,8 @@ import { Link } from "react-router-dom";
 import { MarketingLayout } from "@/components/marketing/MarketingLayout";
 import { useSeo } from "@/hooks/useSeo";
 
-const HEADER_IMG = "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=1400&auto=format&fit=crop&q=80";
-const MIC_IMG = "https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?w=600&auto=format&fit=crop&q=80";
+const HEADER_IMG = "https://pressroompublisher.broadcasterscommunity.com/wp-content/uploads/2026/01/two-radio-hosts-in-headphones-laughing-while-recording-podcast-in-studio-together.jpg";
+const MIC_IMG = "https://pressroompublisher.broadcasterscommunity.com/wp-content/uploads/2026/01/silver-vintage-microphone-.jpg";
 
 export default function NewsCircle() {
     useSeo({
@@ -24,12 +24,11 @@ export default function NewsCircle() {
                 alignItems: "center",
                 paddingLeft: "48px",
             }}>
-                <div style={{ position: "absolute", inset: 0, backgroundColor: "rgba(0,0,0,0.6)" }} />
+                <div style={{ position: "absolute", inset: 0, backgroundColor: "rgba(0,0,0,0.60)" }} />
                 <h1 style={{
-                    position: "relative",
-                    zIndex: 1,
+                    position: "relative", zIndex: 1,
                     color: "#fff",
-                    fontSize: "clamp(22px, 4vw, 40px)",
+                    fontSize: "clamp(20px, 4vw, 38px)",
                     fontWeight: 900,
                     letterSpacing: "2px",
                     textTransform: "uppercase",
@@ -37,36 +36,46 @@ export default function NewsCircle() {
                 }}>NEWS CIRCLE (PRPNC)</h1>
             </div>
 
-            {/* Body */}
-            <section style={{ backgroundColor: "#fff", padding: "60px 24px" }}>
-                <div style={{
-                    maxWidth: "1100px",
-                    margin: "0 auto",
-                    display: "grid",
-                    gridTemplateColumns: "1fr 1fr",
-                    gap: "48px",
-                    alignItems: "center",
-                }}
+            {/* Body — dark bg section like WordPress */}
+            <section style={{
+                position: "relative",
+                padding: "64px 24px",
+                backgroundImage: `url(${MIC_IMG})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+            }}>
+                <div style={{ position: "absolute", inset: 0, backgroundColor: "rgba(0,0,0,0.82)" }} />
+                <div
+                    style={{
+                        position: "relative",
+                        zIndex: 1,
+                        maxWidth: "1100px",
+                        margin: "0 auto",
+                        display: "grid",
+                        gridTemplateColumns: "1fr 1fr",
+                        gap: "48px",
+                        alignItems: "center",
+                    }}
                     className="marketing-two-col"
                 >
-                    {/* Microphone image */}
-                    <div style={{ borderRadius: "8px", overflow: "hidden" }}>
+                    {/* Left: microphone image inset */}
+                    <div style={{ borderRadius: "6px", overflow: "hidden", aspectRatio: "3/4" }}>
                         <img
                             src={MIC_IMG}
-                            alt="Vintage microphone"
-                            style={{ width: "100%", height: "380px", objectFit: "cover", display: "block" }}
+                            alt="Silver vintage microphone on wooden table"
+                            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
                             loading="lazy"
                         />
                     </div>
 
-                    {/* Text */}
+                    {/* Right: text */}
                     <div>
-                        <p style={{ color: "#333", fontSize: "15px", lineHeight: 1.9, marginBottom: "20px" }}>
+                        <p style={{ color: "#e0e0e0", fontSize: "15px", lineHeight: 1.9, marginBottom: "20px" }}>
                             The acronym (PRPNC) literally stands for the PRESS ROOM PUBLISHER NEWS CIRCLE. It's an official
                             digital media firepower domain, specifically set up to the exclusive reportage and unbiased
                             documentation of latest update and trending news items related to project PRP and her subsidiaries.
                         </p>
-                        <p style={{ color: "#333", fontSize: "15px", lineHeight: 1.9, marginBottom: "36px" }}>
+                        <p style={{ color: "#e0e0e0", fontSize: "15px", lineHeight: 1.9, marginBottom: "36px" }}>
                             PRPNC is basically designed for the purpose of the official news hub for PRP's news releases and
                             varying verified official updates in the interest of the community. In the news circle, visitors and
                             users can easily access and read more details about the latest trending activities of Press Room
@@ -78,14 +87,14 @@ export default function NewsCircle() {
                                 display: "inline-block",
                                 backgroundColor: "#00ad00",
                                 color: "#fff",
-                                padding: "14px 28px",
+                                padding: "14px 24px",
                                 fontWeight: 700,
                                 fontSize: "13px",
                                 letterSpacing: "1px",
                                 textTransform: "uppercase",
                                 textDecoration: "none",
-                                borderRadius: "4px",
-                                lineHeight: 1.4,
+                                borderRadius: "3px",
+                                lineHeight: 1.5,
                                 transition: "background-color 0.2s",
                             }}
                             onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "#008f00"; }}
@@ -97,7 +106,7 @@ export default function NewsCircle() {
                 </div>
             </section>
 
-            <style>{`.marketing-two-col { } @media(max-width:768px){.marketing-two-col{grid-template-columns:1fr!important}}`}</style>
+            <style>{`@media(max-width:768px){.marketing-two-col{grid-template-columns:1fr!important}}`}</style>
         </MarketingLayout>
     );
 }

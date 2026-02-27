@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { MarketingLayout } from "@/components/marketing/MarketingLayout";
 import { useSeo } from "@/hooks/useSeo";
 
-const HEADER_IMG = "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=1400&auto=format&fit=crop&q=80";
+const HEADER_IMG = "https://pressroompublisher.broadcasterscommunity.com/wp-content/uploads/2026/01/female-host-using-control-panel-at-radio-station.jpg";
 
 export default function Career() {
     useSeo({
@@ -25,8 +25,7 @@ export default function Career() {
             }}>
                 <div style={{ position: "absolute", inset: 0, backgroundColor: "rgba(0,0,0,0.60)" }} />
                 <h1 style={{
-                    position: "relative",
-                    zIndex: 1,
+                    position: "relative", zIndex: 1,
                     color: "#fff",
                     fontSize: "clamp(28px, 5vw, 48px)",
                     fontWeight: 900,
@@ -45,28 +44,27 @@ export default function Career() {
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
-                    gap: "32px",
+                    gap: "36px",
                 }}>
-                    <p style={{ color: "#333", fontSize: "16px", lineHeight: 1.9 }}>
+                    <p style={{ color: "#333", fontSize: "16px", lineHeight: 2.0 }}>
                         At PRESS ROOM PUBLISHER, every quality individual commitment toward the collective achievement and
                         overall success of the community goal are duly prioritized. To becoming a member of the diverse team
                         of the great minds behind the scenes of our operations and success stories, we invite you to please
                         feel free to reach out to our management. We would be glad to have you here!
                     </p>
-
                     <Link
                         to="/connect"
                         style={{
                             display: "inline-block",
                             backgroundColor: "#00ad00",
                             color: "#fff",
-                            padding: "14px 40px",
+                            padding: "14px 44px",
                             fontWeight: 700,
                             fontSize: "14px",
                             letterSpacing: "1.5px",
                             textTransform: "uppercase",
                             textDecoration: "none",
-                            borderRadius: "4px",
+                            borderRadius: "3px",
                             transition: "background-color 0.2s",
                         }}
                         onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "#008f00"; }}

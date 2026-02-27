@@ -272,7 +272,7 @@ export function MarketingLayout({ children }: MarketingLayoutProps) {
                             </h4>
                             <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                                 <a
-                                    href="https://wa.me/message/BROADCASTERSCOMMUNITY"
+                                    href="https://wa.me/message/M4SMC34XJ63JA1"
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     style={{
@@ -308,7 +308,7 @@ export function MarketingLayout({ children }: MarketingLayoutProps) {
                 {/* Bottom bar */}
                 <div style={{ backgroundColor: "#00ad00", padding: "12px 24px", textAlign: "center" }}>
                     <p style={{ margin: 0, color: "#fff", fontSize: "12px", fontWeight: 500 }}>
-                        © {currentYear} Press Room Publisher — A subsidiary of PAVE Broadcasters Community. All rights reserved.
+                        © {currentYear} Press Room Publisher — A PBC Project. All Right Reserved.
                     </p>
                 </div>
             </footer>

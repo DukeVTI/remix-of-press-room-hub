@@ -1,7 +1,8 @@
 import { MarketingLayout } from "@/components/marketing/MarketingLayout";
 import { useSeo } from "@/hooks/useSeo";
 
-const HEADER_IMG = "https://images.unsplash.com/photo-1478737270197-b9bf817e1c62?w=1400&auto=format&fit=crop&q=80";
+const HEADER_IMG = "https://pressroompublisher.broadcasterscommunity.com/wp-content/uploads/2026/01/young-woman-broadcasting-in-a-studio-smiling-to-camera-e1612260457387.jpg";
+const MISSION_BG = "https://pressroompublisher.broadcasterscommunity.com/wp-content/uploads/2026/01/professional-equipment-for-recording-podcast-microphone-earphones-and-laptop-in-a-studio-.jpg";
 
 export default function About() {
   useSeo({
@@ -22,10 +23,9 @@ export default function About() {
         alignItems: "center",
         paddingLeft: "48px",
       }}>
-        <div style={{ position: "absolute", inset: 0, backgroundColor: "rgba(0,0,0,0.55)" }} />
+        <div style={{ position: "absolute", inset: 0, backgroundColor: "rgba(0,0,0,0.50)" }} />
         <h1 style={{
-          position: "relative",
-          zIndex: 1,
+          position: "relative", zIndex: 1,
           color: "#fff",
           fontSize: "clamp(28px, 5vw, 48px)",
           fontWeight: 900,
@@ -64,12 +64,7 @@ export default function About() {
           </div>
 
           {/* Vision */}
-          <div style={{
-            marginTop: "48px",
-            borderLeft: "4px solid #00ad00",
-            paddingLeft: "24px",
-            marginBottom: "32px",
-          }}>
+          <div style={{ marginTop: "48px", borderLeft: "4px solid #00ad00", paddingLeft: "24px", marginBottom: "32px" }}>
             <h2 style={{ color: "#111", fontSize: "20px", fontWeight: 800, textTransform: "uppercase", letterSpacing: "1px", marginBottom: "12px" }}>
               Our Vision
             </h2>
@@ -78,20 +73,29 @@ export default function About() {
               preservation and protection of record events that matter.
             </p>
           </div>
+        </div>
+      </section>
 
-          {/* Mission */}
-          <div style={{ borderLeft: "4px solid #00ad00", paddingLeft: "24px" }}>
-            <h2 style={{ color: "#111", fontSize: "20px", fontWeight: 800, textTransform: "uppercase", letterSpacing: "1px", marginBottom: "12px" }}>
-              Our Mission
-            </h2>
-            <p style={{ color: "#444", fontSize: "15px", lineHeight: 1.9, margin: 0 }}>
-              Projecting the unique talents of gifted writers and optimizing creative writing skills that sustainably
-              engage the audience, and equally capable of encouraging readers to becoming masterpiece writers that reads.
-              Here at PRESS ROOM PUBLISHER blogsite, we'd always remain committed towards the sustenance of our goals.
-              You are warmly welcome to be here, and together, we would be better collectively for the best project PBC
-              stands to achieve with you (the community) we are proud to serve.
-            </p>
-          </div>
+      {/* Mission — dark background section */}
+      <section style={{
+        position: "relative",
+        padding: "60px 24px",
+        backgroundImage: `url(${MISSION_BG})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}>
+        <div style={{ position: "absolute", inset: 0, backgroundColor: "rgba(0,0,0,0.78)" }} />
+        <div style={{ position: "relative", zIndex: 1, maxWidth: "860px", margin: "0 auto" }}>
+          <h2 style={{ color: "#00ad00", fontSize: "20px", fontWeight: 800, textTransform: "uppercase", letterSpacing: "1px", marginBottom: "16px" }}>
+            Our Mission
+          </h2>
+          <p style={{ color: "#e8e8e8", fontSize: "15px", lineHeight: 1.9, margin: 0 }}>
+            Projecting the unique talents of gifted writers and optimizing creative writing skills that sustainably
+            engage the audience, and equally capable of encouraging readers to becoming masterpiece writers that reads.
+            Here at PRESS ROOM PUBLISHER blogsite, we'd always remain committed towards the sustenance of our goals.
+            You are warmly welcome to be here, and together, we would be better collectively for the best project PBC
+            stands to achieve with you (the community) we are proud to serve.
+          </p>
         </div>
       </section>
     </MarketingLayout>
