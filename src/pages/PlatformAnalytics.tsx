@@ -14,13 +14,13 @@ interface TopBlog { id: string; blog_name: string; follower_count: number; is_ve
 interface TopPost { id: string; headline: string; view_count: number; approval_count: number; }
 interface SummaryStats { users: number; blogs: number; posts: number; comments: number; reactions: number; }
 
-const CHART_COLORS = ["#6366f1", "#22d3ee", "#34d399", "#f59e0b", "#f43f5e", "#a78bfa"];
+const CHART_COLORS = ["#00ad00", "#3b82f6", "#f59e0b", "#f43f5e", "#a78bfa", "#22d3ee"];
 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 shadow-xl">
-      <p className="text-slate-400 mb-1">{label}</p>
+    <div className="bg-white border border-gray-200 rounded-lg px-3 py-2 text-xs text-gray-700 shadow-lg">
+      <p className="text-gray-400 mb-1">{label}</p>
       {payload.map((p: any) => (
         <p key={p.dataKey} style={{ color: p.color }}>{p.name}: <span className="font-bold">{p.value}</span></p>
       ))}
@@ -31,12 +31,12 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 const ChartCard = ({ title, icon: Icon, color, children, loading, colSpan = "" }: {
   title: string; icon: React.ElementType; color: string; children: React.ReactNode; loading: boolean; colSpan?: string;
 }) => (
-  <div className={cn("rounded-xl border border-slate-800 bg-slate-900/60 p-5", colSpan)}>
+  <div className={cn("rounded-xl border border-gray-200 bg-white p-5", colSpan)}>
     <div className="flex items-center gap-2 mb-4">
       <Icon className={cn("w-4 h-4", color)} />
-      <h2 className="text-white font-semibold text-sm">{title}</h2>
+      <h2 className="text-gray-800 font-semibold text-sm">{title}</h2>
     </div>
-    {loading ? <div className="h-48 bg-slate-800 rounded-lg animate-pulse" /> : children}
+    {loading ? <div className="h-48 bg-gray-100 rounded-lg animate-pulse" /> : children}
   </div>
 );
 
@@ -155,11 +155,11 @@ export default function PlatformAnalytics() {
   }, []);
 
   const summaryItems = [
-    { label: "Users", value: summary?.users ?? 0, icon: Users, color: "text-indigo-400" },
-    { label: "Blogs", value: summary?.blogs ?? 0, icon: BookOpen, color: "text-blue-400" },
-    { label: "Posts", value: summary?.posts ?? 0, icon: FileText, color: "text-emerald-400" },
-    { label: "Comments", value: summary?.comments ?? 0, icon: MessageSquare, color: "text-purple-400" },
-    { label: "Reactions", value: summary?.reactions ?? 0, icon: ThumbsUp, color: "text-amber-400" },
+    { label: "Users", value: summary?.users ?? 0, icon: Users, color: "text-green-600" },
+    { label: "Blogs", value: summary?.blogs ?? 0, icon: BookOpen, color: "text-blue-600" },
+    { label: "Posts", value: summary?.posts ?? 0, icon: FileText, color: "text-purple-600" },
+    { label: "Comments", value: summary?.comments ?? 0, icon: MessageSquare, color: "text-indigo-600" },
+    { label: "Reactions", value: summary?.reactions ?? 0, icon: ThumbsUp, color: "text-amber-600" },
   ];
 
   return (
@@ -167,15 +167,15 @@ export default function PlatformAnalytics() {
       {/* Summary strip */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
         {summaryItems.map(({ label, value, icon: Icon, color }) => (
-          <div key={label} className="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
+          <div key={label} className="rounded-xl border border-gray-200 bg-white p-4">
             <div className="flex items-center gap-2 mb-2">
               <Icon className={cn("w-4 h-4", color)} />
-              <p className="text-slate-500 text-xs">{label}</p>
+              <p className="text-gray-400 text-xs">{label}</p>
             </div>
             {loading ? (
-              <div className="h-7 w-16 bg-slate-800 rounded animate-pulse" />
+              <div className="h-7 w-16 bg-gray-100 rounded animate-pulse" />
             ) : (
-              <p className="text-white text-2xl font-bold tabular-nums">{value.toLocaleString()}</p>
+              <p className="text-gray-900 text-2xl font-bold tabular-nums">{value.toLocaleString()}</p>
             )}
           </div>
         ))}
@@ -183,23 +183,23 @@ export default function PlatformAnalytics() {
 
       {/* Row 1: Growth trend + Category pie */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-        <ChartCard title="Activity — Last 30 Days" icon={TrendingUp} color="text-indigo-400" loading={loading} colSpan="lg:col-span-2">
+        <ChartCard title="Activity — Last 30 Days" icon={TrendingUp} color="text-green-600" loading={loading} colSpan="lg:col-span-2">
           <ResponsiveContainer width="100%" height={200}>
             <LineChart data={postTrend}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-              <XAxis dataKey="date" tick={{ fill: "#64748b", fontSize: 10 }} tickLine={false} axisLine={false} interval={4} />
-              <YAxis tick={{ fill: "#64748b", fontSize: 10 }} tickLine={false} axisLine={false} allowDecimals={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+              <XAxis dataKey="date" tick={{ fill: "#9ca3af", fontSize: 10 }} tickLine={false} axisLine={false} interval={4} />
+              <YAxis tick={{ fill: "#9ca3af", fontSize: 10 }} tickLine={false} axisLine={false} allowDecimals={false} />
               <Tooltip content={<CustomTooltip />} />
-              <Legend wrapperStyle={{ fontSize: "11px", color: "#94a3b8" }} iconSize={8} />
+              <Legend wrapperStyle={{ fontSize: "11px", color: "#6b7280" }} iconSize={8} />
               <Line type="monotone" dataKey="posts" stroke="#6366f1" strokeWidth={2} dot={false} activeDot={{ r: 5 }} name="Posts" />
               <Line type="monotone" dataKey="users" stroke="#34d399" strokeWidth={2} dot={false} activeDot={{ r: 5 }} name="New Users" />
             </LineChart>
           </ResponsiveContainer>
         </ChartCard>
 
-        <ChartCard title="Blog Categories" icon={BookOpen} color="text-blue-400" loading={loading}>
+        <ChartCard title="Blog Categories" icon={BookOpen} color="text-blue-600" loading={loading}>
           {categoryData.length === 0 ? (
-            <div className="h-48 flex items-center justify-center text-slate-500 text-sm">No data</div>
+            <div className="h-48 flex items-center justify-center text-gray-400 text-sm">No data</div>
           ) : (
             <ResponsiveContainer width="100%" height={200}>
               <PieChart>
@@ -209,7 +209,7 @@ export default function PlatformAnalytics() {
                   ))}
                 </Pie>
                 <Tooltip content={<CustomTooltip />} />
-                <Legend wrapperStyle={{ fontSize: "11px", color: "#94a3b8" }} iconSize={8} />
+                <Legend wrapperStyle={{ fontSize: "11px", color: "#6b7280" }} iconSize={8} />
               </PieChart>
             </ResponsiveContainer>
           )}
@@ -218,20 +218,20 @@ export default function PlatformAnalytics() {
 
       {/* Row 2: Engagement bar chart per blog */}
       <div className="mb-6">
-        <ChartCard title="Top Blog Engagement (Posts · Comments · Reactions)" icon={Activity} color="text-emerald-400" loading={loading}>
+        <ChartCard title="Top Blog Engagement (Posts · Comments · Reactions)" icon={Activity} color="text-green-600" loading={loading}>
           {engagementData.length === 0 ? (
-            <div className="h-48 flex items-center justify-center text-slate-500 text-sm">No data</div>
+            <div className="h-48 flex items-center justify-center text-gray-400 text-sm">No data</div>
           ) : (
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={engagementData} barGap={2}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                <XAxis dataKey="name" tick={{ fill: "#64748b", fontSize: 10 }} tickLine={false} axisLine={false} />
-                <YAxis tick={{ fill: "#64748b", fontSize: 10 }} tickLine={false} axisLine={false} allowDecimals={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <XAxis dataKey="name" tick={{ fill: "#9ca3af", fontSize: 10 }} tickLine={false} axisLine={false} />
+                <YAxis tick={{ fill: "#9ca3af", fontSize: 10 }} tickLine={false} axisLine={false} allowDecimals={false} />
                 <Tooltip content={<CustomTooltip />} />
-                <Legend wrapperStyle={{ fontSize: "11px", color: "#94a3b8" }} iconSize={8} />
-                <Bar dataKey="posts" fill="#6366f1" radius={[3, 3, 0, 0]} name="Posts" />
-                <Bar dataKey="comments" fill="#22d3ee" radius={[3, 3, 0, 0]} name="Comments" />
-                <Bar dataKey="reactions" fill="#34d399" radius={[3, 3, 0, 0]} name="Reactions" />
+                <Legend wrapperStyle={{ fontSize: "11px", color: "#6b7280" }} iconSize={8} />
+                <Bar dataKey="posts" fill="#00ad00" radius={[3, 3, 0, 0]} name="Posts" />
+                <Bar dataKey="comments" fill="#3b82f6" radius={[3, 3, 0, 0]} name="Comments" />
+                <Bar dataKey="reactions" fill="#f59e0b" radius={[3, 3, 0, 0]} name="Reactions" />
               </BarChart>
             </ResponsiveContainer>
           )}
@@ -241,21 +241,21 @@ export default function PlatformAnalytics() {
       {/* Row 3: Leaderboards */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Top blogs */}
-        <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-5">
-          <h2 className="text-white font-semibold text-sm mb-4 flex items-center gap-2">
-            <BookOpen className="w-4 h-4 text-blue-400" /> Top Blogs by Followers
+        <div className="rounded-xl border border-gray-200 bg-white p-5">
+          <h2 className="text-gray-800 font-semibold text-sm mb-4 flex items-center gap-2">
+            <BookOpen className="w-4 h-4 text-blue-500" /> Top Blogs by Followers
           </h2>
           {loading ? (
-            <div className="space-y-3">{Array.from({ length: 5 }).map((_, i) => <div key={i} className="h-10 bg-slate-800 rounded animate-pulse" />)}</div>
+            <div className="space-y-3">{Array.from({ length: 5 }).map((_, i) => <div key={i} className="h-10 bg-gray-100 rounded animate-pulse" />)}</div>
           ) : topBlogs.length === 0 ? (
-            <p className="text-slate-500 text-sm">No data</p>
+            <p className="text-gray-400 text-sm">No data</p>
           ) : (
             <div className="space-y-2">
               {topBlogs.map((b, i) => (
-                <div key={b.id} className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-800/50 transition-colors">
-                  <span className="text-slate-500 text-xs font-bold w-4 text-right">#{i + 1}</span>
-                  <p className="flex-1 text-slate-200 text-sm truncate">{b.blog_name}</p>
-                  <span className="text-slate-400 text-xs tabular-nums">{(b.follower_count ?? 0).toLocaleString()} followers</span>
+                <div key={b.id} className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 transition-colors">
+                  <span className="text-gray-400 text-xs font-bold w-4 text-right">#{i + 1}</span>
+                  <p className="flex-1 text-gray-800 text-sm truncate">{b.blog_name}</p>
+                  <span className="text-gray-500 text-xs tabular-nums">{(b.follower_count ?? 0).toLocaleString()} followers</span>
                 </div>
               ))}
             </div>
@@ -263,21 +263,21 @@ export default function PlatformAnalytics() {
         </div>
 
         {/* Top posts */}
-        <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-5">
-          <h2 className="text-white font-semibold text-sm mb-4 flex items-center gap-2">
-            <FileText className="w-4 h-4 text-emerald-400" /> Top Posts by Views
+        <div className="rounded-xl border border-gray-200 bg-white p-5">
+          <h2 className="text-gray-800 font-semibold text-sm mb-4 flex items-center gap-2">
+            <FileText className="w-4 h-4 text-green-600" /> Top Posts by Views
           </h2>
           {loading ? (
-            <div className="space-y-3">{Array.from({ length: 5 }).map((_, i) => <div key={i} className="h-10 bg-slate-800 rounded animate-pulse" />)}</div>
+            <div className="space-y-3">{Array.from({ length: 5 }).map((_, i) => <div key={i} className="h-10 bg-gray-100 rounded animate-pulse" />)}</div>
           ) : topPosts.length === 0 ? (
-            <p className="text-slate-500 text-sm">No data</p>
+            <p className="text-gray-400 text-sm">No data</p>
           ) : (
             <div className="space-y-2">
               {topPosts.map((p, i) => (
-                <div key={p.id} className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-800/50 transition-colors">
-                  <span className="text-slate-500 text-xs font-bold w-4 text-right">#{i + 1}</span>
-                  <p className="flex-1 text-slate-200 text-sm truncate">{p.headline}</p>
-                  <span className="text-slate-400 text-xs tabular-nums">{(p.view_count ?? 0).toLocaleString()} views</span>
+                <div key={p.id} className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 transition-colors">
+                  <span className="text-gray-400 text-xs font-bold w-4 text-right">#{i + 1}</span>
+                  <p className="flex-1 text-gray-800 text-sm truncate">{p.headline}</p>
+                  <span className="text-gray-500 text-xs tabular-nums">{(p.view_count ?? 0).toLocaleString()} views</span>
                 </div>
               ))}
             </div>

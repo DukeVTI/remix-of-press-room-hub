@@ -20,16 +20,16 @@ export function AdminEmptyState({
         <div
             className={cn(
                 "flex flex-col items-center justify-center py-16 px-6 text-center",
-                "rounded-xl border border-dashed border-slate-800 bg-slate-900/30",
+                "rounded-xl border border-dashed border-gray-200 bg-gray-50",
                 className
             )}
         >
-            <div className="w-16 h-16 rounded-2xl bg-slate-800/80 flex items-center justify-center mb-4">
-                <Icon className="w-8 h-8 text-slate-500" />
+            <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center mb-4">
+                <Icon className="w-8 h-8 text-gray-400" />
             </div>
-            <h3 className="text-slate-300 font-semibold text-lg mb-1">{title}</h3>
+            <h3 className="text-gray-700 font-semibold text-lg mb-1">{title}</h3>
             {description && (
-                <p className="text-slate-500 text-sm max-w-sm mb-4">{description}</p>
+                <p className="text-gray-400 text-sm max-w-sm mb-4">{description}</p>
             )}
             {action}
         </div>

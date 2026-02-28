@@ -91,18 +91,18 @@ export default function FlaggedWatchList() {
     );
 
     const getRiskColor = (count: number) => {
-        if (count >= 10) return "text-rose-400 bg-rose-500/10 border-rose-500/30";
-        if (count >= 5) return "text-orange-400 bg-orange-500/10 border-orange-500/30";
-        return "text-amber-400 bg-amber-500/10 border-amber-500/30";
+        if (count >= 10) return "text-rose-700 bg-rose-50 border-rose-200";
+        if (count >= 5) return "text-orange-700 bg-orange-50 border-orange-200";
+        return "text-amber-700 bg-amber-50 border-amber-200";
     };
 
     return (
         <AdminLayout title="Flagged Watch List" breadcrumbs={[{ label: "Watch List" }]}>
             {/* Alert banner */}
             {watchlist.length > 0 && (
-                <div className="mb-6 px-4 py-3 rounded-xl border border-rose-500/30 bg-rose-500/10 flex items-center gap-3">
-                    <AlertTriangle className="w-5 h-5 text-rose-400 flex-shrink-0" />
-                    <p className="text-rose-300 text-sm">
+                <div className="mb-6 px-4 py-3 rounded-xl border border-rose-200 bg-rose-50 flex items-center gap-3">
+                    <AlertTriangle className="w-5 h-5 text-rose-500 flex-shrink-0" />
+                    <p className="text-rose-700 text-sm">
                         <strong>{watchlist.length}</strong> users have 2 or more reports against them and require review.
                     </p>
                 </div>
@@ -114,21 +114,21 @@ export default function FlaggedWatchList() {
                     placeholder="Search by name or email…"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="pl-9 bg-slate-900 border-slate-700 text-slate-200 placeholder:text-slate-500 focus:border-indigo-500"
+                    className="pl-9 bg-white border-gray-200 text-gray-800 placeholder:text-gray-400 focus:border-green-500"
                 />
             </div>
 
-            <div className="rounded-xl border border-slate-800 bg-slate-900/60 overflow-hidden">
-                <div className="grid grid-cols-[2fr_80px_120px_100px_44px] gap-4 px-4 py-3 border-b border-slate-800 text-xs font-medium text-slate-500 uppercase tracking-wider">
+            <div className="rounded-xl border border-gray-200 bg-white overflow-hidden">
+                <div className="grid grid-cols-[2fr_80px_120px_100px_44px] gap-4 px-4 py-3 border-b border-gray-100 text-xs font-medium text-gray-500 uppercase tracking-wider">
                     <span>User</span><span>Risk</span><span>Reports</span><span>Last Report</span><span />
                 </div>
 
                 {loading ? (
-                    <div className="divide-y divide-slate-800">
+                    <div className="divide-y divide-gray-100">
                         {Array.from({ length: 5 }).map((_, i) => (
                             <div key={i} className="h-16 px-4 flex items-center gap-4 animate-pulse">
-                                <div className="w-9 h-9 rounded-full bg-slate-800" />
-                                <div className="flex-1 h-4 bg-slate-800 rounded" />
+                                <div className="w-9 h-9 rounded-full bg-gray-100" />
+                                <div className="flex-1 h-4 bg-gray-100 rounded" />
                             </div>
                         ))}
                     </div>
@@ -140,37 +140,37 @@ export default function FlaggedWatchList() {
                         className="rounded-none border-0"
                     />
                 ) : (
-                    <div className="divide-y divide-slate-800/60">
+                    <div className="divide-y divide-gray-100">
                         {visible.map((w) => (
                             <div key={w.reported_user_id}>
                                 {/* Main row */}
                                 <div
-                                    className="grid grid-cols-[2fr_80px_120px_100px_44px] gap-4 px-4 py-3.5 items-center hover:bg-slate-800/30 transition-colors cursor-pointer"
+                                    className="grid grid-cols-[2fr_80px_120px_100px_44px] gap-4 px-4 py-3.5 items-center hover:bg-gray-50 transition-colors cursor-pointer"
                                     onClick={() => setExpanded(expanded === w.reported_user_id ? null : w.reported_user_id)}
                                 >
                                     <div className="flex items-center gap-3 min-w-0">
-                                        <Avatar className="w-9 h-9 flex-shrink-0 border border-slate-700">
+                                        <Avatar className="w-9 h-9 flex-shrink-0 border border-gray-200">
                                             <AvatarImage src={w.avatar_url} />
-                                            <AvatarFallback className="bg-rose-700 text-white text-xs">{w.full_name[0]}</AvatarFallback>
+                                            <AvatarFallback className="bg-rose-600 text-white text-xs">{w.full_name[0]}</AvatarFallback>
                                         </Avatar>
                                         <div className="min-w-0">
-                                            <p className="text-slate-200 text-sm font-medium truncate">{w.full_name}</p>
-                                            <p className="text-slate-500 text-xs truncate">{w.email}</p>
+                                            <p className="text-gray-800 text-sm font-medium truncate">{w.full_name}</p>
+                                            <p className="text-gray-400 text-xs truncate">{w.email}</p>
                                         </div>
                                     </div>
                                     <span className={cn("inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold border w-fit", getRiskColor(w.report_count))}>
                                         {w.report_count >= 10 ? "HIGH" : w.report_count >= 5 ? "MED" : "LOW"}
                                     </span>
-                                    <span className="text-slate-300 text-sm tabular-nums flex items-center gap-1.5">
-                                        <Flag className="w-3.5 h-3.5 text-rose-400" /> {w.report_count} reports
+                                    <span className="text-gray-700 text-sm tabular-nums flex items-center gap-1.5">
+                                        <Flag className="w-3.5 h-3.5 text-rose-500" /> {w.report_count} reports
                                     </span>
-                                    <span className="text-slate-400 text-xs">{formatDistanceToNow(new Date(w.latest_report), { addSuffix: true })}</span>
+                                    <span className="text-gray-500 text-xs">{formatDistanceToNow(new Date(w.latest_report), { addSuffix: true })}</span>
                                     <Button
                                         size="icon"
                                         variant="ghost"
                                         title="View user"
                                         onClick={(e) => { e.stopPropagation(); navigate("/admin/users"); }}
-                                        className="w-7 h-7 text-slate-500 hover:text-indigo-400 hover:bg-indigo-500/10"
+                                        className="w-7 h-7 text-gray-400 hover:text-green-600 hover:bg-green-50"
                                     >
                                         <Eye className="w-3.5 h-3.5" />
                                     </Button>
@@ -178,24 +178,24 @@ export default function FlaggedWatchList() {
 
                                 {/* Expanded report history */}
                                 {expanded === w.reported_user_id && (
-                                    <div className="bg-slate-950/60 border-t border-slate-800/60 px-6 py-4 space-y-2">
-                                        <p className="text-slate-400 text-xs font-medium uppercase tracking-wider mb-3">Report History</p>
+                                    <div className="bg-gray-50 border-t border-gray-100 px-6 py-4 space-y-2">
+                                        <p className="text-gray-400 text-xs font-medium uppercase tracking-wider mb-3">Report History</p>
                                         {(userReports[w.reported_user_id] ?? []).map((r) => (
-                                            <div key={r.id} className="flex items-start gap-3 text-xs py-2 border-b border-slate-800/40 last:border-0">
-                                                <FileText className="w-3.5 h-3.5 text-slate-500 mt-0.5 flex-shrink-0" />
+                                            <div key={r.id} className="flex items-start gap-3 text-xs py-2 border-b border-gray-100 last:border-0">
+                                                <FileText className="w-3.5 h-3.5 text-gray-400 mt-0.5 flex-shrink-0" />
                                                 <div className="flex-1 min-w-0">
-                                                    <span className="text-slate-300 capitalize font-medium">{r.report_type}</span>
-                                                    <span className="text-slate-500 mx-2">·</span>
-                                                    <span className="text-slate-400">{r.reason}</span>
+                                                    <span className="text-gray-700 capitalize font-medium">{r.report_type}</span>
+                                                    <span className="text-gray-400 mx-2">·</span>
+                                                    <span className="text-gray-500">{r.reason}</span>
                                                 </div>
                                                 <span className={cn("px-2 py-0.5 rounded-full text-xs border capitalize flex-shrink-0",
-                                                    r.status === "resolved" ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/30" :
-                                                        r.status === "dismissed" ? "bg-slate-500/15 text-slate-400 border-slate-500/30" :
-                                                            "bg-amber-500/15 text-amber-300 border-amber-500/30"
+                                                    r.status === "resolved" ? "bg-green-50 text-green-700 border-green-200" :
+                                                        r.status === "dismissed" ? "bg-gray-100 text-gray-600 border-gray-200" :
+                                                            "bg-amber-50 text-amber-700 border-amber-200"
                                                 )}>
                                                     {r.status}
                                                 </span>
-                                                <span className="text-slate-600 flex-shrink-0">{formatDistanceToNow(new Date(r.created_at), { addSuffix: true })}</span>
+                                                <span className="text-gray-300 flex-shrink-0">{formatDistanceToNow(new Date(r.created_at), { addSuffix: true })}</span>
                                             </div>
                                         ))}
                                     </div>

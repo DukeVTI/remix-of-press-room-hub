@@ -34,10 +34,10 @@ interface Comment {
 }
 
 const POST_STATUS_CFG: Record<string, string> = {
-  published: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30",
-  draft: "bg-slate-500/15 text-slate-400 border-slate-500/30",
-  hidden: "bg-rose-500/15 text-rose-300 border-rose-500/30",
-  deleted: "bg-slate-600/15 text-slate-500 border-slate-600/30",
+  published: "bg-green-50 text-green-700 border-green-200",
+  draft: "bg-gray-100 text-gray-600 border-gray-200",
+  hidden: "bg-rose-50 text-rose-700 border-rose-200",
+  deleted: "bg-gray-100 text-gray-500 border-gray-200",
 };
 
 export default function ContentOverview() {
@@ -78,7 +78,7 @@ export default function ContentOverview() {
     setActionLoading(true);
     const { type, id, tableType } = confirmAction;
     let newStatus = type === "hide" ? "hidden" : type === "delete" ? "deleted" : "published";
-    await supabase.from(tableType).update({ status: newStatus }).eq("id", id);
+    await supabase.from(tableType).update({ status: newStatus as any }).eq("id", id);
     toast.success(`Content ${type === "hide" ? "hidden" : type === "delete" ? "deleted" : "restored"}`);
     setActionLoading(false);
     setConfirmAction(null);
@@ -89,26 +89,26 @@ export default function ContentOverview() {
     data.length === 0 ? (
       <AdminEmptyState icon={FileText} title="No posts found" description="No posts match your search." className="rounded-none border-0" />
     ) : (
-      <div className="divide-y divide-slate-800/60">
+      <div className="divide-y divide-gray-100">
         {data.map((post) => (
-          <div key={post.id} className="grid grid-cols-[1fr_100px_80px_80px_80px_120px] gap-4 px-4 py-3.5 items-center hover:bg-slate-800/30 transition-colors">
+          <div key={post.id} className="grid grid-cols-[1fr_100px_80px_80px_80px_120px] gap-4 px-4 py-3.5 items-center hover:bg-gray-50 transition-colors">
             <div>
-              <p className="text-slate-200 text-sm font-medium truncate">{post.headline}</p>
-              <p className="text-slate-500 text-xs">{formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}</p>
+              <p className="text-gray-800 text-sm font-medium truncate">{post.headline}</p>
+              <p className="text-gray-400 text-xs">{formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}</p>
             </div>
             <span className={cn("inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border capitalize", POST_STATUS_CFG[post.status] ?? "")}>
               {post.status}
             </span>
-            <span className="text-slate-400 text-xs text-right">{post.view_count.toLocaleString()} views</span>
-            <span className="text-slate-400 text-xs text-right">{post.approval_count} 👍</span>
-            <span className="text-slate-400 text-xs text-right">{post.comment_count} 💬</span>
+            <span className="text-gray-500 text-xs text-right">{post.view_count.toLocaleString()} views</span>
+            <span className="text-gray-500 text-xs text-right">{post.approval_count} 👍</span>
+            <span className="text-gray-500 text-xs text-right">{post.comment_count} 💬</span>
             <div className="flex items-center gap-1">
               <Button
                 size="icon"
                 variant="ghost"
                 title="Hide"
                 onClick={() => setConfirmAction({ type: "hide", id: post.id, tableType: "posts" })}
-                className="w-7 h-7 text-slate-500 hover:text-amber-400 hover:bg-amber-500/10"
+                className="w-7 h-7 text-gray-400 hover:text-amber-600 hover:bg-amber-50"
               >
                 <EyeOff className="w-3.5 h-3.5" />
               </Button>
@@ -117,7 +117,7 @@ export default function ContentOverview() {
                 variant="ghost"
                 title="Delete"
                 onClick={() => setConfirmAction({ type: "delete", id: post.id, tableType: "posts" })}
-                className="w-7 h-7 text-slate-500 hover:text-rose-400 hover:bg-rose-500/10"
+                className="w-7 h-7 text-gray-400 hover:text-rose-500 hover:bg-rose-50"
               >
                 <Trash2 className="w-3.5 h-3.5" />
               </Button>
@@ -133,12 +133,12 @@ export default function ContentOverview() {
       {/* Stats strip */}
       <div className="grid grid-cols-3 gap-4 mb-6">
         {[
-          { label: "Total Posts", value: posts.length, color: "text-indigo-400" },
-          { label: "Total Comments", value: comments.length, color: "text-blue-400" },
-          { label: "Hidden/Flagged", value: flaggedPosts.length, color: "text-rose-400" },
+          { label: "Total Posts", value: posts.length, color: "text-green-600" },
+          { label: "Total Comments", value: comments.length, color: "text-blue-600" },
+          { label: "Hidden/Flagged", value: flaggedPosts.length, color: "text-rose-600" },
         ].map(({ label, value, color }) => (
-          <div key={label} className="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
-            <p className="text-slate-500 text-xs mb-1">{label}</p>
+          <div key={label} className="rounded-xl border border-gray-200 bg-white p-4">
+            <p className="text-gray-400 text-xs mb-1">{label}</p>
             <p className={cn("text-2xl font-bold tabular-nums", color)}>{value.toLocaleString()}</p>
           </div>
         ))}
@@ -150,47 +150,47 @@ export default function ContentOverview() {
           placeholder="Search content…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="pl-9 bg-slate-900 border-slate-700 text-slate-200 placeholder:text-slate-500 focus:border-indigo-500"
+          className="pl-9 bg-white border-gray-200 text-gray-800 placeholder:text-gray-400 focus:border-green-500"
         />
       </div>
 
       <Tabs value={tab} onValueChange={setTab}>
-        <TabsList className="bg-slate-900 border border-slate-800 mb-4">
-          <TabsTrigger value="posts" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white text-slate-400">
+        <TabsList className="bg-gray-100 border border-gray-200 mb-4">
+          <TabsTrigger value="posts" className="data-[state=active]:bg-green-600 data-[state=active]:text-white text-gray-500">
             Posts ({filteredPosts.length})
           </TabsTrigger>
-          <TabsTrigger value="comments" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white text-slate-400">
+          <TabsTrigger value="comments" className="data-[state=active]:bg-green-600 data-[state=active]:text-white text-gray-500">
             Comments ({filteredComments.length})
           </TabsTrigger>
-          <TabsTrigger value="flagged" className="data-[state=active]:bg-rose-700 data-[state=active]:text-white text-slate-400">
+          <TabsTrigger value="flagged" className="data-[state=active]:bg-rose-600 data-[state=active]:text-white text-gray-500">
             Flagged ({flaggedPosts.length})
           </TabsTrigger>
         </TabsList>
 
-        <div className="rounded-xl border border-slate-800 bg-slate-900/60 overflow-hidden">
-          <div className="grid grid-cols-[1fr_100px_80px_80px_80px_120px] gap-4 px-4 py-3 border-b border-slate-800 text-xs font-medium text-slate-500 uppercase tracking-wider">
+        <div className="rounded-xl border border-gray-200 bg-white overflow-hidden">
+          <div className="grid grid-cols-[1fr_100px_80px_80px_80px_120px] gap-4 px-4 py-3 border-b border-gray-100 text-xs font-medium text-gray-500 uppercase tracking-wider">
             <span>Content</span><span>Status</span><span>Views</span><span>Reactions</span><span>Comments</span><span>Actions</span>
           </div>
-          <TabsContent value="posts" className="mt-0">{loading ? <div className="h-40 flex items-center justify-center text-slate-500 text-sm animate-pulse">Loading…</div> : renderPostsTable(filteredPosts)}</TabsContent>
+          <TabsContent value="posts" className="mt-0">{loading ? <div className="h-40 flex items-center justify-center text-gray-400 text-sm animate-pulse">Loading…</div> : renderPostsTable(filteredPosts)}</TabsContent>
           <TabsContent value="comments" className="mt-0">
             {loading ? (
-              <div className="h-40 flex items-center justify-center text-slate-500 text-sm animate-pulse">Loading…</div>
+              <div className="h-40 flex items-center justify-center text-gray-400 text-sm animate-pulse">Loading…</div>
             ) : filteredComments.length === 0 ? (
               <AdminEmptyState icon={FileText} title="No comments found" className="rounded-none border-0" />
             ) : (
-              <div className="divide-y divide-slate-800/60">
+              <div className="divide-y divide-gray-100">
                 {filteredComments.map((comment) => (
-                  <div key={comment.id} className="grid grid-cols-[1fr_100px_200px_120px] gap-4 px-4 py-3.5 items-center hover:bg-slate-800/30 transition-colors">
-                    <p className="text-slate-300 text-sm line-clamp-2">{comment.content}</p>
+                  <div key={comment.id} className="grid grid-cols-[1fr_100px_200px_120px] gap-4 px-4 py-3.5 items-center hover:bg-gray-50 transition-colors">
+                    <p className="text-gray-700 text-sm line-clamp-2">{comment.content}</p>
                     <span className={cn("inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border capitalize", POST_STATUS_CFG[comment.status] ?? "")}>
                       {comment.status}
                     </span>
-                    <span className="text-slate-400 text-xs">{formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}</span>
+                    <span className="text-gray-500 text-xs">{formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}</span>
                     <div className="flex items-center gap-1">
-                      <Button size="icon" variant="ghost" onClick={() => setConfirmAction({ type: "hide", id: comment.id, tableType: "comments" })} className="w-7 h-7 text-slate-500 hover:text-amber-400 hover:bg-amber-500/10">
+                      <Button size="icon" variant="ghost" onClick={() => setConfirmAction({ type: "hide", id: comment.id, tableType: "comments" })} className="w-7 h-7 text-gray-400 hover:text-amber-600 hover:bg-amber-50">
                         <EyeOff className="w-3.5 h-3.5" />
                       </Button>
-                      <Button size="icon" variant="ghost" onClick={() => setConfirmAction({ type: "delete", id: comment.id, tableType: "comments" })} className="w-7 h-7 text-slate-500 hover:text-rose-400 hover:bg-rose-500/10">
+                      <Button size="icon" variant="ghost" onClick={() => setConfirmAction({ type: "delete", id: comment.id, tableType: "comments" })} className="w-7 h-7 text-gray-400 hover:text-rose-500 hover:bg-rose-50">
                         <Trash2 className="w-3.5 h-3.5" />
                       </Button>
                     </div>
