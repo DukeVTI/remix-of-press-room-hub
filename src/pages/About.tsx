@@ -79,7 +79,7 @@ export default function About() {
       {/* Mission — dark background section */}
       <section style={{
         position: "relative",
-        padding: "60px 24px",
+        padding: "60px 24px 80px",
         backgroundImage: `url(${MISSION_BG})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
