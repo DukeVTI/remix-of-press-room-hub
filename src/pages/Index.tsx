@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { MarketingLayout } from "@/components/marketing/MarketingLayout";
 import { useSeo } from "@/hooks/useSeo";
@@ -35,11 +36,36 @@ const GreenBtn = ({ to, children }: { to: string; children: React.ReactNode }) =
 );
 
 export default function Index() {
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+
   useSeo({
     title: "Press Room Publisher – Pen Firepower Domain",
     description: "Welcome to Press Room Publisher: projecting creative writings and transforming readers into masterpiece writers.",
     keywords: ["press room publisher", "pen firepower", "creative writing", "blogging", "journalism", "broadcasters community"],
   });
+
+  // Seamless loop: listen for YouTube postMessage and seek to 0 on video end
+  useEffect(() => {
+    const onMessage = (event: MessageEvent) => {
+      if (!event.data || typeof event.data !== "string") return;
+      try {
+        const data = JSON.parse(event.data);
+        // YT state 0 = ended
+        if (data.event === "onStateChange" && data.info === 0 && iframeRef.current?.contentWindow) {
+          iframeRef.current.contentWindow.postMessage(
+            JSON.stringify({ event: "command", func: "seekTo", args: [0, true] }),
+            "*"
+          );
+          iframeRef.current.contentWindow.postMessage(
+            JSON.stringify({ event: "command", func: "playVideo", args: [] }),
+            "*"
+          );
+        }
+      } catch { /* non-YT messages ignored */ }
+    };
+    window.addEventListener("message", onMessage);
+    return () => window.removeEventListener("message", onMessage);
+  }, []);
 
   return (
     <MarketingLayout>
@@ -48,18 +74,19 @@ export default function Index() {
       <section
         style={{
           position: "relative",
-          minHeight: "560px",
+          height: "calc(100vh - 70px)", // full viewport minus the 70px sticky navbar
+          minHeight: "520px",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
           textAlign: "center",
-          padding: "80px 24px 60px",
+          padding: "60px 24px",
           overflow: "hidden",
           backgroundColor: "#000",
         }}
       >
-        {/* YouTube background video */}
+        {/* YouTube background video — covers full container */}
         <div style={{
           position: "absolute",
           inset: 0,
@@ -67,19 +94,20 @@ export default function Index() {
           overflow: "hidden",
         }}>
           <iframe
-            src={`https://www.youtube.com/embed/${HERO_VIDEO_ID}?autoplay=1&mute=1&loop=1&playlist=${HERO_VIDEO_ID}&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1&enablejsapi=1`}
-            title="Background video"
-            allow="autoplay; encrypted-media"
+            ref={iframeRef}
+            src={`https://www.youtube.com/embed/${HERO_VIDEO_ID}?autoplay=1&mute=1&loop=1&playlist=${HERO_VIDEO_ID}&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1&enablejsapi=1&iv_load_policy=3&fs=0&disablekb=1`}
+            title="PRP hero video background"
+            allow="autoplay; encrypted-media; fullscreen"
             style={{
               position: "absolute",
               top: "50%",
               left: "50%",
+              /* Oversized to guarantee full cover regardless of aspect ratio */
+              width: "max(100%, calc(100vh * 16 / 9))",
+              height: "max(100%, calc(100vw * 9 / 16))",
               transform: "translate(-50%, -50%)",
-              width: "177.78vh", // 16:9 aspect ratio
-              height: "56.25vw",
-              minWidth: "100%",
-              minHeight: "100%",
               border: "none",
+              pointerEvents: "none",
             }}
           />
         </div>
