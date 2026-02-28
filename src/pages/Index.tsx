@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { MarketingLayout } from "@/components/marketing/MarketingLayout";
 import { useSeo } from "@/hooks/useSeo";
@@ -36,35 +36,65 @@ const GreenBtn = ({ to, children }: { to: string; children: React.ReactNode }) =
 );
 
 export default function Index() {
-  const iframeRef = useRef<HTMLIFrameElement>(null);
-
   useSeo({
     title: "Press Room Publisher – Pen Firepower Domain",
     description: "Welcome to Press Room Publisher: projecting creative writings and transforming readers into masterpiece writers.",
     keywords: ["press room publisher", "pen firepower", "creative writing", "blogging", "journalism", "broadcasters community"],
   });
 
-  // Seamless loop: listen for YouTube postMessage and seek to 0 on video end
+  // Load YouTube IFrame API for seamless looping (no reload spinner)
   useEffect(() => {
-    const onMessage = (event: MessageEvent) => {
-      if (!event.data || typeof event.data !== "string") return;
-      try {
-        const data = JSON.parse(event.data);
-        // YT state 0 = ended
-        if (data.event === "onStateChange" && data.info === 0 && iframeRef.current?.contentWindow) {
-          iframeRef.current.contentWindow.postMessage(
-            JSON.stringify({ event: "command", func: "seekTo", args: [0, true] }),
-            "*"
-          );
-          iframeRef.current.contentWindow.postMessage(
-            JSON.stringify({ event: "command", func: "playVideo", args: [] }),
-            "*"
-          );
-        }
-      } catch { /* non-YT messages ignored */ }
+    let player: any = null;
+
+    const initPlayer = () => {
+      player = new (window as any).YT.Player("yt-hero-bg", {
+        videoId: HERO_VIDEO_ID,
+        playerVars: {
+          autoplay: 1,
+          mute: 1,
+          controls: 0,
+          showinfo: 0,
+          rel: 0,
+          modestbranding: 1,
+          playsinline: 1,
+          iv_load_policy: 3,
+          fs: 0,
+          disablekb: 1,
+          loop: 0, // managed manually below for seamless restart
+        },
+        events: {
+          onStateChange: (e: any) => {
+            // State 0 = ended — seek back to start immediately
+            if (e.data === 0) {
+              player.seekTo(0, true);
+              player.playVideo();
+            }
+          },
+        },
+      });
     };
-    window.addEventListener("message", onMessage);
-    return () => window.removeEventListener("message", onMessage);
+
+    if ((window as any).YT && (window as any).YT.Player) {
+      // API already loaded
+      initPlayer();
+    } else {
+      // Load the API script once
+      if (!document.getElementById("yt-api-script")) {
+        const tag = document.createElement("script");
+        tag.id = "yt-api-script";
+        tag.src = "https://www.youtube.com/iframe_api";
+        document.head.appendChild(tag);
+      }
+      (window as any).onYouTubeIframeAPIReady = initPlayer;
+    }
+
+    return () => {
+      // Cleanup callback so it doesn’t fire on other pages
+      if ((window as any).onYouTubeIframeAPIReady === initPlayer) {
+        delete (window as any).onYouTubeIframeAPIReady;
+      }
+      if (player && player.destroy) player.destroy();
+    };
   }, []);
 
   return (
@@ -86,27 +116,23 @@ export default function Index() {
           backgroundColor: "#000",
         }}
       >
-        {/* YouTube background video — covers full container */}
+        {/* YouTube IFrame API player — covers full container */}
         <div style={{
           position: "absolute",
           inset: 0,
           pointerEvents: "none",
           overflow: "hidden",
         }}>
-          <iframe
-            ref={iframeRef}
-            src={`https://www.youtube.com/embed/${HERO_VIDEO_ID}?autoplay=1&mute=1&loop=1&playlist=${HERO_VIDEO_ID}&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1&enablejsapi=1&iv_load_policy=3&fs=0&disablekb=1`}
-            title="PRP hero video background"
-            allow="autoplay; encrypted-media; fullscreen"
+          {/* YT.Player will replace this div with an iframe */}
+          <div
+            id="yt-hero-bg"
             style={{
               position: "absolute",
               top: "50%",
               left: "50%",
-              /* Oversized to guarantee full cover regardless of aspect ratio */
               width: "max(100%, calc(100vh * 16 / 9))",
               height: "max(100%, calc(100vw * 9 / 16))",
               transform: "translate(-50%, -50%)",
-              border: "none",
               pointerEvents: "none",
             }}
           />
