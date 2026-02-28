@@ -145,14 +145,14 @@ export default function AdminSettings() {
     return (
         <AdminLayout title="Admin Settings" breadcrumbs={[{ label: "Settings" }]}>
             <Tabs value={tab} onValueChange={setTab}>
-                <TabsList className="bg-slate-900 border border-slate-800 mb-6">
-                    <TabsTrigger value="admins" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white text-slate-400 gap-2">
+                <TabsList className="bg-gray-100 border border-gray-200 mb-6">
+                    <TabsTrigger value="admins" className="data-[state=active]:bg-green-600 data-[state=active]:text-white text-gray-500 gap-2">
                         <Users className="w-3.5 h-3.5" /> Admin Team
                     </TabsTrigger>
-                    <TabsTrigger value="platform" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white text-slate-400 gap-2">
+                    <TabsTrigger value="platform" className="data-[state=active]:bg-green-600 data-[state=active]:text-white text-gray-500 gap-2">
                         <ToggleRight className="w-3.5 h-3.5" /> Platform Flags
                     </TabsTrigger>
-                    <TabsTrigger value="automod" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white text-slate-400 gap-2">
+                    <TabsTrigger value="automod" className="data-[state=active]:bg-green-600 data-[state=active]:text-white text-gray-500 gap-2">
                         <Shield className="w-3.5 h-3.5" /> Auto-Mod
                     </TabsTrigger>
                 </TabsList>
@@ -160,76 +160,76 @@ export default function AdminSettings() {
                 {/* ADMIN TEAM */}
                 <TabsContent value="admins">
                     {isSuperAdmin && (
-                        <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-5 mb-6">
-                            <h3 className="text-slate-200 font-semibold text-sm mb-4 flex items-center gap-2">
-                                <UserPlus className="w-4 h-4 text-indigo-400" /> Add New Admin
+                        <div className="rounded-xl border border-gray-200 bg-white shadow-sm p-5 mb-6">
+                            <h3 className="text-gray-800 font-bold text-sm mb-4 flex items-center gap-2">
+                                <UserPlus className="w-4 h-4 text-green-600" /> Add New Admin
                             </h3>
                             <div className="flex gap-3">
                                 <Input
                                     placeholder="user@email.com"
                                     value={inviteEmail}
                                     onChange={(e) => setInviteEmail(e.target.value)}
-                                    className="flex-1 bg-slate-900 border-slate-700 text-slate-200 placeholder:text-slate-500 focus:border-indigo-500"
+                                    className="flex-1 bg-white border-gray-200 text-gray-800 placeholder:text-gray-400 focus:border-green-500"
                                 />
                                 <Select value={inviteRole} onValueChange={setInviteRole}>
-                                    <SelectTrigger className="w-40 bg-slate-900 border-slate-700 text-slate-300">
+                                    <SelectTrigger className="w-40 bg-white border-gray-200 text-gray-800">
                                         <SelectValue />
                                     </SelectTrigger>
-                                    <SelectContent className="bg-slate-900 border-slate-700 text-slate-200">
+                                    <SelectContent className="bg-white border-gray-200 text-gray-800">
                                         <SelectItem value="moderator">Moderator</SelectItem>
                                         <SelectItem value="support">Support</SelectItem>
                                         <SelectItem value="super_admin">Super Admin</SelectItem>
                                     </SelectContent>
                                 </Select>
-                                <Button onClick={inviteAdmin} disabled={inviteLoading} className="bg-indigo-600 hover:bg-indigo-700 text-white flex-shrink-0">
+                                <Button onClick={inviteAdmin} disabled={inviteLoading} className="bg-green-600 hover:bg-green-700 text-white flex-shrink-0">
                                     {inviteLoading ? "Adding…" : "Add Admin"}
                                 </Button>
                             </div>
                         </div>
                     )}
 
-                    <div className="rounded-xl border border-slate-800 bg-slate-900/60 overflow-hidden">
-                        <div className="grid grid-cols-[2fr_120px_120px_80px_100px] gap-4 px-4 py-3 border-b border-slate-800 text-xs font-medium text-slate-500 uppercase tracking-wider">
+                    <div className="rounded-xl border border-gray-200 bg-white overflow-hidden shadow-sm">
+                        <div className="grid grid-cols-[2fr_120px_120px_80px_100px] gap-4 px-4 py-3 border-b border-gray-100 text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">
                             <span>Admin</span><span>Role</span><span>Added</span><span>Active</span>
                             {isSuperAdmin && <span>Actions</span>}
                         </div>
                         {loading ? (
-                            <div className="divide-y divide-slate-800">
+                            <div className="divide-y divide-gray-100">
                                 {Array.from({ length: 3 }).map((_, i) => (
                                     <div key={i} className="h-16 px-4 flex items-center gap-4 animate-pulse">
-                                        <div className="w-9 h-9 rounded-full bg-slate-800" />
-                                        <div className="flex-1 h-4 bg-slate-800 rounded" />
+                                        <div className="w-9 h-9 rounded-full bg-gray-200" />
+                                        <div className="flex-1 h-4 bg-gray-200 rounded" />
                                     </div>
                                 ))}
                             </div>
                         ) : admins.length === 0 ? (
                             <AdminEmptyState icon={Users} title="No admins found" className="rounded-none border-0" />
                         ) : (
-                            <div className="divide-y divide-slate-800/60">
+                            <div className="divide-y divide-gray-100">
                                 {admins.map((admin) => (
-                                    <div key={admin.id} className={cn("grid gap-4 px-4 py-3.5 items-center hover:bg-slate-800/30 transition-colors", isSuperAdmin ? "grid-cols-[2fr_120px_120px_80px_100px]" : "grid-cols-[2fr_120px_120px_80px]")}>
+                                    <div key={admin.id} className={cn("grid gap-4 px-4 py-3.5 items-center hover:bg-gray-50 transition-colors", isSuperAdmin ? "grid-cols-[2fr_120px_120px_80px_100px]" : "grid-cols-[2fr_120px_120px_80px]")}>
                                         <div className="flex items-center gap-3 min-w-0">
-                                            <Avatar className="w-9 h-9 flex-shrink-0 border border-slate-700">
-                                                <AvatarFallback className="bg-indigo-700 text-white text-xs">
+                                            <Avatar className="w-9 h-9 flex-shrink-0 border border-gray-200">
+                                                <AvatarFallback className="bg-green-600 text-white text-xs">
                                                     {(admin.profile?.full_name?.[0] ?? admin.profile?.email?.[0] ?? "A").toUpperCase()}
                                                 </AvatarFallback>
                                             </Avatar>
                                             <div className="min-w-0">
-                                                <p className="text-slate-200 text-sm font-medium truncate">{admin.profile?.full_name ?? "Unknown"}</p>
-                                                <p className="text-slate-500 text-xs truncate">{admin.profile?.email}</p>
+                                                <p className="text-gray-800 text-sm font-medium truncate">{admin.profile?.full_name ?? "Unknown"}</p>
+                                                <p className="text-gray-500 text-xs truncate">{admin.profile?.email}</p>
                                             </div>
                                         </div>
                                         <AdminBadge role={admin.admin_role as any} />
-                                        <span className="text-slate-400 text-xs">{formatDistanceToNow(new Date(admin.assigned_at), { addSuffix: true })}</span>
-                                        <span className={cn("text-xs font-medium", admin.is_active ? "text-emerald-400" : "text-slate-600")}>
+                                        <span className="text-gray-500 text-xs">{formatDistanceToNow(new Date(admin.assigned_at), { addSuffix: true })}</span>
+                                        <span className={cn("text-xs font-medium", admin.is_active ? "text-green-600" : "text-gray-500")}>
                                             {admin.is_active ? "Active" : "Inactive"}
                                         </span>
                                         {isSuperAdmin && (
                                             <div className="flex items-center gap-1">
-                                                <Button size="icon" variant="ghost" title="Promote to Super Admin" onClick={() => setConfirmAction({ type: "promote", id: admin.id, label: "Promote this admin to Super Admin?" })} className="w-7 h-7 text-slate-500 hover:text-amber-400 hover:bg-amber-500/10">
+                                                <Button size="icon" variant="ghost" title="Promote to Super Admin" onClick={() => setConfirmAction({ type: "promote", id: admin.id, label: "Promote this admin to Super Admin?" })} className="w-7 h-7 text-gray-400 hover:text-green-600 hover:bg-green-50">
                                                     <Crown className="w-3.5 h-3.5" />
                                                 </Button>
-                                                <Button size="icon" variant="ghost" title="Remove" onClick={() => setConfirmAction({ type: "delete", id: admin.id, label: "Remove this admin permanently?" })} className="w-7 h-7 text-slate-500 hover:text-rose-400 hover:bg-rose-500/10">
+                                                <Button size="icon" variant="ghost" title="Remove" onClick={() => setConfirmAction({ type: "delete", id: admin.id, label: "Remove this admin permanently?" })} className="w-7 h-7 text-gray-400 hover:text-rose-600 hover:bg-rose-50">
                                                     <Trash2 className="w-3.5 h-3.5" />
                                                 </Button>
                                             </div>
@@ -243,24 +243,24 @@ export default function AdminSettings() {
 
                 {/* PLATFORM FLAGS */}
                 <TabsContent value="platform">
-                    <div className="rounded-xl border border-slate-800 bg-slate-900/60 divide-y divide-slate-800">
+                    <div className="rounded-xl border border-gray-200 bg-white shadow-sm divide-y divide-gray-100">
                         {toggles.map((toggle) => (
                             <div key={toggle.key} className="flex items-center justify-between px-5 py-4">
                                 <div>
-                                    <p className="text-slate-200 text-sm font-medium">{toggle.label}</p>
-                                    <p className="text-slate-500 text-xs mt-0.5">{toggle.description}</p>
+                                    <p className="text-gray-800 text-sm font-medium">{toggle.label}</p>
+                                    <p className="text-gray-500 text-xs mt-0.5">{toggle.description}</p>
                                 </div>
                                 <Switch
                                     checked={toggle.enabled}
                                     onCheckedChange={() => togglePlatformFlag(toggle.key)}
                                     disabled={!isSuperAdmin}
-                                    className="data-[state=checked]:bg-indigo-600"
+                                    className="data-[state=checked]:bg-green-600"
                                 />
                             </div>
                         ))}
                     </div>
                     {!isSuperAdmin && (
-                        <p className="text-slate-500 text-xs mt-3 flex items-center gap-1.5">
+                        <p className="text-gray-500 text-xs mt-3 flex items-center gap-1.5">
                             <AlertTriangle className="w-3.5 h-3.5 text-amber-500" /> Only Super Admins can change platform flags.
                         </p>
                     )}
@@ -268,29 +268,29 @@ export default function AdminSettings() {
 
                 {/* AUTO-MOD KEYWORD BLOCKLIST */}
                 <TabsContent value="automod">
-                    <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-5">
-                        <h3 className="text-slate-200 font-semibold text-sm mb-1">Keyword Blocklist</h3>
-                        <p className="text-slate-500 text-xs mb-5">Content matching these keywords will be auto-flagged for review.</p>
+                    <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+                        <h3 className="text-gray-800 font-bold text-sm mb-1">Keyword Blocklist</h3>
+                        <p className="text-gray-500 text-xs mb-5">Content matching these keywords will be auto-flagged for review.</p>
                         <div className="flex gap-3 mb-4">
                             <Input
                                 placeholder="Add keyword or phrase…"
                                 value={newKeyword}
                                 onChange={(e) => setNewKeyword(e.target.value)}
                                 onKeyDown={(e) => e.key === "Enter" && addKeyword()}
-                                className="flex-1 bg-slate-900 border-slate-700 text-slate-200 placeholder:text-slate-500 focus:border-indigo-500"
+                                className="flex-1 bg-white border-gray-200 text-gray-800 placeholder:text-gray-400 focus:border-green-500"
                             />
-                            <Button onClick={addKeyword} className="bg-indigo-600 hover:bg-indigo-700 text-white gap-2 flex-shrink-0">
+                            <Button onClick={addKeyword} className="bg-green-600 hover:bg-green-700 text-white gap-2 flex-shrink-0">
                                 <Plus className="w-4 h-4" /> Add
                             </Button>
                         </div>
                         {blocklist.length === 0 ? (
-                            <p className="text-slate-600 text-sm text-center py-6">No keywords yet. Add some above.</p>
+                            <p className="text-gray-500 text-sm text-center py-6">No keywords yet. Add some above.</p>
                         ) : (
                             <div className="flex flex-wrap gap-2">
                                 {blocklist.map((kw) => (
-                                    <span key={kw} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs">
+                                    <span key={kw} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-50 border border-rose-200 text-rose-700 text-xs font-medium">
                                         {kw}
-                                        <button onClick={() => removeKeyword(kw)} className="text-rose-400 hover:text-rose-200 transition-colors">
+                                        <button onClick={() => removeKeyword(kw)} className="text-rose-400 hover:text-rose-600 transition-colors">
                                             <X className="w-3 h-3" />
                                         </button>
                                     </span>

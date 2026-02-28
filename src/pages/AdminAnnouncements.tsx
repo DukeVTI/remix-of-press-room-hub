@@ -24,9 +24,9 @@ interface Announcement {
 }
 
 const AUDIENCE_CFG: Record<string, { label: string; icon: React.ElementType; color: string }> = {
-    all: { label: "All Users", icon: Globe, color: "text-indigo-400" },
-    publishers: { label: "Publishers Only", icon: BookOpen, color: "text-blue-400" },
-    new_users: { label: "New Users (< 30 days)", icon: Users, color: "text-emerald-400" },
+    all: { label: "All Users", icon: Globe, color: "text-green-600" },
+    publishers: { label: "Publishers Only", icon: BookOpen, color: "text-blue-600" },
+    new_users: { label: "New Users (< 30 days)", icon: Users, color: "text-teal-600" },
 };
 
 export default function AdminAnnouncements() {
@@ -107,41 +107,41 @@ export default function AdminAnnouncements() {
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
                 {/* Compose panel */}
                 <div className="lg:col-span-2">
-                    <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-5 sticky top-6">
-                        <h2 className="text-white font-semibold text-sm mb-5 flex items-center gap-2">
-                            <Megaphone className="w-4 h-4 text-indigo-400" /> Compose Announcement
+                    <div className="rounded-xl border border-gray-200 bg-white p-5 sticky top-6 shadow-sm">
+                        <h2 className="text-gray-800 font-bold text-sm mb-5 flex items-center gap-2">
+                            <Megaphone className="w-4 h-4 text-green-600" /> Compose Announcement
                         </h2>
 
                         <div className="space-y-4">
                             <div>
-                                <label className="text-slate-400 text-xs mb-1.5 block">Title</label>
+                                <label className="text-gray-500 text-xs font-medium mb-1.5 block">Title</label>
                                 <Input
                                     placeholder="Announcement title…"
                                     value={title}
                                     onChange={(e) => setTitle(e.target.value)}
-                                    className="bg-slate-900 border-slate-700 text-slate-200 placeholder:text-slate-500 focus:border-indigo-500"
+                                    className="bg-white border-gray-200 text-gray-800 placeholder:text-gray-400 focus:border-green-500"
                                 />
                             </div>
 
                             <div>
-                                <label className="text-slate-400 text-xs mb-1.5 block">Message</label>
+                                <label className="text-gray-500 text-xs font-medium mb-1.5 block">Message</label>
                                 <Textarea
                                     placeholder="Write your announcement message…"
                                     value={body}
                                     onChange={(e) => setBody(e.target.value)}
                                     rows={6}
-                                    className="bg-slate-900 border-slate-700 text-slate-200 placeholder:text-slate-500 focus:border-indigo-500 resize-none"
+                                    className="bg-white border-gray-200 text-gray-800 placeholder:text-gray-400 focus:border-green-500 resize-none"
                                 />
                             </div>
 
                             <div>
-                                <label className="text-slate-400 text-xs mb-1.5 block">Target Audience</label>
+                                <label className="text-gray-500 text-xs font-medium mb-1.5 block">Target Audience</label>
                                 <Select value={audience} onValueChange={setAudience}>
-                                    <SelectTrigger className="bg-slate-900 border-slate-700 text-slate-300 w-full">
+                                    <SelectTrigger className="bg-white border-gray-200 text-gray-800 w-full">
                                         <AudienceIcon className={cn("w-3.5 h-3.5 mr-2", AUDIENCE_CFG[audience]?.color)} />
                                         <SelectValue />
                                     </SelectTrigger>
-                                    <SelectContent className="bg-slate-900 border-slate-700 text-slate-200">
+                                    <SelectContent className="bg-white border-gray-200 text-gray-800">
                                         {Object.entries(AUDIENCE_CFG).map(([val, cfg]) => (
                                             <SelectItem key={val} value={val}>
                                                 <div className="flex items-center gap-2">
@@ -157,7 +157,7 @@ export default function AdminAnnouncements() {
                             <Button
                                 onClick={send}
                                 disabled={sending || !title.trim() || !body.trim()}
-                                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white gap-2 mt-2"
+                                className="w-full bg-green-600 hover:bg-green-700 text-white gap-2 mt-2"
                             >
                                 <Send className="w-4 h-4" />
                                 {sending ? "Sending…" : "Send Announcement"}
@@ -168,11 +168,11 @@ export default function AdminAnnouncements() {
 
                 {/* History */}
                 <div className="lg:col-span-3">
-                    <h2 className="text-slate-200 font-semibold text-sm mb-4">Announcement History</h2>
+                    <h2 className="text-gray-800 font-bold text-sm mb-4">Announcement History</h2>
                     {loading ? (
                         <div className="space-y-3">
                             {Array.from({ length: 3 }).map((_, i) => (
-                                <div key={i} className="rounded-xl border border-slate-800 bg-slate-900/60 p-4 animate-pulse h-24" />
+                                <div key={i} className="rounded-xl border border-gray-100 bg-gray-50 p-4 animate-pulse h-24" />
                             ))}
                         </div>
                     ) : announcements.length === 0 ? (
@@ -180,7 +180,7 @@ export default function AdminAnnouncements() {
                             icon={Megaphone}
                             title="No announcements yet"
                             description="Compose your first announcement above."
-                            className="rounded-xl border border-slate-800 h-48"
+                            className="rounded-xl border border-gray-200 bg-white shadow-sm h-48"
                         />
                     ) : (
                         <div className="space-y-3">
@@ -188,27 +188,27 @@ export default function AdminAnnouncements() {
                                 const cfg = AUDIENCE_CFG[a.target_audience];
                                 const AudIcon = cfg?.icon ?? Globe;
                                 return (
-                                    <div key={a.id} className="rounded-xl border border-slate-800 bg-slate-900/60 p-4 hover:border-slate-700 transition-colors">
+                                    <div key={a.id} className="rounded-xl border border-gray-200 bg-white p-4 hover:border-green-300 transition-colors shadow-sm">
                                         <div className="flex items-start justify-between gap-3 mb-2">
-                                            <h3 className="text-slate-200 font-semibold text-sm">{a.title}</h3>
+                                            <h3 className="text-gray-800 font-medium text-sm">{a.title}</h3>
                                             <span className={cn(
-                                                "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs border flex-shrink-0",
+                                                "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border flex-shrink-0",
                                                 a.status === "sent"
-                                                    ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/30"
-                                                    : "bg-slate-500/15 text-slate-400 border-slate-500/30"
+                                                    ? "bg-green-50 text-green-700 border-green-200"
+                                                    : "bg-gray-100 text-gray-500 border-gray-200"
                                             )}>
                                                 {a.status === "sent" ? <CheckCircle className="w-3 h-3" /> : <Clock className="w-3 h-3" />}
                                                 {a.status}
                                             </span>
                                         </div>
-                                        <p className="text-slate-400 text-xs line-clamp-2 mb-3">{a.body}</p>
-                                        <div className="flex items-center gap-4 text-xs text-slate-500">
+                                        <p className="text-gray-500 text-xs line-clamp-2 mb-3">{a.body}</p>
+                                        <div className="flex items-center gap-4 text-xs text-gray-400">
                                             <span className="flex items-center gap-1">
                                                 <AudIcon className={cn("w-3 h-3", cfg?.color)} />
                                                 {cfg?.label ?? a.target_audience}
                                             </span>
                                             <span>{a.recipient_count.toLocaleString()} recipients</span>
-                                            <span className="ml-auto">{format(new Date(a.sent_at), "MMM d, yyyy")}</span>
+                                            <span className="ml-auto text-gray-500 font-medium">{format(new Date(a.sent_at), "MMM d, yyyy")}</span>
                                         </div>
                                     </div>
                                 );
