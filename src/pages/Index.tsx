@@ -3,11 +3,11 @@ import { MarketingLayout } from "@/components/marketing/MarketingLayout";
 import { useSeo } from "@/hooks/useSeo";
 
 // ── Live WordPress asset URLs ──
-const HERO_BG = "https://pressroompublisher.broadcasterscommunity.com/wp-content/uploads/2026/01/african-podcasters.jpeg";
+const HERO_VIDEO_ID = "M3DW5KAQ3eQ"; // YouTube background video (autoplay loop)
 const PRP_LOGO_WH = "https://pressroompublisher.broadcasterscommunity.com/wp-content/uploads/2026/01/PRP-BRAND-lOGO-TRANSPARENT-white.png";
 const PAVE_LOGO = "https://pressroompublisher.broadcasterscommunity.com/wp-content/uploads/2026/01/PBC-LOGO-1024x518.png";
 const SIGNUP_IMG = "https://pressroompublisher.broadcasterscommunity.com/wp-content/uploads/2026/01/african-lady-reading-from-pc.jpeg";
-const LOGIN_BG = "https://pressroompublisher.broadcasterscommunity.com/wp-content/uploads/2026/01/african-podcasters.jpeg";
+const SIGNUP_BG = "https://pressroompublisher.broadcasterscommunity.com/wp-content/uploads/2026/01/african-podcasters.jpeg";
 const LOGIN_IMG = "https://pressroompublisher.broadcasterscommunity.com/wp-content/uploads/2026/01/PRP-AFrican-lady-typing.jpeg";
 
 const GreenBtn = ({ to, children }: { to: string; children: React.ReactNode }) => (
@@ -55,14 +55,36 @@ export default function Index() {
           justifyContent: "center",
           textAlign: "center",
           padding: "80px 24px 60px",
-          backgroundImage: `url(${HERO_BG})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
+          overflow: "hidden",
+          backgroundColor: "#000",
         }}
       >
+        {/* YouTube background video */}
+        <div style={{
+          position: "absolute",
+          inset: 0,
+          pointerEvents: "none",
+          overflow: "hidden",
+        }}>
+          <iframe
+            src={`https://www.youtube.com/embed/${HERO_VIDEO_ID}?autoplay=1&mute=1&loop=1&playlist=${HERO_VIDEO_ID}&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1&enablejsapi=1`}
+            title="Background video"
+            allow="autoplay; encrypted-media"
+            style={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              width: "177.78vh", // 16:9 aspect ratio
+              height: "56.25vw",
+              minWidth: "100%",
+              minHeight: "100%",
+              border: "none",
+            }}
+          />
+        </div>
         {/* Dark overlay */}
-        <div style={{ position: "absolute", inset: 0, backgroundColor: "rgba(0,0,0,0.70)" }} />
+        <div style={{ position: "absolute", inset: 0, backgroundColor: "rgba(0,0,0,0.68)", pointerEvents: "none" }} />
 
         {/* Text */}
         <div style={{ position: "relative", zIndex: 1, maxWidth: "900px", margin: "0 auto" }}>
@@ -116,7 +138,7 @@ export default function Index() {
         style={{
           position: "relative",
           padding: "64px 24px",
-          backgroundImage: `url(${HERO_BG})`,
+          backgroundImage: `url(${SIGNUP_BG})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundAttachment: "fixed",
