@@ -17,6 +17,8 @@ import {
 import { cn } from "@/lib/utils";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 
+const PRP_ICON = "https://pressroompublisher.broadcasterscommunity.com/wp-content/uploads/2026/01/cropped-PRP-ICON_-transparetn-32x32.png";
+
 interface NavItem {
     label: string;
     href: string;
@@ -55,26 +57,52 @@ export function AdminSidebar({ open, onToggle }: AdminSidebarProps) {
         <aside
             className={cn(
                 "fixed top-0 left-0 h-full z-40 flex flex-col",
-                "bg-slate-900 border-r border-slate-800",
                 "transition-all duration-300 ease-in-out",
-                open ? "w-[260px]" : "w-[72px]"
+                open ? "w-[240px]" : "w-[68px]"
             )}
+            style={{
+                backgroundColor: "#fff",
+                borderRight: "1px solid #e8e8e8",
+                boxShadow: "2px 0 8px rgba(0,0,0,0.05)",
+            }}
         >
             {/* Logo / Brand */}
-            <div className="flex items-center gap-3 px-4 py-5 border-b border-slate-800 min-h-[64px]">
-                <div className="flex-shrink-0 w-9 h-9 rounded-lg bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-900/50">
-                    <Shield className="w-5 h-5 text-white" />
+            <div style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+                padding: "0 16px",
+                height: "64px",
+                borderBottom: "1px solid #e8e8e8",
+                minHeight: "64px",
+                overflow: "hidden",
+            }}>
+                <div style={{
+                    flexShrink: 0,
+                    width: "36px",
+                    height: "36px",
+                    borderRadius: "8px",
+                    backgroundColor: "#00ad00",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                }}>
+                    <Shield size={18} color="#fff" />
                 </div>
                 {open && (
-                    <div className="overflow-hidden">
-                        <p className="text-white font-semibold text-sm leading-tight whitespace-nowrap">Admin Console</p>
-                        <p className="text-indigo-400 text-xs capitalize whitespace-nowrap">{adminRole?.replace("_", " ") || "Platform Admin"}</p>
+                    <div style={{ overflow: "hidden" }}>
+                        <p style={{ fontSize: "13px", fontWeight: 800, color: "#111", whiteSpace: "nowrap", margin: 0, letterSpacing: "0.3px" }}>
+                            Admin Console
+                        </p>
+                        <p style={{ fontSize: "11px", color: "#00ad00", whiteSpace: "nowrap", margin: 0, textTransform: "capitalize", letterSpacing: "0.5px" }}>
+                            {adminRole?.replace("_", " ") || "Platform Admin"}
+                        </p>
                     </div>
                 )}
             </div>
 
             {/* Nav Items */}
-            <nav className="flex-1 py-4 px-2 space-y-0.5 overflow-y-auto">
+            <nav style={{ flex: 1, padding: "12px 8px", overflowY: "auto", display: "flex", flexDirection: "column", gap: "2px" }}>
                 {visibleItems.map((item) => {
                     const Icon = item.icon;
                     const isActive =
@@ -85,30 +113,48 @@ export function AdminSidebar({ open, onToggle }: AdminSidebarProps) {
                     return (
                         <div key={item.href}>
                             {item.dividerBefore && (
-                                <div className={cn("border-t border-slate-800/80 my-2", open ? "mx-2" : "mx-1")} />
+                                <div style={{ borderTop: "1px solid #eee", margin: "8px 4px" }} />
                             )}
                             <Link
                                 to={item.href}
                                 title={!open ? item.label : undefined}
-                                className={cn(
-                                    "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium",
-                                    "transition-all duration-200 group relative",
-                                    isActive
-                                        ? "bg-indigo-600/20 text-indigo-300 border border-indigo-500/30 shadow-sm shadow-indigo-900/20"
-                                        : "text-slate-400 hover:text-slate-200 hover:bg-slate-800"
-                                )}
+                                style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: "10px",
+                                    padding: open ? "9px 12px" : "9px 0",
+                                    justifyContent: open ? "flex-start" : "center",
+                                    borderRadius: "7px",
+                                    textDecoration: "none",
+                                    fontSize: "13px",
+                                    fontWeight: isActive ? 700 : 500,
+                                    color: isActive ? "#00ad00" : "#555",
+                                    backgroundColor: isActive ? "#f0fff0" : "transparent",
+                                    borderLeft: isActive ? "3px solid #00ad00" : "3px solid transparent",
+                                    transition: "all 0.15s",
+                                }}
+                                onMouseEnter={e => {
+                                    if (!isActive) {
+                                        (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "#f9f9f9";
+                                        (e.currentTarget as HTMLAnchorElement).style.color = "#333";
+                                    }
+                                }}
+                                onMouseLeave={e => {
+                                    if (!isActive) {
+                                        (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "transparent";
+                                        (e.currentTarget as HTMLAnchorElement).style.color = "#555";
+                                    }
+                                }}
                             >
                                 <Icon
-                                    className={cn(
-                                        "flex-shrink-0 w-5 h-5 transition-colors",
-                                        isActive ? "text-indigo-400" : "text-slate-500 group-hover:text-slate-300"
-                                    )}
+                                    size={18}
+                                    style={{
+                                        flexShrink: 0,
+                                        color: isActive ? "#00ad00" : "#888",
+                                    }}
                                 />
                                 {open && (
-                                    <span className="whitespace-nowrap overflow-hidden">{item.label}</span>
-                                )}
-                                {isActive && open && (
-                                    <span className="ml-auto w-1.5 h-1.5 rounded-full bg-indigo-400 flex-shrink-0" />
+                                    <span style={{ whiteSpace: "nowrap", overflow: "hidden" }}>{item.label}</span>
                                 )}
                             </Link>
                         </div>
@@ -116,19 +162,46 @@ export function AdminSidebar({ open, onToggle }: AdminSidebarProps) {
                 })}
             </nav>
 
+            {/* PRP branding at bottom */}
+            {open && (
+                <div style={{
+                    padding: "12px 16px",
+                    borderTop: "1px solid #eee",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                }}>
+                    <img src={PRP_ICON} alt="PRP" style={{ width: "20px", height: "20px", objectFit: "contain" }} />
+                    <span style={{ fontSize: "11px", color: "#aaa", letterSpacing: "0.5px" }}>Press Room Publisher</span>
+                </div>
+            )}
+
             {/* Toggle Button */}
-            <div className="p-3 border-t border-slate-800">
+            <div style={{ padding: "10px 8px", borderTop: open ? "none" : "1px solid #eee" }}>
                 <button
                     onClick={onToggle}
-                    className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-slate-500 hover:text-slate-300 hover:bg-slate-800 transition-all duration-200 text-sm"
+                    style={{
+                        width: "100%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "6px",
+                        padding: "8px",
+                        borderRadius: "7px",
+                        border: "none",
+                        background: "none",
+                        color: "#999",
+                        cursor: "pointer",
+                        fontSize: "12px",
+                        transition: "all 0.15s",
+                    }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#f0f0f0"; (e.currentTarget as HTMLButtonElement).style.color = "#333"; }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "transparent"; (e.currentTarget as HTMLButtonElement).style.color = "#999"; }}
                 >
                     {open ? (
-                        <>
-                            <ChevronLeft className="w-4 h-4" />
-                            <span>Collapse</span>
-                        </>
+                        <><ChevronLeft size={16} /><span>Collapse</span></>
                     ) : (
-                        <ChevronRight className="w-4 h-4" />
+                        <ChevronRight size={16} />
                     )}
                 </button>
             </div>

@@ -43,6 +43,7 @@ import ActivityLog from "./pages/ActivityLog";
 import AdminSettings from "./pages/AdminSettings";
 import FlaggedWatchList from "./pages/FlaggedWatchList";
 import AdminAnnouncements from "./pages/AdminAnnouncements";
+import AdminLogin from "./pages/AdminLogin";
 
 import SkipToContent from "@/components/SkipToContent";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
@@ -95,6 +96,7 @@ const App = () => (
           <Route path="*" element={<NotFound />} />
 
           {/* Admin routes */}
+          <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin" element={<ProtectedAdminRoute><AdminDashboard /></ProtectedAdminRoute>} />
           <Route path="/admin/reports" element={<ProtectedAdminRoute><ReportsModeration /></ProtectedAdminRoute>} />
           <Route path="/admin/users" element={<ProtectedAdminRoute><UserManagement /></ProtectedAdminRoute>} />

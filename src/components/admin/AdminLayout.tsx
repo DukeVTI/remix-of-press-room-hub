@@ -12,22 +12,28 @@ export function AdminLayout({ children, title, breadcrumbs = [] }: AdminLayoutPr
     const [sidebarOpen, setSidebarOpen] = useState(true);
 
     return (
-        <div className="min-h-screen bg-slate-950 flex">
+        <div style={{ minHeight: "100vh", backgroundColor: "#f7f8fa", display: "flex" }}>
             {/* Sidebar */}
             <AdminSidebar open={sidebarOpen} onToggle={() => setSidebarOpen((o) => !o)} />
 
             {/* Main content */}
             <div
-                className="flex-1 flex flex-col min-h-screen transition-all duration-300"
-                style={{ marginLeft: sidebarOpen ? "260px" : "72px" }}
+                style={{
+                    flex: 1,
+                    display: "flex",
+                    flexDirection: "column",
+                    minHeight: "100vh",
+                    transition: "margin-left 0.3s ease",
+                    marginLeft: sidebarOpen ? "240px" : "68px",
+                }}
             >
                 <AdminHeader
                     title={title}
                     breadcrumbs={breadcrumbs}
                     onMenuToggle={() => setSidebarOpen((o) => !o)}
                 />
-                <main className="flex-1 p-6 overflow-auto">
-                    <div className="max-w-[1600px] mx-auto">
+                <main style={{ flex: 1, padding: "24px", overflow: "auto" }}>
+                    <div style={{ maxWidth: "1600px", margin: "0 auto" }}>
                         {children}
                     </div>
                 </main>

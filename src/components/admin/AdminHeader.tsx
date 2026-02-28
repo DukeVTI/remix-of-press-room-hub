@@ -31,81 +31,101 @@ export function AdminHeader({ title, breadcrumbs = [], onMenuToggle }: AdminHead
 
     const handleSignOut = async () => {
         await supabase.auth.signOut();
-        navigate("/login");
+        navigate("/admin/login");
     };
 
     return (
-        <header className="sticky top-0 z-30 h-16 flex items-center gap-4 px-6 border-b border-slate-800 bg-slate-950/80 backdrop-blur-md">
+        <header
+            style={{
+                position: "sticky",
+                top: 0,
+                zIndex: 30,
+                height: "64px",
+                display: "flex",
+                alignItems: "center",
+                gap: "16px",
+                padding: "0 24px",
+                backgroundColor: "#fff",
+                borderBottom: "1px solid #e8e8e8",
+                boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
+            }}
+        >
             {/* Menu toggle */}
             <button
                 onClick={onMenuToggle}
-                className="text-slate-400 hover:text-slate-200 transition-colors"
+                style={{ background: "none", border: "none", cursor: "pointer", color: "#666", padding: "4px", display: "flex", alignItems: "center" }}
                 aria-label="Toggle sidebar"
             >
-                <Menu className="w-5 h-5" />
+                <Menu size={20} />
             </button>
 
             {/* Breadcrumbs */}
-            <nav className="flex items-center gap-1.5 text-sm flex-1 min-w-0">
-                <Link to="/admin" className="text-slate-500 hover:text-slate-300 transition-colors flex-shrink-0">
+            <nav style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "13px", flex: 1, minWidth: 0 }}>
+                <Link to="/admin" style={{ color: "#aaa", textDecoration: "none", flexShrink: 0 }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.color = "#00ad00"; }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.color = "#aaa"; }}
+                >
                     Admin
                 </Link>
                 {breadcrumbs.map((crumb, i) => (
-                    <span key={i} className="flex items-center gap-1.5">
-                        <ChevronRight className="w-3.5 h-3.5 text-slate-600 flex-shrink-0" />
+                    <span key={i} style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                        <ChevronRight size={14} style={{ color: "#ccc", flexShrink: 0 }} />
                         {crumb.href ? (
-                            <Link to={crumb.href} className="text-slate-400 hover:text-slate-200 transition-colors truncate">
+                            <Link to={crumb.href} style={{ color: "#888", textDecoration: "none" }}
+                                onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.color = "#00ad00"; }}
+                                onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.color = "#888"; }}
+                            >
                                 {crumb.label}
                             </Link>
                         ) : (
-                            <span className="text-slate-200 font-medium truncate">{crumb.label}</span>
+                            <span style={{ color: "#222", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                {crumb.label}
+                            </span>
                         )}
                     </span>
                 ))}
                 {breadcrumbs.length === 0 && (
-                    <span className="flex items-center gap-1.5">
-                        <ChevronRight className="w-3.5 h-3.5 text-slate-600 flex-shrink-0" />
-                        <span className="text-slate-200 font-medium truncate">{title}</span>
+                    <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                        <ChevronRight size={14} style={{ color: "#ccc", flexShrink: 0 }} />
+                        <span style={{ color: "#222", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                            {title}
+                        </span>
                     </span>
                 )}
             </nav>
 
             {/* Right side */}
-            <div className="flex items-center gap-2 flex-shrink-0">
-                {/* Global Search */}
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
                 <AdminGlobalSearch />
-
                 <AdminBadge role={adminRole} />
-
-                {/* Notifications */}
                 <AdminNotificationsPanel />
 
                 {/* Avatar dropdown */}
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <button className="flex items-center gap-2 p-1 rounded-lg hover:bg-slate-800 transition-colors">
-                            <Avatar className="w-8 h-8 border border-slate-700">
-                                <AvatarFallback className="bg-indigo-700 text-white text-xs font-semibold">
+                        <button style={{ display: "flex", alignItems: "center", gap: "8px", padding: "4px 8px", borderRadius: "8px", border: "1px solid #eee", background: "none", cursor: "pointer", transition: "background 0.15s" }}
+                            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#f5f5f5"; }}
+                            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "transparent"; }}
+                        >
+                            <Avatar style={{ width: "30px", height: "30px", border: "2px solid #00ad00" }}>
+                                <AvatarFallback style={{ backgroundColor: "#00ad00", color: "#fff", fontSize: "11px", fontWeight: 700 }}>
                                     AD
                                 </AvatarFallback>
                             </Avatar>
                         </button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent
-                        align="end"
-                        className="w-48 bg-slate-900 border-slate-800 text-slate-200"
-                    >
+                    <DropdownMenuContent align="end" className="w-48">
                         <DropdownMenuItem
                             onClick={() => navigate("/dashboard")}
-                            className="gap-2 text-slate-300 focus:bg-slate-800 focus:text-white cursor-pointer"
+                            className="gap-2 cursor-pointer"
                         >
                             <User className="w-4 h-4" />
                             My Profile
                         </DropdownMenuItem>
-                        <DropdownMenuSeparator className="bg-slate-800" />
+                        <DropdownMenuSeparator />
                         <DropdownMenuItem
                             onClick={handleSignOut}
-                            className="gap-2 text-red-400 focus:bg-red-950/40 focus:text-red-300 cursor-pointer"
+                            className="gap-2 text-red-500 focus:text-red-600 cursor-pointer"
                         >
                             <LogOut className="w-4 h-4" />
                             Sign Out
