@@ -1,23 +1,12 @@
 import { Link, useLocation } from "react-router-dom";
 import {
-    LayoutDashboard,
-    Flag,
-    Users,
-    FileText,
-    BookOpen,
-    BarChart3,
-    ClipboardList,
-    ChevronLeft,
-    ChevronRight,
-    Shield,
-    Settings,
-    AlertTriangle,
-    Megaphone,
+    LayoutDashboard, Flag, Users, FileText, BookOpen, BarChart3,
+    ClipboardList, ChevronLeft, ChevronRight, Settings, AlertTriangle, Megaphone,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 
-const PRP_ICON = "https://pressroompublisher.broadcasterscommunity.com/wp-content/uploads/2026/01/cropped-PRP-ICON_-transparetn-32x32.png";
+const PRP_LOGO_WH = "https://pressroompublisher.broadcasterscommunity.com/wp-content/uploads/2026/01/PRP-BRAND-lOGO-TRANSPARENT-white.png";
 
 interface NavItem {
     label: string;
@@ -66,39 +55,23 @@ export function AdminSidebar({ open, onToggle }: AdminSidebarProps) {
                 boxShadow: "2px 0 8px rgba(0,0,0,0.05)",
             }}
         >
-            {/* Logo / Brand */}
+            {/* Logo — PRP white logo on green band */}
             <div style={{
                 display: "flex",
                 alignItems: "center",
-                gap: "10px",
+                gap: "8px",
                 padding: "0 16px",
                 height: "64px",
                 borderBottom: "1px solid #e8e8e8",
                 minHeight: "64px",
+                backgroundColor: "#00ad00",
                 overflow: "hidden",
             }}>
-                <div style={{
-                    flexShrink: 0,
-                    width: "36px",
-                    height: "36px",
-                    borderRadius: "8px",
-                    backgroundColor: "#00ad00",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                }}>
-                    <Shield size={18} color="#fff" />
-                </div>
-                {open && (
-                    <div style={{ overflow: "hidden" }}>
-                        <p style={{ fontSize: "13px", fontWeight: 800, color: "#111", whiteSpace: "nowrap", margin: 0, letterSpacing: "0.3px" }}>
-                            Admin Console
-                        </p>
-                        <p style={{ fontSize: "11px", color: "#00ad00", whiteSpace: "nowrap", margin: 0, textTransform: "capitalize", letterSpacing: "0.5px" }}>
-                            {adminRole?.replace("_", " ") || "Platform Admin"}
-                        </p>
-                    </div>
-                )}
+                <img
+                    src={PRP_LOGO_WH}
+                    alt="Press Room Publisher"
+                    style={{ height: open ? "36px" : "28px", objectFit: "contain", transition: "all 0.3s" }}
+                />
             </div>
 
             {/* Nav Items */}

@@ -116,14 +116,6 @@ export function AdminHeader({ title, breadcrumbs = [], onMenuToggle }: AdminHead
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-48">
                         <DropdownMenuItem
-                            onClick={() => navigate("/dashboard")}
-                            className="gap-2 cursor-pointer"
-                        >
-                            <User className="w-4 h-4" />
-                            My Profile
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem
                             onClick={handleSignOut}
                             className="gap-2 text-red-500 focus:text-red-600 cursor-pointer"
                         >
