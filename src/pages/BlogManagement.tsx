@@ -35,9 +35,9 @@ interface Category {
 }
 
 const BLOG_STATUS_CFG: Record<string, string> = {
-  active: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30",
-  hidden: "bg-amber-500/15 text-amber-300 border-amber-500/30",
-  deleted: "bg-rose-500/15 text-rose-300 border-rose-500/30",
+  active: "bg-green-50 text-green-700 border-green-200",
+  hidden: "bg-amber-50 text-amber-700 border-amber-200",
+  deleted: "bg-rose-50 text-rose-700 border-rose-200",
 };
 
 export default function BlogManagement() {
@@ -99,11 +99,11 @@ export default function BlogManagement() {
   return (
     <AdminLayout title="Blog Management" breadcrumbs={[{ label: "Blogs" }]}>
       <Tabs value={tab} onValueChange={setTab}>
-        <TabsList className="bg-slate-900 border border-slate-800 mb-6">
-          <TabsTrigger value="blogs" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white text-slate-400">
+        <TabsList className="bg-gray-100 border border-gray-200 mb-6">
+          <TabsTrigger value="blogs" className="data-[state=active]:bg-green-600 data-[state=active]:text-white text-gray-500">
             Blogs ({blogs.length})
           </TabsTrigger>
-          <TabsTrigger value="categories" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white text-slate-400">
+          <TabsTrigger value="categories" className="data-[state=active]:bg-green-600 data-[state=active]:text-white text-gray-500">
             Categories ({categories.length})
           </TabsTrigger>
         </TabsList>
@@ -112,14 +112,14 @@ export default function BlogManagement() {
           {/* Filters */}
           <div className="flex gap-3 mb-4">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-              <Input placeholder="Search blogs…" value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9 bg-slate-900 border-slate-700 text-slate-200 placeholder:text-slate-500 focus:border-indigo-500" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+              <Input placeholder="Search blogs…" value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9 bg-white border-gray-200 text-gray-800 placeholder:text-gray-400 focus:border-green-500" />
             </div>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-36 bg-slate-900 border-slate-700 text-slate-300">
+              <SelectTrigger className="w-36 bg-white border-gray-200 text-gray-800">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
-              <SelectContent className="bg-slate-900 border-slate-700 text-slate-200">
+              <SelectContent className="bg-white border-gray-200 text-gray-800">
                 <SelectItem value="all">All</SelectItem>
                 <SelectItem value="active">Active</SelectItem>
                 <SelectItem value="hidden">Hidden</SelectItem>
@@ -128,59 +128,59 @@ export default function BlogManagement() {
             </Select>
           </div>
 
-          <div className="rounded-xl border border-slate-800 bg-slate-900/60 overflow-hidden">
-            <div className="grid grid-cols-[2fr_100px_100px_80px_44px] gap-4 px-4 py-3 border-b border-slate-800 text-xs font-medium text-slate-500 uppercase tracking-wider">
+          <div className="rounded-xl border border-gray-200 bg-white overflow-hidden shadow-sm">
+            <div className="grid grid-cols-[2fr_100px_100px_80px_44px] gap-4 px-4 py-3 border-b border-gray-100 text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">
               <span>Blog</span><span>Status</span><span>Followers</span><span>Verified</span><span />
             </div>
             {loading ? (
-              <div className="divide-y divide-slate-800">
+              <div className="divide-y divide-gray-100">
                 {Array.from({ length: 6 }).map((_, i) => (
                   <div key={i} className="h-16 px-4 flex items-center gap-4 animate-pulse">
-                    <div className="w-9 h-9 rounded-full bg-slate-800" />
-                    <div className="flex-1 h-4 bg-slate-800 rounded" />
-                    <div className="w-16 h-5 bg-slate-800 rounded-full" />
+                    <div className="w-9 h-9 rounded-full bg-gray-200" />
+                    <div className="flex-1 h-4 bg-gray-200 rounded" />
+                    <div className="w-16 h-5 bg-gray-200 rounded-full" />
                   </div>
                 ))}
               </div>
             ) : filtered.length === 0 ? (
               <AdminEmptyState icon={BookOpen} title="No blogs found" className="rounded-none border-0" />
             ) : (
-              <div className="divide-y divide-slate-800/60">
+              <div className="divide-y divide-gray-100">
                 {filtered.map((blog) => (
-                  <div key={blog.id} className="grid grid-cols-[2fr_100px_100px_80px_44px] gap-4 px-4 py-3.5 items-center hover:bg-slate-800/30 transition-colors">
+                  <div key={blog.id} className="grid grid-cols-[2fr_100px_100px_80px_44px] gap-4 px-4 py-3.5 items-center hover:bg-gray-50 transition-colors">
                     <div className="flex items-center gap-3 min-w-0">
-                      <Avatar className="w-9 h-9 flex-shrink-0 border border-slate-700">
+                      <Avatar className="w-9 h-9 flex-shrink-0 border border-gray-200">
                         <AvatarImage src={blog.profile_photo_url} />
-                        <AvatarFallback className="bg-indigo-700 text-white text-xs">{blog.blog_name[0]}</AvatarFallback>
+                        <AvatarFallback className="bg-green-600 text-white text-xs">{blog.blog_name[0]}</AvatarFallback>
                       </Avatar>
                       <div className="min-w-0">
-                        <p className="text-slate-200 text-sm font-medium truncate">{blog.blog_name}</p>
-                        <p className="text-slate-500 text-xs">/{blog.slug}</p>
+                        <p className="text-gray-800 text-sm font-medium truncate">{blog.blog_name}</p>
+                        <p className="text-gray-500 text-xs">/{blog.slug}</p>
                       </div>
                     </div>
                     <span className={cn("inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border capitalize w-fit", BLOG_STATUS_CFG[blog.status])}>
                       {blog.status}
                     </span>
-                    <span className="text-slate-300 text-sm tabular-nums">{blog.follower_count.toLocaleString()}</span>
-                    <span>{blog.is_verified ? <span className="text-emerald-400 text-xs flex items-center gap-1"><ShieldCheck className="w-3.5 h-3.5" /> Yes</span> : <span className="text-slate-600 text-xs">—</span>}</span>
+                    <span className="text-gray-600 text-sm tabular-nums">{blog.follower_count.toLocaleString()}</span>
+                    <span>{blog.is_verified ? <span className="text-green-600 text-xs flex items-center gap-1"><ShieldCheck className="w-3.5 h-3.5" /> Yes</span> : <span className="text-gray-400 text-xs">—</span>}</span>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button size="icon" variant="ghost" className="text-slate-500 hover:text-slate-300 h-8 w-8">
+                        <Button size="icon" variant="ghost" className="text-gray-400 hover:text-gray-600 h-8 w-8 hover:bg-gray-100">
                           <MoreVertical className="w-4 h-4" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="bg-slate-900 border-slate-800 text-slate-200">
-                        <DropdownMenuItem className="gap-2 cursor-pointer focus:bg-slate-800" onClick={() => setConfirmAction({ type: "feature", id: blog.id, label: "Feature this blog on the platform homepage?", variant: "default" })}>
-                          <Star className="w-3.5 h-3.5 text-amber-400" /> Feature
+                      <DropdownMenuContent align="end" className="bg-white border-gray-200 text-gray-800">
+                        <DropdownMenuItem className="gap-2 cursor-pointer focus:bg-gray-100" onClick={() => setConfirmAction({ type: "feature", id: blog.id, label: "Feature this blog on the platform homepage?", variant: "default" })}>
+                          <Star className="w-3.5 h-3.5 text-amber-500" /> Feature
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="gap-2 cursor-pointer focus:bg-slate-800" onClick={() => setConfirmAction({ type: "verify", id: blog.id, label: "Mark this blog as verified?", variant: "default" })}>
-                          <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" /> Verify
+                        <DropdownMenuItem className="gap-2 cursor-pointer focus:bg-gray-100" onClick={() => setConfirmAction({ type: "verify", id: blog.id, label: "Mark this blog as verified?", variant: "default" })}>
+                          <ShieldCheck className="w-3.5 h-3.5 text-green-600" /> Verify
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="gap-2 cursor-pointer focus:bg-slate-800" onClick={() => setConfirmAction({ type: "suspend", id: blog.id, label: "Suspend this blog? It will be hidden from public.", variant: "warning" })}>
-                          <Ban className="w-3.5 h-3.5 text-amber-400" /> Suspend
+                        <DropdownMenuItem className="gap-2 cursor-pointer focus:bg-gray-100" onClick={() => setConfirmAction({ type: "suspend", id: blog.id, label: "Suspend this blog? It will be hidden from public.", variant: "warning" })}>
+                          <Ban className="w-3.5 h-3.5 text-amber-500" /> Suspend
                         </DropdownMenuItem>
-                        <DropdownMenuSeparator className="bg-slate-800" />
-                        <DropdownMenuItem className="gap-2 cursor-pointer focus:bg-rose-950/40 text-rose-400" onClick={() => setConfirmAction({ type: "delete", id: blog.id, label: "Delete this blog permanently?", variant: "destructive" })}>
+                        <DropdownMenuSeparator className="bg-gray-100" />
+                        <DropdownMenuItem className="gap-2 cursor-pointer focus:bg-rose-50 text-rose-600 focus:text-rose-700" onClick={() => setConfirmAction({ type: "delete", id: blog.id, label: "Delete this blog permanently?", variant: "destructive" })}>
                           <Trash2 className="w-3.5 h-3.5" /> Delete
                         </DropdownMenuItem>
                       </DropdownMenuContent>
@@ -194,10 +194,10 @@ export default function BlogManagement() {
 
         {/* Categories tab */}
         <TabsContent value="categories">
-          <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-5">
+          <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
             <div className="flex gap-3 mb-6">
-              <Input placeholder="New category name…" value={newCategory} onChange={(e) => setNewCategory(e.target.value)} className="bg-slate-900 border-slate-700 text-slate-200 placeholder:text-slate-500 focus:border-indigo-500" />
-              <Button onClick={addCategory} className="bg-indigo-600 hover:bg-indigo-700 text-white gap-2 flex-shrink-0">
+              <Input placeholder="New category name…" value={newCategory} onChange={(e) => setNewCategory(e.target.value)} className="bg-white border-gray-200 text-gray-800 placeholder:text-gray-400 focus:border-green-500" />
+              <Button onClick={addCategory} className="bg-green-600 hover:bg-green-700 text-white gap-2 flex-shrink-0">
                 <Tag className="w-4 h-4" /> Add
               </Button>
             </div>
@@ -206,12 +206,12 @@ export default function BlogManagement() {
             ) : (
               <div className="space-y-2">
                 {categories.map((cat) => (
-                  <div key={cat.id} className="flex items-center justify-between px-4 py-3 rounded-lg bg-slate-800/50 hover:bg-slate-800 transition-colors">
+                  <div key={cat.id} className="flex items-center justify-between px-4 py-3 rounded-lg border border-gray-100 bg-gray-50 hover:border-green-300 transition-colors">
                     <div>
-                      <p className="text-slate-200 text-sm font-medium">{cat.name}</p>
-                      <p className="text-slate-500 text-xs">/{cat.slug}</p>
+                      <p className="text-gray-800 text-sm font-medium">{cat.name}</p>
+                      <p className="text-gray-500 text-xs">/{cat.slug}</p>
                     </div>
-                    <Button size="icon" variant="ghost" onClick={() => deleteCategory(cat.id)} className="w-8 h-8 text-slate-500 hover:text-rose-400 hover:bg-rose-500/10">
+                    <Button size="icon" variant="ghost" onClick={() => deleteCategory(cat.id)} className="w-8 h-8 text-gray-400 hover:text-rose-600 hover:bg-rose-50">
                       <Trash2 className="w-3.5 h-3.5" />
                     </Button>
                   </div>
