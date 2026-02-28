@@ -46,14 +46,14 @@ export default function AdminDashboard() {
         supabase.from("blogs").select("*", { count: "exact", head: true }),
         supabase.from("posts").select("*", { count: "exact", head: true }).eq("status", "published"),
         supabase.from("reports").select("*", { count: "exact", head: true }).eq("status", "pending"),
-        supabase
+        (supabase as any)
           .from("admin_activity_log")
           .select("id, action_type, target_type, created_at")
           .order("created_at", { ascending: false })
           .limit(8),
       ]);
       setStats({ users: users ?? 0, blogs: blogs ?? 0, posts: posts ?? 0, pendingReports: pendingReports ?? 0 });
-      setRecentActivity(activity ?? []);
+      setRecentActivity((activity as any) ?? []);
       setLoading(false);
     }
     loadDashboard();
