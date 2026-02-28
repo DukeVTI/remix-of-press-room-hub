@@ -144,7 +144,7 @@ export function AdminSidebar({ open, onToggle }: AdminSidebarProps) {
                     alignItems: "center",
                     gap: "8px",
                 }}>
-                    <img src={PRP_ICON} alt="PRP" style={{ width: "20px", height: "20px", objectFit: "contain" }} />
+                    <img src={PRP_LOGO_WH} alt="PRP" style={{ width: "20px", height: "20px", objectFit: "contain" }} />
                     <span style={{ fontSize: "11px", color: "#aaa", letterSpacing: "0.5px" }}>Press Room Publisher</span>
                 </div>
             )}
