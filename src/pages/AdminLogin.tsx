@@ -24,20 +24,28 @@ export default function AdminLogin() {
                 email: email.trim(),
                 password,
             });
-            if (authError) throw new Error("Invalid credentials. Please try again.");
+            if (authError) throw new Error(`Auth failed: ${authError.message}`);
 
             // 2. Verify this user exists in platform_admins and is active
-            const { data: adminRow } = await (supabase as any)
+            const { data: adminRow, error: adminError } = await (supabase as any)
                 .from("platform_admins")
                 .select("admin_role, is_active")
                 .eq("user_id", authData.user.id)
-                .eq("is_active", true)
-                .maybeSingle();
+                .maybeSingle(); // removed is_active filter to see raw row
+
+            if (adminError) {
+                await supabase.auth.signOut();
+                throw new Error(`DB error: ${adminError.message} (code: ${adminError.code})`);
+            }
 
             if (!adminRow) {
-                // User authenticated but is not a platform admin — sign them out
                 await supabase.auth.signOut();
-                throw new Error("Access denied. Your account does not have admin privileges.");
+                throw new Error(`No admin record found for user ${authData.user.id}. Check platform_admins table and RLS policies.`);
+            }
+
+            if (!adminRow.is_active) {
+                await supabase.auth.signOut();
+                throw new Error("Your admin account is inactive. Contact a super admin.");
             }
 
             navigate("/admin");
