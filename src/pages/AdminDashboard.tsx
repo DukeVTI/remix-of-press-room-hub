@@ -75,17 +75,17 @@ export default function AdminDashboard() {
       {/* Welcome strip */}
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white mb-1">Platform Overview</h1>
-          <p className="text-slate-400 text-sm">Welcome back. Here's what's happening on the platform.</p>
+          <h1 className="text-2xl font-bold text-gray-900 mb-1">Platform Overview</h1>
+          <p className="text-gray-500 text-sm">Welcome back. Here's what's happening on the platform.</p>
         </div>
         <AdminBadge role={adminRole} />
       </div>
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
-        <AdminStatCard label="Total Users" value={stats?.users ?? 0} icon={Users} accent="indigo" loading={loading} />
+        <AdminStatCard label="Total Users" value={stats?.users ?? 0} icon={Users} accent="green" loading={loading} />
         <AdminStatCard label="Total Blogs" value={stats?.blogs ?? 0} icon={BookOpen} accent="blue" loading={loading} />
-        <AdminStatCard label="Published Posts" value={stats?.posts ?? 0} icon={FileText} accent="emerald" loading={loading} />
+        <AdminStatCard label="Published Posts" value={stats?.posts ?? 0} icon={FileText} accent="purple" loading={loading} />
         <AdminStatCard
           label="Pending Reports"
           value={stats?.pendingReports ?? 0}
@@ -97,15 +97,15 @@ export default function AdminDashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Recent Activity */}
-        <div className="lg:col-span-2 rounded-xl border border-slate-800 bg-slate-900/60 p-5">
+        <div className="lg:col-span-2 rounded-xl border border-gray-200 bg-white p-5">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <Activity className="w-4 h-4 text-indigo-400" />
-              <h2 className="text-white font-semibold text-sm">Recent Activity</h2>
+              <Activity className="w-4 h-4 text-green-500" />
+              <h2 className="text-gray-800 font-semibold text-sm">Recent Activity</h2>
             </div>
             <Link
               to="/admin/activity-log"
-              className="text-xs text-indigo-400 hover:text-indigo-300 flex items-center gap-1"
+              className="text-xs text-green-600 hover:text-green-700 flex items-center gap-1"
             >
               View all <ArrowRight className="w-3 h-3" />
             </Link>
@@ -113,11 +113,11 @@ export default function AdminDashboard() {
           {loading ? (
             <div className="space-y-3">
               {Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="h-10 bg-slate-800 rounded-lg animate-pulse" />
+                <div key={i} className="h-10 bg-gray-100 rounded-lg animate-pulse" />
               ))}
             </div>
           ) : recentActivity.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-10 text-slate-500">
+            <div className="flex flex-col items-center justify-center py-10 text-gray-400">
               <Activity className="w-8 h-8 mb-2 opacity-40" />
               <p className="text-sm">No activity yet</p>
             </div>
@@ -126,16 +126,16 @@ export default function AdminDashboard() {
               {recentActivity.map((item) => (
                 <div
                   key={item.id}
-                  className="flex items-center justify-between py-2.5 px-3 rounded-lg hover:bg-slate-800/60 transition-colors"
+                  className="flex items-center justify-between py-2.5 px-3 rounded-lg hover:bg-gray-50 transition-colors"
                 >
                   <div className="flex items-center gap-3">
-                    <span className="w-2 h-2 rounded-full bg-indigo-500 flex-shrink-0" />
-                    <span className="text-slate-300 text-sm">
+                    <span className="w-2 h-2 rounded-full bg-green-500 flex-shrink-0" />
+                    <span className="text-gray-700 text-sm">
                       {ACTION_LABEL[item.action_type] ?? item.action_type}{" "}
-                      <span className="text-slate-500">on {item.target_type}</span>
+                      <span className="text-gray-400">on {item.target_type}</span>
                     </span>
                   </div>
-                  <span className="text-slate-500 text-xs whitespace-nowrap">
+                  <span className="text-gray-400 text-xs whitespace-nowrap">
                     {formatDistanceToNow(new Date(item.created_at), { addSuffix: true })}
                   </span>
                 </div>
@@ -145,42 +145,42 @@ export default function AdminDashboard() {
         </div>
 
         {/* Quick Actions */}
-        <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-5">
-          <h2 className="text-white font-semibold text-sm mb-4">Quick Actions</h2>
-          <div className="space-y-2">
+        <div className="rounded-xl border border-gray-200 bg-white p-5">
+          <h2 className="text-gray-800 font-semibold text-sm mb-4">Quick Actions</h2>
+          <div className="space-y-1">
             {[
-              { label: "Review Pending Reports", href: "/admin/reports", icon: Flag, color: "text-rose-400" },
-              { label: "Manage Users", href: "/admin/users", icon: Users, color: "text-indigo-400" },
-              { label: "Content Overview", href: "/admin/content", icon: FileText, color: "text-emerald-400" },
-              { label: "Blog Management", href: "/admin/blogs", icon: BookOpen, color: "text-blue-400" },
-              { label: "View Analytics", href: "/admin/analytics", icon: Activity, color: "text-amber-400" },
+              { label: "Review Pending Reports", href: "/admin/reports", icon: Flag, color: "text-rose-500" },
+              { label: "Manage Users", href: "/admin/users", icon: Users, color: "text-blue-500" },
+              { label: "Content Overview", href: "/admin/content", icon: FileText, color: "text-green-600" },
+              { label: "Blog Management", href: "/admin/blogs", icon: BookOpen, color: "text-purple-500" },
+              { label: "View Analytics", href: "/admin/analytics", icon: Activity, color: "text-amber-500" },
             ].map(({ label, href, icon: Icon, color }) => (
               <Link
                 key={href}
                 to={href}
                 className={cn(
                   "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm",
-                  "text-slate-300 hover:text-white hover:bg-slate-800 transition-all duration-150 group"
+                  "text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-all duration-150 group"
                 )}
               >
                 <Icon className={cn("w-4 h-4", color)} />
                 {label}
-                <ArrowRight className="w-3.5 h-3.5 ml-auto opacity-0 group-hover:opacity-100 transition-opacity text-slate-500" />
+                <ArrowRight className="w-3.5 h-3.5 ml-auto opacity-0 group-hover:opacity-100 transition-opacity text-gray-400" />
               </Link>
             ))}
           </div>
 
           {/* Alerts banner */}
           {stats?.pendingReports ? (
-            <div className="mt-4 flex items-start gap-2 p-3 rounded-lg bg-rose-500/10 border border-rose-500/20">
-              <AlertTriangle className="w-4 h-4 text-rose-400 flex-shrink-0 mt-0.5" />
+            <div className="mt-4 flex items-start gap-2 p-3 rounded-lg bg-rose-50 border border-rose-200">
+              <AlertTriangle className="w-4 h-4 text-rose-500 flex-shrink-0 mt-0.5" />
               <div>
-                <p className="text-rose-300 text-xs font-medium">
+                <p className="text-rose-700 text-xs font-medium">
                   {stats.pendingReports} pending report{stats.pendingReports !== 1 ? "s" : ""} need review
                 </p>
                 <Link
                   to="/admin/reports"
-                  className="text-rose-400 hover:text-rose-300 text-xs underline"
+                  className="text-rose-600 hover:text-rose-700 text-xs underline"
                 >
                   Review now →
                 </Link>
