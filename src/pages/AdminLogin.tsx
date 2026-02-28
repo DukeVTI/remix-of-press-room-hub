@@ -26,26 +26,24 @@ export default function AdminLogin() {
             });
             if (authError) throw new Error(`Auth failed: ${authError.message}`);
 
-            // 2. Verify this user exists in platform_admins and is active
-            const { data: adminRow, error: adminError } = await (supabase as any)
-                .from("platform_admins")
-                .select("admin_role, is_active")
-                .eq("user_id", authData.user.id)
-                .maybeSingle(); // removed is_active filter to see raw row
+            // 2. Use SECURITY DEFINER RPC — bypasses RLS completely
+            const { data: rows, error: rpcError } = await supabase.rpc("check_is_admin");
 
-            if (adminError) {
+            if (rpcError) {
                 await supabase.auth.signOut();
-                throw new Error(`DB error: ${adminError.message} (code: ${adminError.code})`);
+                throw new Error(`RPC error: ${rpcError.message}`);
             }
+
+            const adminRow = Array.isArray(rows) ? rows[0] : rows;
 
             if (!adminRow) {
                 await supabase.auth.signOut();
-                throw new Error(`No admin record found for user ${authData.user.id}. Check platform_admins table and RLS policies.`);
+                throw new Error(`No admin record found for ${authData.user.email}. Run the check_is_admin() SQL function setup first.`);
             }
 
             if (!adminRow.is_active) {
                 await supabase.auth.signOut();
-                throw new Error("Your admin account is inactive. Contact a super admin.");
+                throw new Error("Your admin account is inactive.");
             }
 
             navigate("/admin");

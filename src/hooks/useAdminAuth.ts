@@ -12,19 +12,23 @@ export function useAdminAuth() {
       setLoading(true);
       const { data: { session } } = await supabase.auth.getSession();
       if (!session?.user) {
-        if (mounted) setIsAdmin(false);
-        setLoading(false);
+        if (mounted) { setIsAdmin(false); setLoading(false); }
         return;
       }
-      const { data, error } = await supabase
-        .from("platform_admins")
-        .select("admin_role")
-        .eq("user_id", session.user.id)
-        .eq("is_active", true)
-        .maybeSingle();
+
+      // Use SECURITY DEFINER RPC — bypasses all RLS complications
+      const { data: rows, error } = await supabase.rpc("check_is_admin");
+
       if (mounted) {
-        setIsAdmin(!!data);
-        setAdminRole(data?.admin_role || null);
+        if (error || !rows) {
+          setIsAdmin(false);
+          setAdminRole(null);
+        } else {
+          const row = Array.isArray(rows) ? rows[0] : rows;
+          const active = !!row && row.is_active;
+          setIsAdmin(active);
+          setAdminRole(active ? (row.admin_role ?? null) : null);
+        }
         setLoading(false);
       }
     }
