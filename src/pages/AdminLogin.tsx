@@ -27,23 +27,16 @@ export default function AdminLogin() {
             if (authError) throw new Error(`Auth failed: ${authError.message}`);
 
             // 2. Use SECURITY DEFINER RPC — bypasses RLS completely
-            const { data: rows, error: rpcError } = await (supabase.rpc as any)("check_is_admin");
+            const { data: isAdmin, error: rpcError } = await (supabase.rpc as any)("check_is_admin");
 
             if (rpcError) {
                 await supabase.auth.signOut();
                 throw new Error(`RPC error: ${rpcError.message}`);
             }
 
-            const adminRow = Array.isArray(rows) ? rows[0] : rows;
-
-            if (!adminRow) {
+            if (!isAdmin) {
                 await supabase.auth.signOut();
-                throw new Error(`No admin record found for ${authData.user.email}. Run the check_is_admin() SQL function setup first.`);
-            }
-
-            if (!adminRow.is_active) {
-                await supabase.auth.signOut();
-                throw new Error("Your admin account is inactive.");
+                throw new Error("You are not authorised to access the admin console.");
             }
 
             navigate("/admin");
