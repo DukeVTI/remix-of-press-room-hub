@@ -27,7 +27,7 @@ export default function AdminLogin() {
             if (authError) throw new Error(`Auth failed: ${authError.message}`);
 
             // 2. Use SECURITY DEFINER RPC — bypasses RLS completely
-            const { data: rows, error: rpcError } = await supabase.rpc("check_is_admin");
+            const { data: rows, error: rpcError } = await (supabase.rpc as any)("check_is_admin");
 
             if (rpcError) {
                 await supabase.auth.signOut();

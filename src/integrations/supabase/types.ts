@@ -14,6 +14,118 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_activity_log: {
+        Row: {
+          action_type: string
+          admin_id: string
+          created_at: string
+          details: Json | null
+          id: string
+          target_id: string
+          target_type: string
+        }
+        Insert: {
+          action_type: string
+          admin_id: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          target_id: string
+          target_type: string
+        }
+        Update: {
+          action_type?: string
+          admin_id?: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          target_id?: string
+          target_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_activity_log_admin_id_fkey"
+            columns: ["admin_id"]
+            isOneToOne: false
+            referencedRelation: "platform_admins"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      admin_alerts: {
+        Row: {
+          alert_type: string
+          created_at: string
+          description: string
+          id: string
+          is_read: boolean | null
+          metadata: Json | null
+          severity: string
+          title: string
+        }
+        Insert: {
+          alert_type: string
+          created_at?: string
+          description: string
+          id?: string
+          is_read?: boolean | null
+          metadata?: Json | null
+          severity: string
+          title: string
+        }
+        Update: {
+          alert_type?: string
+          created_at?: string
+          description?: string
+          id?: string
+          is_read?: boolean | null
+          metadata?: Json | null
+          severity?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      admin_announcements: {
+        Row: {
+          body: string
+          id: string
+          recipient_count: number | null
+          sent_at: string
+          sent_by: string
+          status: string
+          target_audience: string
+          title: string
+        }
+        Insert: {
+          body: string
+          id?: string
+          recipient_count?: number | null
+          sent_at?: string
+          sent_by: string
+          status?: string
+          target_audience?: string
+          title: string
+        }
+        Update: {
+          body?: string
+          id?: string
+          recipient_count?: number | null
+          sent_at?: string
+          sent_by?: string
+          status?: string
+          target_audience?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_announcements_sent_by_fkey"
+            columns: ["sent_by"]
+            isOneToOne: false
+            referencedRelation: "platform_admins"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       blog_admins: {
         Row: {
           admin_email: string
@@ -414,6 +526,54 @@ export type Database = {
           },
         ]
       }
+      platform_admins: {
+        Row: {
+          admin_role: Database["public"]["Enums"]["admin_role_type"]
+          assigned_at: string
+          assigned_by: string
+          id: string
+          is_active: boolean
+          last_login: string | null
+          permissions: string[]
+          user_id: string
+        }
+        Insert: {
+          admin_role: Database["public"]["Enums"]["admin_role_type"]
+          assigned_at?: string
+          assigned_by: string
+          id?: string
+          is_active?: boolean
+          last_login?: string | null
+          permissions?: string[]
+          user_id: string
+        }
+        Update: {
+          admin_role?: Database["public"]["Enums"]["admin_role_type"]
+          assigned_at?: string
+          assigned_by?: string
+          id?: string
+          is_active?: boolean
+          last_login?: string | null
+          permissions?: string[]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "platform_admins_assigned_by_fkey"
+            columns: ["assigned_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "platform_admins_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       post_reactions: {
         Row: {
           created_at: string
@@ -595,6 +755,10 @@ export type Database = {
           reported_item_id: string
           reported_item_type: Database["public"]["Enums"]["reported_item_type"]
           reporter_id: string
+          resolution_action: string | null
+          resolution_details: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
           status: Database["public"]["Enums"]["report_status"]
         }
         Insert: {
@@ -606,6 +770,10 @@ export type Database = {
           reported_item_id: string
           reported_item_type: Database["public"]["Enums"]["reported_item_type"]
           reporter_id: string
+          resolution_action?: string | null
+          resolution_details?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           status?: Database["public"]["Enums"]["report_status"]
         }
         Update: {
@@ -617,6 +785,10 @@ export type Database = {
           reported_item_id?: string
           reported_item_type?: Database["public"]["Enums"]["reported_item_type"]
           reporter_id?: string
+          resolution_action?: string | null
+          resolution_details?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           status?: Database["public"]["Enums"]["report_status"]
         }
         Relationships: [
@@ -625,6 +797,13 @@ export type Database = {
             columns: ["reporter_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reports_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "platform_admins"
             referencedColumns: ["id"]
           },
         ]
@@ -638,6 +817,8 @@ export type Database = {
         Args: { _blog_id: string; _user_id: string }
         Returns: boolean
       }
+      check_is_admin: { Args: never; Returns: boolean }
+      check_is_super_admin: { Args: never; Returns: boolean }
       find_profile_id_by_email: { Args: { _email: string }; Returns: string }
       increment_view_count: { Args: { _post_id: string }; Returns: undefined }
       is_blog_admin: {
@@ -651,6 +832,7 @@ export type Database = {
     }
     Enums: {
       account_status: "active" | "suspended" | "deactivated"
+      admin_role_type: "super_admin" | "moderator" | "support"
       admin_status: "pending" | "active" | "removed"
       blog_status: "active" | "hidden" | "deleted"
       celebration_status: "active" | "expired"
@@ -805,6 +987,7 @@ export const Constants = {
   public: {
     Enums: {
       account_status: ["active", "suspended", "deactivated"],
+      admin_role_type: ["super_admin", "moderator", "support"],
       admin_status: ["pending", "active", "removed"],
       blog_status: ["active", "hidden", "deleted"],
       celebration_status: ["active", "expired"],
