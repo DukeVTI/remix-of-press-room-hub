@@ -17,7 +17,7 @@ export function useAdminAuth() {
       }
 
       // Use SECURITY DEFINER RPC — bypasses all RLS complications
-      const { data: rows, error } = await supabase.rpc("check_is_admin");
+      const { data: rows, error } = await (supabase.rpc as any)("check_is_admin");
 
       if (mounted) {
         if (error || !rows) {

@@ -55,7 +55,7 @@ export default function BlogManagement() {
   const load = useCallback(async () => {
     setLoading(true);
     let q = supabase.from("blogs").select("id,blog_name,slug,status,is_verified,follower_count,created_at,profile_photo_url").order("created_at", { ascending: false });
-    if (statusFilter !== "all") q = q.eq("status", statusFilter);
+    if (statusFilter !== "all") q = q.eq("status", statusFilter as "active" | "hidden" | "deleted");
     const [{ data: blogsData }, { data: catsData }] = await Promise.all([q, supabase.from("blog_categories").select("*").order("name")]);
     setBlogs(blogsData as Blog[] ?? []);
     setCategories(catsData as Category[] ?? []);

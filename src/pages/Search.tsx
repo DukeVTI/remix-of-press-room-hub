@@ -38,14 +38,14 @@ const Search = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const initialQuery = searchParams.get("q") || "";
   
+  const [query, setQuery] = useState(initialQuery);
+  const [searchQuery, setSearchQuery] = useState(initialQuery);
+
   useSeo({
     title: searchQuery ? `Search: ${searchQuery}` : "Search",
     description: "Search for publications and articles on Press Room Publisher. Discover journalism from independent writers and news organizations.",
     keywords: ["search", "find articles", "discover blogs", "journalism search", "press room search"],
   });
-  
-  const [query, setQuery] = useState(initialQuery);
-  const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [activeTab, setActiveTab] = useState("publications");
   const [isLoading, setIsLoading] = useState(false);
   const [blogs, setBlogs] = useState<BlogWithCategory[]>([]);
