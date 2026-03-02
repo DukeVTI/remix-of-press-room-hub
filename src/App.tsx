@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -51,7 +52,20 @@ import { ProtectedAdminRoute } from "@/components/ProtectedAdminRoute";
 
 const queryClient = new QueryClient();
 
-const App = () => (
+const App = () => {
+  // Prevent browser extensions (e.g. MetaMask) from crashing the app with unhandled rejections
+  useEffect(() => {
+    const handler = (event: PromiseRejectionEvent) => {
+      if (event.reason?.message?.includes("MetaMask") || event.reason?.toString()?.includes("MetaMask")) {
+        event.preventDefault();
+        console.warn("Suppressed MetaMask extension error:", event.reason);
+      }
+    };
+    window.addEventListener("unhandledrejection", handler);
+    return () => window.removeEventListener("unhandledrejection", handler);
+  }, []);
+
+  return (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
@@ -111,6 +125,7 @@ const App = () => (
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
-);
+  );
+};
 
 export default App;
