@@ -10,24 +10,14 @@ export default function Privacy() {
   return (
     <MarketingLayout>
       {/* Page header */}
-      <div style={{
-        backgroundColor: "#111",
-        padding: "60px 48px",
-        display: "flex",
-        alignItems: "center",
-      }}>
-        <h1 style={{
-          color: "#fff",
-          fontSize: "clamp(24px, 4vw, 40px)",
-          fontWeight: 900,
-          letterSpacing: "3px",
-          textTransform: "uppercase",
-          margin: 0,
-        }}>PRIVACY POLICY</h1>
+      <div className="bg-[#111] py-16 px-12 flex items-center">
+        <h1 className="text-white font-black tracking-[3px] uppercase" style={{ fontSize: "clamp(24px, 4vw, 40px)" }}>
+          PRIVACY POLICY
+        </h1>
       </div>
 
-      <section style={{ backgroundColor: "#fff", padding: "60px 24px" }}>
-        <div style={{ maxWidth: "860px", margin: "0 auto", color: "#333", fontSize: "15px", lineHeight: 1.9 }}>
+      <section className="bg-white py-16 px-6">
+        <div className="max-w-[860px] mx-auto text-[#333] text-[15px] leading-[1.9]">
 
           <Section title="Introduction">
             <p>
@@ -94,7 +84,7 @@ export default function Privacy() {
               If you have any questions or concerns about this Privacy Policy, please contact us at:{" "}
               <a
                 href="mailto:policy@broadcasterscommunity.com"
-                style={{ color: "#00ad00", textDecoration: "underline" }}
+                className="text-[#00ad00] underline hover:text-[#008f00] transition-colors duration-200"
               >
                 policy@broadcasterscommunity.com
               </a>
@@ -108,17 +98,8 @@ export default function Privacy() {
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div style={{ marginBottom: "36px" }}>
-      <h2 style={{
-        fontSize: "17px",
-        fontWeight: 800,
-        color: "#111",
-        textTransform: "uppercase",
-        letterSpacing: "1px",
-        borderBottom: "2px solid #00ad00",
-        paddingBottom: "8px",
-        marginBottom: "16px",
-      }}>
+    <div className="mb-9">
+      <h2 className="text-[17px] font-extrabold text-[#111] uppercase tracking-wide border-b-2 border-[#00ad00] pb-2 mb-4">
         {title}
       </h2>
       {children}
