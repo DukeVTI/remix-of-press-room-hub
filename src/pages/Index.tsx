@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { MarketingLayout } from "@/components/marketing/MarketingLayout";
+import { TrendingSection } from "@/components/marketing/TrendingSection";
 import { useSeo } from "@/hooks/useSeo";
 import { cn } from "@/lib/utils";
 
@@ -96,6 +97,9 @@ export default function Index() {
           </div>
         </div>
       </section>
+
+      {/* ── TRENDING SECTION ── */}
+      <TrendingSection />
 
       {/* ── SIGN UP SECTION ── */}
       <section

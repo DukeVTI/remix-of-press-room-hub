@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { MenuIcon, X, Search, Edit3 } from 'lucide-react';
+import { MenuIcon, X, Search, Edit3, TrendingUp } from 'lucide-react';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { BlogPickerModal } from '@/components/BlogPickerModal';
+import { DiscoverModal } from '@/components/DiscoverModal';
 
 // PRP Logo URL
 const PRP_LOGO = "https://pressroompublisher.broadcasterscommunity.com/wp-content/uploads/2026/01/cropped-PRP-ICON_-transparetn-32x32.png";
@@ -25,6 +26,7 @@ interface PRPHeaderProps {
 
 export function PRPHeader({ isAuthenticated = false }: PRPHeaderProps) {
   const [open, setOpen] = React.useState(false);
+  const [discoverOpen, setDiscoverOpen] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [pickerBlogs, setPickerBlogs] = useState<Blog[]>([]);
   const location = useLocation();
@@ -37,7 +39,7 @@ export function PRPHeader({ isAuthenticated = false }: PRPHeaderProps) {
 
   const handlePublishClick = async () => {
     setOpen(false);
-    
+
     // Fetch user's blogs
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
@@ -71,19 +73,19 @@ export function PRPHeader({ isAuthenticated = false }: PRPHeaderProps) {
         className="sticky top-0 z-50 w-full bg-background border-b border-border"
         role="banner"
       >
-        <nav 
+        <nav
           className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between px-4 sm:px-6"
           aria-label="Main navigation"
         >
           {/* Logo */}
-          <Link 
-            to="/" 
+          <Link
+            to="/"
             className="flex items-center gap-2"
             aria-label="Press Room Publisher - Home"
           >
-            <img 
-              src={PRP_LOGO} 
-              alt="Press Room Publisher logo" 
+            <img
+              src={PRP_LOGO}
+              alt="Press Room Publisher logo"
               className="w-8 h-8"
             />
             <span className="font-serif text-xl font-medium text-foreground hidden sm:block">
@@ -93,10 +95,22 @@ export function PRPHeader({ isAuthenticated = false }: PRPHeaderProps) {
 
           {/* Right side - Desktop */}
           <div className="hidden md:flex items-center gap-1">
+            {/* Discover button */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setDiscoverOpen(true)}
+              className="text-muted-foreground hover:text-foreground hidden lg:flex"
+              aria-label="Discover trending stories"
+            >
+              <TrendingUp className="h-4 w-4 mr-2" aria-hidden="true" />
+              Discover
+            </Button>
+
             {/* Search button */}
             <Link to="/search">
-              <Button 
-                variant="ghost" 
+              <Button
+                variant="ghost"
                 size="sm"
                 className="text-muted-foreground hover:text-foreground"
                 aria-label="Search stories"
@@ -128,8 +142,8 @@ export function PRPHeader({ isAuthenticated = false }: PRPHeaderProps) {
             {!isAuthenticated ? (
               <div className="flex items-center gap-2 ml-2">
                 <Link to="/login">
-                  <Button 
-                    variant="ghost" 
+                  <Button
+                    variant="ghost"
                     size="sm"
                     className="text-sm text-muted-foreground hover:text-foreground"
                   >
@@ -137,7 +151,7 @@ export function PRPHeader({ isAuthenticated = false }: PRPHeaderProps) {
                   </Button>
                 </Link>
                 <Link to="/register">
-                  <Button 
+                  <Button
                     size="sm"
                     className="bg-accent text-accent-foreground hover:bg-accent/90 rounded-full px-4"
                   >
@@ -146,7 +160,7 @@ export function PRPHeader({ isAuthenticated = false }: PRPHeaderProps) {
                 </Link>
               </div>
             ) : (
-              <Button 
+              <Button
                 size="sm"
                 className="bg-accent text-accent-foreground hover:bg-accent/90 rounded-full px-4 ml-2"
                 onClick={handlePublishClick}
@@ -176,14 +190,14 @@ export function PRPHeader({ isAuthenticated = false }: PRPHeaderProps) {
             >
               {/* Mobile Header */}
               <div className="flex items-center justify-between p-4 border-b border-border">
-                <Link 
-                  to="/" 
+                <Link
+                  to="/"
                   className="flex items-center gap-2"
                   onClick={() => setOpen(false)}
                 >
-                  <img 
-                    src={PRP_LOGO} 
-                    alt="Press Room Publisher logo" 
+                  <img
+                    src={PRP_LOGO}
+                    alt="Press Room Publisher logo"
                     className="w-7 h-7"
                   />
                   <span className="font-serif text-lg font-medium text-foreground">
@@ -203,6 +217,13 @@ export function PRPHeader({ isAuthenticated = false }: PRPHeaderProps) {
 
               {/* Mobile Nav Links */}
               <div className="flex flex-col p-4 gap-1">
+                <button
+                  onClick={() => { setOpen(false); setDiscoverOpen(true); }}
+                  className="flex items-center gap-3 px-4 py-3 rounded-lg text-base text-muted-foreground hover:bg-muted hover:text-foreground transition-colors w-full text-left"
+                >
+                  <TrendingUp className="h-5 w-5" aria-hidden="true" />
+                  Discover
+                </button>
                 <Link
                   to="/search"
                   className="flex items-center gap-3 px-4 py-3 rounded-lg text-base text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
@@ -211,7 +232,7 @@ export function PRPHeader({ isAuthenticated = false }: PRPHeaderProps) {
                   <Search className="h-5 w-5" aria-hidden="true" />
                   Search
                 </Link>
-                
+
                 {isAuthenticated && authLinks.map((link) => {
                   const isActive = location.pathname === link.href;
                   return (
@@ -235,15 +256,15 @@ export function PRPHeader({ isAuthenticated = false }: PRPHeaderProps) {
               {!isAuthenticated && (
                 <div className="absolute bottom-0 left-0 right-0 border-t border-border p-4 space-y-3 bg-background">
                   <Link to="/register" className="block" onClick={() => setOpen(false)}>
-                    <Button 
+                    <Button
                       className="w-full h-11 bg-accent text-accent-foreground hover:bg-accent/90 rounded-full"
                     >
                       Get started
                     </Button>
                   </Link>
                   <Link to="/login" className="block" onClick={() => setOpen(false)}>
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       className="w-full h-11 rounded-full"
                     >
                       Sign In
@@ -254,7 +275,7 @@ export function PRPHeader({ isAuthenticated = false }: PRPHeaderProps) {
 
               {isAuthenticated && (
                 <div className="absolute bottom-0 left-0 right-0 border-t border-border p-4 bg-background">
-                  <Button 
+                  <Button
                     className="w-full h-11 bg-accent text-accent-foreground hover:bg-accent/90 rounded-full"
                     onClick={handlePublishClick}
                     aria-label="Publish new post"
@@ -269,10 +290,14 @@ export function PRPHeader({ isAuthenticated = false }: PRPHeaderProps) {
         </nav>
       </header>
 
-      <BlogPickerModal 
-        open={pickerOpen} 
-        onClose={() => setPickerOpen(false)} 
-        blogs={pickerBlogs} 
+      <BlogPickerModal
+        open={pickerOpen}
+        onClose={() => setPickerOpen(false)}
+        blogs={pickerBlogs}
+      />
+      <DiscoverModal
+        open={discoverOpen}
+        onClose={() => setDiscoverOpen(false)}
       />
     </>
   );
