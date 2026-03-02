@@ -89,9 +89,11 @@ export default function About() {
           <h2 style={{ color: "#00ad00", fontSize: "20px", fontWeight: 800, textTransform: "uppercase", letterSpacing: "1px", marginBottom: "16px" }}>
             Our Mission
           </h2>
-          <p style={{ color: "#e8e8e8", fontSize: "15px", lineHeight: 1.9, margin: 0 }}>
+          <p style={{ color: "#e8e8e8", fontSize: "15px", lineHeight: 1.9, margin: 0, marginBottom: "22px" }}>
             Projecting the unique talents of gifted writers and optimizing creative writing skills that sustainably
             engage the audience, and equally capable of encouraging readers to becoming masterpiece writers that reads.
+          </p>
+          <p style={{ color: "#e8e8e8", fontSize: "15px", lineHeight: 1.9, margin: 0 }}>
             Here at PRESS ROOM PUBLISHER blogsite, we'd always remain committed towards the sustenance of our goals.
             You are warmly welcome to be here, and together, we would be better collectively for the best project PBC
             stands to achieve with you (the community) we are proud to serve.
