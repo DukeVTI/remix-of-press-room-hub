@@ -13,32 +13,20 @@ export default function About() {
   return (
     <MarketingLayout>
       {/* Page header */}
-      <div style={{
-        position: "relative",
-        height: "220px",
-        backgroundImage: `url(${HEADER_IMG})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center top",
-        display: "flex",
-        alignItems: "center",
-        paddingLeft: "48px",
-      }}>
-        <div style={{ position: "absolute", inset: 0, backgroundColor: "rgba(0,0,0,0.50)" }} />
-        <h1 style={{
-          position: "relative", zIndex: 1,
-          color: "#fff",
-          fontSize: "clamp(28px, 5vw, 48px)",
-          fontWeight: 900,
-          letterSpacing: "3px",
-          textTransform: "uppercase",
-          margin: 0,
-        }}>ABOUT</h1>
+      <div
+        className="relative h-[220px] bg-cover bg-center bg-no-repeat flex items-center px-12"
+        style={{ backgroundImage: `url(${HEADER_IMG})`, backgroundPosition: "center top" }}
+      >
+        <div className="absolute inset-0 bg-black/50" />
+        <h1 className="relative z-10 text-white font-black tracking-[3px] uppercase" style={{ fontSize: "clamp(28px, 5vw, 48px)" }}>
+          ABOUT
+        </h1>
       </div>
 
       {/* Body content */}
-      <section style={{ backgroundColor: "#fff", padding: "60px 24px" }}>
-        <div style={{ maxWidth: "860px", margin: "0 auto" }}>
-          <div style={{ display: "flex", flexDirection: "column", gap: "22px", color: "#333", fontSize: "15px", lineHeight: 1.9 }}>
+      <section className="bg-white py-16 px-6">
+        <div className="max-w-[860px] mx-auto">
+          <div className="flex flex-col gap-5 text-[#333] text-[15px] leading-[1.9]">
             <p>
               Undoubtedly from generation-to-generation, combination of the writer's head, hands, and heart or intelligence
               in true representation and diligent documentation of varying record events and historic situations are required
@@ -64,11 +52,11 @@ export default function About() {
           </div>
 
           {/* Vision */}
-          <div style={{ marginTop: "48px", borderLeft: "4px solid #00ad00", paddingLeft: "24px", marginBottom: "32px" }}>
-            <h2 style={{ color: "#111", fontSize: "20px", fontWeight: 800, textTransform: "uppercase", letterSpacing: "1px", marginBottom: "12px" }}>
+          <div className="mt-12 border-l-4 border-[#00ad00] pl-6 mb-8">
+            <h2 className="text-[#111] text-xl font-extrabold uppercase tracking-wide mb-3">
               Our Vision
             </h2>
-            <p style={{ color: "#444", fontSize: "15px", lineHeight: 1.9, margin: 0 }}>
+            <p className="text-[#444] text-[15px] leading-[1.9] m-0">
               Promote writing and reading culture with the integration of digital print media technology, toward the
               preservation and protection of record events that matter.
             </p>
@@ -77,23 +65,20 @@ export default function About() {
       </section>
 
       {/* Mission — dark background section */}
-      <section style={{
-        position: "relative",
-        padding: "60px 24px 80px",
-        backgroundImage: `url(${MISSION_BG})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}>
-        <div style={{ position: "absolute", inset: 0, backgroundColor: "rgba(0,0,0,0.78)" }} />
-        <div style={{ position: "relative", zIndex: 1, maxWidth: "860px", margin: "0 auto" }}>
-          <h2 style={{ color: "#00ad00", fontSize: "20px", fontWeight: 800, textTransform: "uppercase", letterSpacing: "1px", marginBottom: "16px" }}>
+      <section
+        className="relative py-16 pb-20 px-6 bg-cover bg-center"
+        style={{ backgroundImage: `url(${MISSION_BG})` }}
+      >
+        <div className="absolute inset-0 bg-black/[0.78]" />
+        <div className="relative z-10 max-w-[860px] mx-auto">
+          <h2 className="text-[#00ad00] text-xl font-extrabold uppercase tracking-wide mb-4">
             Our Mission
           </h2>
-          <p style={{ color: "#e8e8e8", fontSize: "15px", lineHeight: 1.9, margin: 0, marginBottom: "22px" }}>
+          <p className="text-[#e8e8e8] text-[15px] leading-[1.9] mb-5">
             Projecting the unique talents of gifted writers and optimizing creative writing skills that sustainably
             engage the audience, and equally capable of encouraging readers to becoming masterpiece writers that reads.
           </p>
-          <p style={{ color: "#e8e8e8", fontSize: "15px", lineHeight: 1.9, margin: 0 }}>
+          <p className="text-[#e8e8e8] text-[15px] leading-[1.9] m-0">
             Here at PRESS ROOM PUBLISHER blogsite, we'd always remain committed towards the sustenance of our goals.
             You are warmly welcome to be here, and together, we would be better collectively for the best project PBC
             stands to achieve with you (the community) we are proud to serve.

@@ -2,9 +2,10 @@ import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { MarketingLayout } from "@/components/marketing/MarketingLayout";
 import { useSeo } from "@/hooks/useSeo";
+import { cn } from "@/lib/utils";
 
 // ── Live WordPress asset URLs ──
-const HERO_VIDEO_ID = "M3DW5KAQ3eQ"; // YouTube background video (autoplay loop)
+const HERO_VIDEO_ID = "M3DW5KAQ3eQ";
 const PRP_LOGO_WH = "https://pressroompublisher.broadcasterscommunity.com/wp-content/uploads/2026/01/PRP-BRAND-lOGO-TRANSPARENT-white.png";
 const PAVE_LOGO = "https://pressroompublisher.broadcasterscommunity.com/wp-content/uploads/2026/01/PBC-LOGO-1024x518.png";
 const SIGNUP_IMG = "https://pressroompublisher.broadcasterscommunity.com/wp-content/uploads/2026/01/african-lady-reading-from-pc.jpeg";
@@ -14,22 +15,7 @@ const LOGIN_IMG = "https://pressroompublisher.broadcasterscommunity.com/wp-conte
 const GreenBtn = ({ to, children }: { to: string; children: React.ReactNode }) => (
   <Link
     to={to}
-    style={{
-      display: "inline-block",
-      backgroundColor: "#00ad00",
-      color: "#fff",
-      padding: "14px 36px",
-      fontWeight: 700,
-      fontSize: "14px",
-      letterSpacing: "1.5px",
-      textTransform: "uppercase",
-      textDecoration: "none",
-      borderRadius: "3px",
-      transition: "background-color 0.2s",
-      border: "2px solid #00ad00",
-    }}
-    onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "#008f00"; (e.currentTarget as HTMLAnchorElement).style.borderColor = "#008f00"; }}
-    onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "#00ad00"; (e.currentTarget as HTMLAnchorElement).style.borderColor = "#00ad00"; }}
+    className="inline-block bg-[#00ad00] text-white py-3.5 px-9 font-bold text-sm tracking-[1.5px] uppercase no-underline rounded-sm border-2 border-[#00ad00] transition-colors duration-200 hover:bg-[#008f00] hover:border-[#008f00]"
   >
     {children}
   </Link>
@@ -42,7 +28,7 @@ export default function Index() {
     keywords: ["press room publisher", "pen firepower", "creative writing", "blogging", "journalism", "broadcasters community"],
   });
 
-  // Load YouTube IFrame API for seamless looping (no reload spinner)
+  // Load YouTube IFrame API for seamless looping
   useEffect(() => {
     let player: any = null;
 
@@ -50,35 +36,20 @@ export default function Index() {
       player = new (window as any).YT.Player("yt-hero-bg", {
         videoId: HERO_VIDEO_ID,
         playerVars: {
-          autoplay: 1,
-          mute: 1,
-          controls: 0,
-          showinfo: 0,
-          rel: 0,
-          modestbranding: 1,
-          playsinline: 1,
-          iv_load_policy: 3,
-          fs: 0,
-          disablekb: 1,
-          loop: 0, // managed manually below for seamless restart
+          autoplay: 1, mute: 1, controls: 0, showinfo: 0, rel: 0,
+          modestbranding: 1, playsinline: 1, iv_load_policy: 3, fs: 0, disablekb: 1, loop: 0,
         },
         events: {
           onStateChange: (e: any) => {
-            // State 0 = ended — seek back to start immediately
-            if (e.data === 0) {
-              player.seekTo(0, true);
-              player.playVideo();
-            }
+            if (e.data === 0) { player.seekTo(0, true); player.playVideo(); }
           },
         },
       });
     };
 
     if ((window as any).YT && (window as any).YT.Player) {
-      // API already loaded
       initPlayer();
     } else {
-      // Load the API script once
       if (!document.getElementById("yt-api-script")) {
         const tag = document.createElement("script");
         tag.id = "yt-api-script";
@@ -89,151 +60,61 @@ export default function Index() {
     }
 
     return () => {
-      // Cleanup callback so it doesn’t fire on other pages
-      if ((window as any).onYouTubeIframeAPIReady === initPlayer) {
-        delete (window as any).onYouTubeIframeAPIReady;
-      }
+      if ((window as any).onYouTubeIframeAPIReady === initPlayer) delete (window as any).onYouTubeIframeAPIReady;
       if (player && player.destroy) player.destroy();
     };
   }, []);
 
   return (
     <MarketingLayout>
-
       {/* ── HERO SECTION ── */}
-      <section
-        style={{
-          position: "relative",
-          height: "calc(100vh - 70px)", // full viewport minus the 70px sticky navbar
-          minHeight: "520px",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          textAlign: "center",
-          padding: "60px 24px",
-          overflow: "hidden",
-          backgroundColor: "#000",
-        }}
-      >
-        {/* YouTube IFrame API player — covers full container */}
-        <div style={{
-          position: "absolute",
-          inset: 0,
-          pointerEvents: "none",
-          overflow: "hidden",
-        }}>
-          {/* YT.Player will replace this div with an iframe */}
+      <section className="relative flex flex-col items-center justify-center text-center px-6 py-16 overflow-hidden bg-black" style={{ height: "calc(100vh - 70px)", minHeight: "520px" }}>
+        {/* YouTube background */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <div
             id="yt-hero-bg"
-            style={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              width: "max(100%, calc(100vh * 16 / 9))",
-              height: "max(100%, calc(100vw * 9 / 16))",
-              transform: "translate(-50%, -50%)",
-              pointerEvents: "none",
-            }}
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+            style={{ width: "max(100%, calc(100vh * 16 / 9))", height: "max(100%, calc(100vw * 9 / 16))" }}
           />
         </div>
         {/* Dark overlay */}
-        <div style={{ position: "absolute", inset: 0, backgroundColor: "rgba(0,0,0,0.68)", pointerEvents: "none" }} />
+        <div className="absolute inset-0 bg-black/[0.68] pointer-events-none" />
 
         {/* Text */}
-        <div style={{ position: "relative", zIndex: 1, maxWidth: "900px", margin: "0 auto" }}>
-          <h1 style={{
-            color: "#fff",
-            fontSize: "clamp(20px, 3.5vw, 38px)",
-            fontWeight: 900,
-            lineHeight: 1.25,
-            textTransform: "uppercase",
-            letterSpacing: "2px",
-            marginBottom: "20px",
-          }}>
+        <div className="relative z-10 max-w-[900px] mx-auto animate-fade-up">
+          <h1 className="text-white font-black leading-[1.25] uppercase tracking-[2px] mb-5" style={{ fontSize: "clamp(20px, 3.5vw, 38px)" }}>
             WELCOME TO THE (PEN FIREPOWER) DOMAIN OPTIMIZING VARYING RECORD EVENTS THAT MATTER.
           </h1>
-          <p style={{
-            color: "#e8e8e8",
-            fontSize: "clamp(12px, 1.8vw, 16px)",
-            fontWeight: 600,
-            textTransform: "uppercase",
-            letterSpacing: "1px",
-            lineHeight: 1.7,
-            marginBottom: "40px",
-          }}>
+          <p className="text-[#e8e8e8] font-semibold uppercase tracking-wide leading-relaxed mb-10" style={{ fontSize: "clamp(12px, 1.8vw, 16px)" }}>
             WE ARE PRESS ROOM PUBLISHER: PROJECTING CREATIVE WRITINGS AND TRANSFORMING READERS INTO MASTERPIECE WRITERS THAT READS.
           </p>
 
           {/* Dual logo row */}
-          <div style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "48px",
-            flexWrap: "wrap",
-          }}>
-            <img
-              src={PRP_LOGO_WH}
-              alt="Press Room Publisher Logo"
-              style={{ height: "90px", objectFit: "contain" }}
-            />
-            <img
-              src={PAVE_LOGO}
-              alt="PAVE Broadcasters Community Logo"
-              style={{ height: "70px", objectFit: "contain" }}
-            />
+          <div className="flex items-center justify-center gap-12 flex-wrap">
+            <img src={PRP_LOGO_WH} alt="Press Room Publisher Logo" className="h-[90px] object-contain" />
+            <img src={PAVE_LOGO} alt="PAVE Broadcasters Community Logo" className="h-[70px] object-contain" />
           </div>
         </div>
       </section>
 
       {/* ── SIGN UP SECTION ── */}
       <section
-        style={{
-          position: "relative",
-          padding: "64px 24px",
-          backgroundImage: `url(${SIGNUP_BG})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundAttachment: "fixed",
-        }}
+        className="relative py-16 px-6 bg-cover bg-center bg-fixed"
+        style={{ backgroundImage: `url(${SIGNUP_BG})` }}
       >
-        <div style={{ position: "absolute", inset: 0, backgroundColor: "rgba(0,0,0,0.72)" }} />
-        <div
-          style={{
-            position: "relative",
-            zIndex: 1,
-            maxWidth: "1100px",
-            margin: "0 auto",
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: "48px",
-            alignItems: "center",
-          }}
-          className="marketing-two-col"
-        >
+        <div className="absolute inset-0 bg-black/[0.72]" />
+        <div className="relative z-10 max-w-[1100px] mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           {/* Image */}
-          <div style={{ borderRadius: "6px", overflow: "hidden", aspectRatio: "4/3" }}>
-            <img
-              src={SIGNUP_IMG}
-              alt="African woman reading from PC"
-              style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-              loading="lazy"
-            />
+          <div className="rounded-md overflow-hidden aspect-[4/3] animate-fade-up">
+            <img src={SIGNUP_IMG} alt="African woman reading from PC" className="w-full h-full object-cover block" loading="lazy" />
           </div>
           {/* Text */}
-          <div>
-            <h2 style={{
-              fontSize: "clamp(16px, 2.2vw, 22px)",
-              fontWeight: 800,
-              color: "#fff",
-              lineHeight: 1.4,
-              marginBottom: "20px",
-            }}>
+          <div className="animate-fade-up" style={{ animationDelay: "0.1s" }}>
+            <h2 className="font-extrabold text-white leading-snug mb-5" style={{ fontSize: "clamp(16px, 2.2vw, 22px)" }}>
               Hey charming Bibliophile, did you just discovered PRESS ROOM PUBLISHER blogsite?
               We are absolutely elated to have you chime-in!
             </h2>
-            <p style={{ color: "#e0e0e0", fontSize: "15px", lineHeight: 1.8, marginBottom: "28px" }}>
+            <p className="text-[#e0e0e0] text-[15px] leading-[1.8] mb-7">
               Welcome to the Writers and Readers promoter community! Please use the button below to create
               your personal PRESS ROOM PUBLISHER account, start writing, publish unlimited creative content,
               build up your own unique community of readers, and share your blogposts onward with the universe.
@@ -245,66 +126,33 @@ export default function Index() {
       </section>
 
       {/* ── LOG IN SECTION ── */}
-      <section style={{ backgroundColor: "#f4f4f4", padding: "64px 24px" }}>
-        <div
-          style={{
-            maxWidth: "1100px",
-            margin: "0 auto",
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: "48px",
-            alignItems: "center",
-          }}
-          className="marketing-two-col"
-        >
+      <section className="bg-[#f4f4f4] py-16 px-6">
+        <div className="max-w-[1100px] mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           {/* Text */}
-          <div>
-            <p style={{ color: "#333", fontSize: "15px", lineHeight: 1.9, marginBottom: "16px" }}>
+          <div className="animate-fade-up">
+            <p className="text-[#333] text-[15px] leading-[1.9] mb-4">
               Dearest returning writing and Reading enthusiastic member of PRESS ROOM PUBLISHER blogsite.
               Thank you! We cherish the best your creativity has added in values thus far.
             </p>
-            <p style={{ color: "#333", fontSize: "15px", lineHeight: 1.9, marginBottom: "28px" }}>
+            <p className="text-[#333] text-[15px] leading-[1.9] mb-7">
               Please use the button below to access and manage your existing PRP account. The community
               cannot wait to relish your latest update in publication. Do Dive-In Now!
             </p>
             <GreenBtn to="/login">CLICK HERE TO LOG IN</GreenBtn>
           </div>
           {/* Image */}
-          <div style={{ borderRadius: "6px", overflow: "hidden", aspectRatio: "4/3" }}>
-            <img
-              src={LOGIN_IMG}
-              alt="African woman typing on laptop at night"
-              style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-              loading="lazy"
-            />
+          <div className="rounded-md overflow-hidden aspect-[4/3] animate-fade-up" style={{ animationDelay: "0.1s" }}>
+            <img src={LOGIN_IMG} alt="African woman typing on laptop at night" className="w-full h-full object-cover block" loading="lazy" />
           </div>
         </div>
       </section>
 
       {/* ── BOTTOM TAGLINE BANNER ── */}
-      <section style={{
-        backgroundColor: "#fff",
-        padding: "40px 24px",
-        textAlign: "center",
-        borderTop: "3px solid #00ad00",
-      }}>
-        <h2 style={{
-          color: "#00ad00",
-          fontSize: "clamp(16px, 2.5vw, 26px)",
-          fontWeight: 900,
-          letterSpacing: "2px",
-          textTransform: "uppercase",
-          margin: 0,
-        }}>
+      <section className="bg-white py-10 px-6 text-center border-t-[3px] border-[#00ad00]">
+        <h2 className="text-[#00ad00] font-black tracking-[2px] uppercase m-0" style={{ fontSize: "clamp(16px, 2.5vw, 26px)" }}>
           PRESS ROOM PUBLISHER; THE PEN FIREPOWER ARTISTRIES.
         </h2>
       </section>
-
-      <style>{`
-        @media (max-width: 768px) {
-          .marketing-two-col { grid-template-columns: 1fr !important; }
-        }
-      `}</style>
     </MarketingLayout>
   );
 }
