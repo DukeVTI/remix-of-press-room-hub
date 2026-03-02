@@ -1,43 +1,56 @@
 
 
-# Fix Build Errors Blocking Admin Login
+# UI Polish for Marketing Pages + Fix Build Error
 
-## Root Cause
-Both admin accounts ARE active in the database. The "inactive" error is caused by **build failures** — the TypeScript compiler rejects `check_is_admin` RPC calls because the function isn't in the auto-generated types. The app can't build properly, so the admin auth hook fails silently.
+## Build Error Fix
+The `send-verification-email` and `send-welcome-email` edge functions use `npm:resend@2.0.0` which fails in Deno. Change both to `https://esm.sh/resend@2.0.0` (matching the already-fixed password reset function).
 
-There are 4 build errors to fix:
+## UI Improvements — Same Design, Cleaner Experience
 
-## Fix 1: `useAdminAuth.ts` — `check_is_admin` not in types
-Cast the supabase client to `any` for this specific RPC call since `check_is_admin` exists in the DB but not in the auto-generated types file.
+All pages currently use heavy inline styles. The plan is to **migrate to Tailwind CSS classes** using the existing design system (DM Sans, Source Serif 4, CSS variables) while keeping the same layout, content, colors, and flow. This will produce cleaner rendering, better responsive behavior, smoother transitions, and consistent typography.
 
-**File:** `src/hooks/useAdminAuth.ts`
-- Change `supabase.rpc("check_is_admin")` → `(supabase.rpc as any)("check_is_admin")`
+### MarketingLayout (shared navbar + footer)
+- Replace all inline styles with Tailwind classes
+- Use brand fonts (DM Sans for nav, Source Serif 4 for headings)
+- Add smooth mobile menu transition (slide-down instead of instant appear)
+- Improve footer spacing and hover states with Tailwind transitions
+- Keep exact same structure: sticky nav, logo, links, hamburger, 4-column footer, green copyright bar
 
-## Fix 2: `AdminLogin.tsx` — same `check_is_admin` type error + null check
-Same cast fix, plus add a null guard on `rows`.
+### Home Page (`/`)
+- Convert inline styles to Tailwind; use `font-serif` for headings, `font-sans` for body
+- Add subtle fade-in animations on scroll for the sign-up and login sections
+- Improve the two-column grid responsiveness with proper Tailwind breakpoints
+- Keep the YouTube hero, dual logos, sign-up/login sections, and tagline banner exactly as-is
 
-**File:** `src/pages/AdminLogin.tsx`
-- Same `(supabase.rpc as any)("check_is_admin")` cast
-- Add `if (!rows)` guard before accessing array
+### About Page (`/about`)
+- Convert to Tailwind classes
+- Use the existing `.article-body` class for the long-form text
+- Add the green left-border vision block using Tailwind `border-l-4 border-green-600`
+- Improve mission section text contrast slightly
 
-## Fix 3: `Search.tsx` — variable used before declaration
-`searchQuery` is referenced in `useSeo()` on line 42, but declared on line 48.
+### News Circle (`/news-circle`)
+- Convert to Tailwind
+- Improve the microphone image + text two-column layout with better gap and alignment
+- Make the long CTA button text wrap better on mobile
 
-**File:** `src/pages/Search.tsx`
-- Move the `useSeo()` call below the `useState` declarations
+### Career (`/career`)
+- Convert to Tailwind
+- Add a subtle icon or decorative element to break up the single-paragraph layout
+- Better vertical rhythm
 
-## Fix 4: `BlogManagement.tsx` — status filter type mismatch
-`statusFilter` is a `string` but `.eq("status", statusFilter)` expects the enum type.
+### Connect (`/connect`)
+- Convert form to Tailwind using the existing `.input-modern` class from the design system
+- Improve form field focus states with the green brand color via Tailwind `focus:border-green-600`
+- Better responsive stacking of form + contact sidebar
 
-**File:** `src/pages/BlogManagement.tsx`
-- Cast `statusFilter` as the correct blog_status enum type
+### Policy (`/privacy`)
+- Convert to Tailwind
+- Use consistent section heading style with green underline
+- Better reading width and paragraph spacing using existing typography classes
 
-## Fix 5: `send-password-reset-email/index.ts` — Resend import
-The Deno edge function uses `npm:resend@2.0.0` which needs a different import approach.
-
-**File:** `supabase/functions/send-password-reset-email/index.ts`
-- Change import to use `https://esm.sh/resend@2.0.0` (ESM CDN, works in Deno without node_modules)
-
-## Summary
-These are all type-level / import fixes. No database changes needed. Once fixed, the admin login will correctly call `check_is_admin`, get back `is_active: true`, and grant access.
+### Technical Approach
+- All 7 files rewritten with Tailwind classes instead of inline `style={{}}` objects
+- Zero content changes — all text, images, links, colors preserved
+- Responsive behavior improved via Tailwind breakpoints (`md:`, `lg:`)
+- Brand fonts applied consistently via CSS variables already in `index.css`
 
