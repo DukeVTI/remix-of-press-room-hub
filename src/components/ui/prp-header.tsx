@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { BlogPickerModal } from '@/components/BlogPickerModal';
 import { DiscoverModal } from '@/components/DiscoverModal';
+import { NotificationBell } from '@/components/ui/NotificationBell';
 
 // PRP Logo URL
 const PRP_LOGO = "https://pressroompublisher.broadcasterscommunity.com/wp-content/uploads/2026/01/cropped-PRP-ICON_-transparetn-32x32.png";
@@ -137,6 +138,13 @@ export function PRPHeader({ isAuthenticated = false }: PRPHeaderProps) {
                 </Link>
               );
             })}
+
+            {/* Notification Bell (authenticated only) */}
+            {isAuthenticated && (
+              <div className="ml-1 flex items-center">
+                <NotificationBell />
+              </div>
+            )}
 
             {/* Auth Buttons */}
             {!isAuthenticated ? (

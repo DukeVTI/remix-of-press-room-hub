@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useSeo } from "@/hooks/useSeo";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { AdminEmptyState } from "@/components/admin/AdminEmptyState";
-import { AdminConfirmDialog } from "@/components/admin/AdminConfirmDialog";
+import { AdminActionDialog } from "@/components/admin/AdminActionDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { BookOpen, Search, Star, ShieldCheck, Ban, Trash2, MoreVertical, Tag } from "lucide-react";
@@ -48,7 +48,7 @@ export default function BlogManagement() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [tab, setTab] = useState("blogs");
-  const [confirmAction, setConfirmAction] = useState<null | { type: string; id: string; label: string; variant: "destructive" | "warning" | "default" }>(null);
+  const [confirmAction, setConfirmAction] = useState<null | { type: string; id: string; label: string; variant: "destructive" | "warning" | "default"; requireReason: boolean; reasonPlaceholder: string }>(null);
   const [actionLoading, setActionLoading] = useState(false);
   const [newCategory, setNewCategory] = useState("");
 
@@ -68,12 +68,45 @@ export default function BlogManagement() {
     search === "" || b.blog_name.toLowerCase().includes(search.toLowerCase()) || b.slug.includes(search.toLowerCase())
   );
 
-  const handleAction = async () => {
+  const handleAction = async (reason: string) => {
     if (!confirmAction) return;
     setActionLoading(true);
     const { type, id } = confirmAction;
     const newStatus = type === "suspend" ? "hidden" : type === "delete" ? "deleted" : "active";
-    await supabase.from("blogs").update({ status: newStatus, ...(type === "verify" ? { is_verified: true } : {}) }).eq("id", id);
+
+    // 1. Update blog status
+    const { error: updateError } = await supabase.from("blogs").update({ status: newStatus, ...(type === "verify" ? { is_verified: true } : {}) }).eq("id", id);
+
+    if (!updateError) {
+      // 2. Fetch blog details to know the owner
+      const { data: blogData } = await supabase.from("blogs").select("owner_id, blog_name").eq("id", id).single();
+
+      // 3. Log the admin action and send notification IF a reason was provided (typically for suspension or deletion)
+      if (reason.trim() && blogData) {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          // Log action
+          await supabase.from("admin_activity_log").insert({
+            admin_id: session.user.id,
+            action_type: type,
+            target_type: "blog",
+            target_id: id,
+            details: { reason, blog_name: blogData.blog_name }
+          });
+        }
+
+        // Send notification for suspension
+        if (type === "suspend") {
+          await supabase.from("notifications").insert({
+            user_id: blogData.owner_id,
+            type: "system",
+            title: "Blog Suspended",
+            message: `Your blog "${blogData.blog_name}" has been suspended by an administrator. Reason: ${reason}`
+          });
+        }
+      }
+    }
+
     toast.success(`Blog ${type}d successfully`);
     setActionLoading(false);
     setConfirmAction(null);
@@ -170,17 +203,17 @@ export default function BlogManagement() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="bg-white border-gray-200 text-gray-800">
-                        <DropdownMenuItem className="gap-2 cursor-pointer focus:bg-gray-100" onClick={() => setConfirmAction({ type: "feature", id: blog.id, label: "Feature this blog on the platform homepage?", variant: "default" })}>
+                        <DropdownMenuItem className="gap-2 cursor-pointer focus:bg-gray-100" onClick={() => setConfirmAction({ type: "feature", id: blog.id, label: "Feature this blog on the platform homepage?", variant: "default", requireReason: false, reasonPlaceholder: "Optional notes..." })}>
                           <Star className="w-3.5 h-3.5 text-amber-500" /> Feature
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="gap-2 cursor-pointer focus:bg-gray-100" onClick={() => setConfirmAction({ type: "verify", id: blog.id, label: "Mark this blog as verified?", variant: "default" })}>
+                        <DropdownMenuItem className="gap-2 cursor-pointer focus:bg-gray-100" onClick={() => setConfirmAction({ type: "verify", id: blog.id, label: "Mark this blog as verified?", variant: "default", requireReason: false, reasonPlaceholder: "Optional notes..." })}>
                           <ShieldCheck className="w-3.5 h-3.5 text-green-600" /> Verify
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="gap-2 cursor-pointer focus:bg-gray-100" onClick={() => setConfirmAction({ type: "suspend", id: blog.id, label: "Suspend this blog? It will be hidden from public.", variant: "warning" })}>
+                        <DropdownMenuItem className="gap-2 cursor-pointer focus:bg-gray-100" onClick={() => setConfirmAction({ type: "suspend", id: blog.id, label: "Suspend this blog? It will be hidden from public.", variant: "warning", requireReason: true, reasonPlaceholder: "Reason for suspension (sent to user)..." })}>
                           <Ban className="w-3.5 h-3.5 text-amber-500" /> Suspend
                         </DropdownMenuItem>
                         <DropdownMenuSeparator className="bg-gray-100" />
-                        <DropdownMenuItem className="gap-2 cursor-pointer focus:bg-rose-50 text-rose-600 focus:text-rose-700" onClick={() => setConfirmAction({ type: "delete", id: blog.id, label: "Delete this blog permanently?", variant: "destructive" })}>
+                        <DropdownMenuItem className="gap-2 cursor-pointer focus:bg-rose-50 text-rose-600 focus:text-rose-700" onClick={() => setConfirmAction({ type: "delete", id: blog.id, label: "Delete this blog permanently?", variant: "destructive", requireReason: true, reasonPlaceholder: "Reason for deletion..." })}>
                           <Trash2 className="w-3.5 h-3.5" /> Delete
                         </DropdownMenuItem>
                       </DropdownMenuContent>
@@ -222,7 +255,7 @@ export default function BlogManagement() {
         </TabsContent>
       </Tabs>
 
-      <AdminConfirmDialog
+      <AdminActionDialog
         open={!!confirmAction}
         onOpenChange={(o) => !o && setConfirmAction(null)}
         title="Confirm action"
@@ -231,6 +264,8 @@ export default function BlogManagement() {
         onConfirm={handleAction}
         loading={actionLoading}
         variant={confirmAction?.variant ?? "default"}
+        requireReason={confirmAction?.requireReason ?? false}
+        reasonPlaceholder={confirmAction?.reasonPlaceholder}
       />
     </AdminLayout>
   );
