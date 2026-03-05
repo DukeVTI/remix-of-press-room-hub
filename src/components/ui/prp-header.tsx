@@ -11,7 +11,7 @@ import { NotificationBell } from '@/components/ui/NotificationBell';
 
 // PRP Logo URL
 const PRP_LOGO = "/images/prp-icon.png";
-const MAIN_SITE_URL = "https://pressroompublisher.broadcasterscommunity.com";
+const MAIN_SITE_URL = "/";
 
 interface Blog {
   id: string;

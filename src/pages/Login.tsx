@@ -86,13 +86,13 @@ const Login = () => {
         Skip to login form
       </a>
 
-      {/* Minimal header - links back to main site, not a standalone nav */}
+      {/* Header - links to app homepage */}
       <header className="border-b border-border py-3 px-4 sm:px-6 bg-background" role="banner">
         <div className="max-w-md mx-auto flex items-center justify-between">
-          <a
-            href="https://pressroompublisher.broadcasterscommunity.com"
+          <Link
+            to="/"
             className="flex items-center gap-2"
-            aria-label="Back to Press Room Publisher main site"
+            aria-label="Press Room Publisher home"
           >
             <img
               src="/images/prp-icon.png"
@@ -100,15 +100,15 @@ const Login = () => {
               className="w-7 h-7"
             />
             <span className="font-serif text-base font-medium text-foreground hidden sm:block">Press Room Publisher</span>
-          </a>
-          <a
-            href="https://pressroompublisher.broadcasterscommunity.com"
+          </Link>
+          <Link
+            to="/"
             className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
-            aria-label="Go back to Press Room Publisher main website"
+            aria-label="Go to homepage"
           >
             <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-            Main site
-          </a>
+            Home
+          </Link>
         </div>
       </header>
 
