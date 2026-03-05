@@ -8,10 +8,10 @@ import { CharacterCountInput } from "@/components/CharacterCountInput";
 import { MediaUploader } from "@/components/MediaUploader";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { 
-  ArrowLeft, 
-  Plus, 
-  X, 
+import {
+  ArrowLeft,
+  Plus,
+  X,
   Loader2,
   ImageIcon,
   Video,
@@ -76,19 +76,19 @@ const EditPost = () => {
     description: "Edit your published article and update content.",
     noindex: true,
   });
-  
+
   const { blogSlug, postId } = useParams<{ blogSlug: string; postId: string }>();
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
+
   // Auth state
   const [userId, setUserId] = useState<string | null>(null);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
-  
+
   // Data
   const [blog, setBlog] = useState<Blog | null>(null);
   const [post, setPost] = useState<Post | null>(null);
-  
+
   // Form data
   const [headline, setHeadline] = useState("");
   const [subtitle, setSubtitle] = useState("");
@@ -98,7 +98,7 @@ const EditPost = () => {
   const [isPinned, setIsPinned] = useState(false);
   const [existingMedia, setExistingMedia] = useState<ExistingMedia[]>([]);
   const [newMedia, setNewMedia] = useState<NewMediaItem[]>([]);
-  
+
   // UI state
   const [isLoading, setIsLoading] = useState(false);
   const [isSavingDraft, setIsSavingDraft] = useState(false);
@@ -108,12 +108,12 @@ const EditPost = () => {
   useEffect(() => {
     const init = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      
+
       if (!session) {
         navigate("/login");
         return;
       }
-      
+
       setUserId(session.user.id);
 
       // Fetch post with blog
@@ -154,7 +154,7 @@ const EditPost = () => {
 
       setBlog(postData.blogs);
       setPost(postData);
-      
+
       // Populate form
       setHeadline(postData.headline);
       setSubtitle(postData.subtitle || "");
@@ -162,7 +162,7 @@ const EditPost = () => {
       setContent(postData.content);
       setCommentsLocked(postData.comments_locked);
       setIsPinned(postData.is_pinned);
-      
+
       // Sort and set existing media
       const sortedMedia = (postData.media || [])
         .sort((a: any, b: any) => a.order_position - b.order_position)
@@ -185,7 +185,7 @@ const EditPost = () => {
   const handleMediaSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     const activeExisting = existingMedia.filter(m => !m.isDeleted).length;
-    
+
     if (activeExisting + newMedia.length + files.length > MAX_MEDIA_FILES) {
       toast.error(`Maximum ${MAX_MEDIA_FILES} media files allowed`);
       return;
@@ -298,7 +298,7 @@ const EditPost = () => {
       const activeExisting = existingMedia.filter(m => !m.isDeleted);
       const existingMissingDesc = activeExisting.some((m) => !m.description.trim());
       const newMissingDesc = newMedia.some((m) => !m.description.trim());
-      
+
       if (existingMissingDesc || newMissingDesc) {
         newErrors.media = "All media must have accessibility descriptions for publishing";
       }
@@ -311,10 +311,10 @@ const EditPost = () => {
   // Upload new media files
   const uploadNewMediaFiles = async (): Promise<boolean> => {
     const activeExistingCount = existingMedia.filter(m => !m.isDeleted).length;
-    
+
     for (let i = 0; i < newMedia.length; i++) {
       const item = newMedia[i];
-      
+
       setNewMedia((prev) =>
         prev.map((m) =>
           m.id === item.id ? { ...m, isUploading: true } : m
@@ -365,7 +365,7 @@ const EditPost = () => {
   // Handle form submission
   const handleSubmit = async (status: "draft" | "published") => {
     const isDraft = status === "draft";
-    
+
     if (!validateForm(isDraft) || !userId || !blog || !post) return;
 
     const loadingState = isDraft ? setIsSavingDraft : setIsLoading;
@@ -414,8 +414,8 @@ const EditPost = () => {
       toast.success(
         isDraft ? "Draft saved successfully!" : "Post updated successfully!",
         {
-          description: isDraft 
-            ? "You can continue editing later." 
+          description: isDraft
+            ? "You can continue editing later."
             : "Your changes are now live.",
         }
       );
@@ -434,7 +434,7 @@ const EditPost = () => {
   // Handle post deletion
   const handleDelete = async () => {
     if (!post) return;
-    
+
     setIsDeleting(true);
 
     try {
@@ -489,8 +489,8 @@ const EditPost = () => {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <Link 
-                to={`/blog/${blogSlug}/manage`} 
+              <Link
+                to={`/blog/${blogSlug}/manage`}
                 className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
                 aria-label="Back to blog management"
               >
@@ -684,7 +684,7 @@ const EditPost = () => {
           {/* Post Settings */}
           <fieldset className="space-y-4 border border-border rounded-lg p-4">
             <legend className="form-label px-2">Post Settings</legend>
-            
+
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
                 <Label htmlFor="comments-locked" className="flex items-center gap-2">
@@ -774,7 +774,7 @@ const EditPost = () => {
               </div>
             )}
 
-            {/* Existing Media */}
+            {/* Active Existing Media */}
             {activeExistingMedia.length > 0 && (
               <div className="space-y-4">
                 <h3 className="text-sm font-medium text-foreground">Current Media</h3>
@@ -785,7 +785,7 @@ const EditPost = () => {
                       {item.media_type === "image" && (
                         <img
                           src={item.file_url}
-                          alt={item.description}
+                          alt={item.description || "Media preview"}
                           className="w-full h-full object-cover"
                         />
                       )}
@@ -796,45 +796,75 @@ const EditPost = () => {
                         <Music className="h-8 w-8 text-muted-foreground" aria-hidden="true" />
                       )}
                     </div>
-                    {/* Details and Restore */}
-                    <div className="flex-1 flex flex-col justify-between">
-                      <div>
+                    {/* Details */}
+                    <div className="flex-1 space-y-2">
+                      <div className="flex items-center justify-between gap-2">
                         <span className="text-sm font-medium text-foreground truncate">
                           {item.file_url.split('/').pop()}
                         </span>
-                        <div className="flex justify-between">
-                          <p className="text-xs text-muted-foreground">
-                            {item.description}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center justify-between mt-2">
-                        <span className="text-sm text-muted-foreground line-through">
-                          {item.description || "No description"}
-                        </span>
                         <Button
                           type="button"
-                          variant="outline"
+                          variant="ghost"
                           size="sm"
-                          onClick={() => restoreExistingMedia(item.id)}
-                          aria-label={`Restore ${item.media_type}`}
+                          className="text-destructive hover:text-destructive hover:bg-destructive/10 shrink-0"
+                          onClick={() => markExistingMediaForDeletion(item.id)}
+                          aria-label={`Remove ${item.media_type}`}
                         >
-                          Restore
+                          <X className="h-4 w-4" aria-hidden="true" />
+                          <span className="ml-1 hidden sm:inline">Remove</span>
                         </Button>
                       </div>
+                      <Textarea
+                        value={item.description}
+                        onChange={(e) => updateExistingMediaDescription(item.id, e.target.value)}
+                        placeholder="Add accessibility description (required to publish)..."
+                        rows={2}
+                        className={`text-sm resize-none ${!item.description.trim() && errors.media ? "border-destructive" : ""}`}
+                        aria-label={`Accessibility description for ${item.media_type}`}
+                        disabled={isLoading || isSavingDraft}
+                      />
+                      {!item.description.trim() && (
+                        <p className="text-xs text-amber-600">⚠ Description required to publish</p>
+                      )}
                     </div>
                   </div>
                 ))}
               </div>
             )}
 
+            {/* Deleted Existing Media (can be restored) */}
+            {deletedExistingMedia.length > 0 && (
+              <div className="space-y-2">
+                <h3 className="text-sm font-medium text-muted-foreground">Removed Media (will be deleted on save)</h3>
+                {deletedExistingMedia.map((item) => (
+                  <div key={item.id} className="flex gap-4 p-3 border border-dashed border-border rounded-lg opacity-60">
+                    <div className="flex-1 flex items-center justify-between gap-2">
+                      <span className="text-sm text-muted-foreground line-through truncate">
+                        {item.file_url.split('/').pop()}
+                      </span>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => restoreExistingMedia(item.id)}
+                        aria-label={`Restore ${item.media_type}`}
+                      >
+                        Restore
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+
             {/* New Media */}
             {newMedia.length > 0 && (
               <div className="space-y-4">
                 <h3 className="text-sm font-medium text-foreground">New Media</h3>
                 {newMedia.map((item) => (
-                  <div 
-                    key={item.id} 
+                  <div
+                    key={item.id}
                     className={`flex gap-4 p-4 border rounded-lg ${item.isUploading ? "border-accent bg-accent/5" : "border-border bg-card"}`}
                   >
                     {/* Preview */}
