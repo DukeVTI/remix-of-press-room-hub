@@ -106,9 +106,6 @@ const App = () => {
           <Route path="/news-circle" element={<NewsCircle />} />
           <Route path="/career" element={<Career />} />
           <Route path="/connect" element={<ConnectPage />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-
           {/* Admin routes */}
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin" element={<ProtectedAdminRoute><AdminDashboard /></ProtectedAdminRoute>} />
@@ -121,6 +118,9 @@ const App = () => {
           <Route path="/admin/settings" element={<ProtectedAdminRoute><AdminSettings /></ProtectedAdminRoute>} />
           <Route path="/admin/watchlist" element={<ProtectedAdminRoute><FlaggedWatchList /></ProtectedAdminRoute>} />
           <Route path="/admin/announcements" element={<ProtectedAdminRoute><AdminAnnouncements /></ProtectedAdminRoute>} />
+
+          {/* Catch-all route — MUST be last */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
