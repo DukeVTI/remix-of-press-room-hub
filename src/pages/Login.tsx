@@ -89,13 +89,13 @@ const Login = () => {
       {/* Minimal header - links back to main site, not a standalone nav */}
       <header className="border-b border-border py-3 px-4 sm:px-6 bg-background" role="banner">
         <div className="max-w-md mx-auto flex items-center justify-between">
-          <a 
+          <a
             href="https://pressroompublisher.broadcasterscommunity.com"
             className="flex items-center gap-2"
             aria-label="Back to Press Room Publisher main site"
           >
-            <img 
-              src="https://pressroompublisher.broadcasterscommunity.com/wp-content/uploads/2026/01/cropped-PRP-ICON_-transparetn-32x32.png"
+            <img
+              src="/images/prp-icon.png"
               alt="Press Room Publisher logo"
               className="w-7 h-7"
             />
@@ -140,8 +140,8 @@ const Login = () => {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password" className="text-base">Password</Label>
-                <Link 
-                  to="/forgot-password" 
+                <Link
+                  to="/forgot-password"
                   className="text-sm text-accent hover:underline"
                   aria-label="Forgot your password? Click to reset"
                 >

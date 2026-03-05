@@ -55,7 +55,7 @@ export function AboutModal({ open, onContinue, onClose }: AboutModalProps) {
                 <div className="flex items-center justify-between px-6 py-4 border-b border-border shrink-0 bg-muted/30">
                     <div className="flex items-center gap-2">
                         <img
-                            src="https://pressroompublisher.broadcasterscommunity.com/wp-content/uploads/2026/01/cropped-PRP-ICON_-transparetn-32x32.png"
+                            src="/images/prp-icon.png"
                             alt="PRP"
                             className="w-6 h-6 rounded"
                         />

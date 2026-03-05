@@ -16,7 +16,7 @@ interface SeoConfig {
 }
 
 const DEFAULT_IMAGE =
-  "https://pressroompublisher.broadcasterscommunity.com/wp-content/uploads/2026/01/cropped-PRP-ICON_-transparetn-32x32.png";
+  "/images/prp-icon.png";
 const SITE_NAME = "Press Room Publisher";
 const TWITTER_HANDLE = "@PressRoomPub";
 const BASE_URL = "https://press-pen-pro.lovable.app";

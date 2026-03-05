@@ -3,7 +3,7 @@ import { MarketingLayout } from "@/components/marketing/MarketingLayout";
 import { useSeo } from "@/hooks/useSeo";
 import { Briefcase } from "lucide-react";
 
-const HEADER_IMG = "https://pressroompublisher.broadcasterscommunity.com/wp-content/uploads/2026/01/female-host-using-control-panel-at-radio-station.jpg";
+const HEADER_IMG = "/images/career-header.jpg";
 
 export default function Career() {
     useSeo({

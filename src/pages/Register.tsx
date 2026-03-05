@@ -28,7 +28,7 @@ const Register = () => {
     description: "Join Press Room Publisher and start your journalism journey. Create multiple blogs, publish professional content, and connect with readers worldwide.",
     keywords: ["sign up", "register", "create account", "press room publisher", "blogging platform", "journalism", "publisher"],
   });
-  
+
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
@@ -166,7 +166,7 @@ const Register = () => {
             aria-label="Back to Press Room Publisher main site"
           >
             <img
-              src="https://pressroompublisher.broadcasterscommunity.com/wp-content/uploads/2026/01/cropped-PRP-ICON_-transparetn-32x32.png"
+              src="/images/prp-icon.png"
               alt="Press Room Publisher logo"
               className="w-7 h-7"
             />

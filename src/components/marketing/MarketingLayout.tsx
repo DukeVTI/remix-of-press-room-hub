@@ -4,8 +4,8 @@ import { Menu, X } from "lucide-react";
 import { WhatsAppButton } from "./WhatsAppButton";
 import { cn } from "@/lib/utils";
 
-const PRP_LOGO = "https://pressroompublisher.broadcasterscommunity.com/wp-content/uploads/2026/01/cropped-PRP-ICON_-transparetn-32x32.png";
-const PRP_LOGO_WH = "https://pressroompublisher.broadcasterscommunity.com/wp-content/uploads/2026/01/PRP-BRAND-lOGO-TRANSPARENT-white.png";
+const PRP_LOGO = "/images/prp-icon.png";
+const PRP_LOGO_WH = "/images/prp-logo-white.png";
 
 const NAV_LINKS = [
     { label: "Home", to: "/" },

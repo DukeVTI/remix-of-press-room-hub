@@ -5,13 +5,13 @@ import { TrendingSection } from "@/components/marketing/TrendingSection";
 import { useSeo } from "@/hooks/useSeo";
 import { cn } from "@/lib/utils";
 
-// ── Live WordPress asset URLs ──
+// ── Local asset paths ──
 const HERO_VIDEO_ID = "M3DW5KAQ3eQ";
-const PRP_LOGO_WH = "https://pressroompublisher.broadcasterscommunity.com/wp-content/uploads/2026/01/PRP-BRAND-lOGO-TRANSPARENT-white.png";
-const PAVE_LOGO = "https://pressroompublisher.broadcasterscommunity.com/wp-content/uploads/2026/01/PBC-LOGO-1024x518.png";
-const SIGNUP_IMG = "https://pressroompublisher.broadcasterscommunity.com/wp-content/uploads/2026/01/african-lady-reading-from-pc.jpeg";
-const SIGNUP_BG = "https://pressroompublisher.broadcasterscommunity.com/wp-content/uploads/2026/01/african-podcasters.jpeg";
-const LOGIN_IMG = "https://pressroompublisher.broadcasterscommunity.com/wp-content/uploads/2026/01/PRP-AFrican-lady-typing.jpeg";
+const PRP_LOGO_WH = "/images/prp-logo-white.png";
+const PAVE_LOGO = "/images/pbc-logo.png";
+const SIGNUP_IMG = "/images/african-lady-reading.jpeg";
+const SIGNUP_BG = "/images/african-podcasters.jpeg";
+const LOGIN_IMG = "/images/prp-lady-typing.jpeg";
 
 const GreenBtn = ({ to, children }: { to: string; children: React.ReactNode }) => (
   <Link

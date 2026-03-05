@@ -6,7 +6,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 
-const PRP_LOGO_WH = "https://pressroompublisher.broadcasterscommunity.com/wp-content/uploads/2026/01/PRP-BRAND-lOGO-TRANSPARENT-white.png";
+const PRP_LOGO_WH = "/images/prp-logo-white.png";
 
 interface NavItem {
     label: string;

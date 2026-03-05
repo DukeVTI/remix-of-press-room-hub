@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Shield, Eye, EyeOff, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
-const PRP_LOGO = "https://pressroompublisher.broadcasterscommunity.com/wp-content/uploads/2026/01/PRP-BRAND-lOGO-TRANSPARENT-white.png";
+const PRP_LOGO = "/images/prp-logo-white.png";
 
 export default function AdminLogin() {
     const navigate = useNavigate();
@@ -55,7 +55,7 @@ export default function AdminLogin() {
                 alignItems: "center",
                 justifyContent: "center",
                 backgroundColor: "#f4f4f4",
-                backgroundImage: "url(https://pressroompublisher.broadcasterscommunity.com/wp-content/uploads/2026/01/african-podcasters.jpeg)",
+                backgroundImage: "url(/images/african-podcasters.jpeg)",
                 backgroundSize: "cover",
                 backgroundPosition: "center",
                 padding: "24px",

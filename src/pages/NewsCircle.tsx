@@ -2,8 +2,8 @@ import { Link } from "react-router-dom";
 import { MarketingLayout } from "@/components/marketing/MarketingLayout";
 import { useSeo } from "@/hooks/useSeo";
 
-const HEADER_IMG = "https://pressroompublisher.broadcasterscommunity.com/wp-content/uploads/2026/01/two-radio-hosts-in-headphones-laughing-while-recording-podcast-in-studio-together.jpg";
-const MIC_IMG = "https://pressroompublisher.broadcasterscommunity.com/wp-content/uploads/2026/01/silver-vintage-microphone-.jpg";
+const HEADER_IMG = "/images/news-circle-header.jpg";
+const MIC_IMG = "/images/mic.jpg";
 
 export default function NewsCircle() {
     useSeo({

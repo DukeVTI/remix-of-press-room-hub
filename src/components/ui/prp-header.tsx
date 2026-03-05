@@ -10,7 +10,7 @@ import { DiscoverModal } from '@/components/DiscoverModal';
 import { NotificationBell } from '@/components/ui/NotificationBell';
 
 // PRP Logo URL
-const PRP_LOGO = "https://pressroompublisher.broadcasterscommunity.com/wp-content/uploads/2026/01/cropped-PRP-ICON_-transparetn-32x32.png";
+const PRP_LOGO = "/images/prp-icon.png";
 const MAIN_SITE_URL = "https://pressroompublisher.broadcasterscommunity.com";
 
 interface Blog {

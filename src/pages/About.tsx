@@ -1,8 +1,8 @@
 import { MarketingLayout } from "@/components/marketing/MarketingLayout";
 import { useSeo } from "@/hooks/useSeo";
 
-const HEADER_IMG = "https://pressroompublisher.broadcasterscommunity.com/wp-content/uploads/2026/01/young-woman-broadcasting-in-a-studio-smiling-to-camera-e1612260457387.jpg";
-const MISSION_BG = "https://pressroompublisher.broadcasterscommunity.com/wp-content/uploads/2026/01/professional-equipment-for-recording-podcast-microphone-earphones-and-laptop-in-a-studio-.jpg";
+const HEADER_IMG = "/images/about-header.jpg";
+const MISSION_BG = "/images/about-mission-bg.jpg";
 
 export default function About() {
   useSeo({

@@ -11,7 +11,7 @@ export function Footer() {
           <div className="flex items-center gap-4">
             <Link to="/" className="flex items-center gap-2" aria-label="Press Room Publisher home">
               <img
-                src="https://pressroompublisher.broadcasterscommunity.com/wp-content/uploads/2026/01/cropped-PRP-ICON_-transparetn-32x32.png"
+                src="/images/prp-icon.png"
                 alt="Press Room Publisher logo"
                 className="w-6 h-6"
               />
