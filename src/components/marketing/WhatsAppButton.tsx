@@ -1,5 +1,5 @@
 // Real WhatsApp link from the WordPress site
-const WA_URL = "https://wa.me/message/M4SMC34XJ63JA1";
+const WA_URL = "https://api.whatsapp.com/send/?phone=2348099889090&text=Hey%2C+please+I+wish+to+know+more+about+Press+Room+Publisher.&type=phone_number&app_absent=0";
 
 export function WhatsAppButton() {
     return (

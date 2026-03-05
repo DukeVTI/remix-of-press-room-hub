@@ -183,7 +183,7 @@ export function MarketingLayout({ children }: MarketingLayoutProps) {
                             </h4>
                             <div className="flex flex-col gap-3">
                                 <a
-                                    href="https://wa.me/message/M4SMC34XJ63JA1"
+                                    href="https://api.whatsapp.com/send/?phone=2348099889090&text=Hey%2C+please+I+wish+to+know+more+about+Press+Room+Publisher.&type=phone_number&app_absent=0"
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="inline-flex items-center gap-2 text-[#ccc] no-underline text-[13px] transition-colors duration-200 hover:text-[#00ad00]"

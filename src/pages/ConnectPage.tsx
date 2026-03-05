@@ -166,7 +166,7 @@ export default function ConnectPage() {
                         </h2>
                         <div className="flex flex-col gap-5">
                             <a
-                                href="https://wa.me/message/BROADCASTERSCOMMUNITY"
+                                href="https://api.whatsapp.com/send/?phone=2348099889090&text=Hey%2C+please+I+wish+to+know+more+about+Press+Room+Publisher.&type=phone_number&app_absent=0"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="flex items-center gap-3 bg-[#25D366] text-white py-3.5 px-5 rounded-md no-underline font-bold text-sm transition-colors duration-200 hover:bg-[#1da851]"
