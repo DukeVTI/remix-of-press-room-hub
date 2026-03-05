@@ -1,6 +1,6 @@
 -- Migration script to create the notifications table
 
-create table public.notifications (
+create table if not exists public.notifications (
   id uuid default gen_random_uuid() primary key,
   user_id uuid references public.profiles(id) on delete cascade not null,
   type text not null, -- 'like', 'comment', 'follow', 'mention', 'system'
