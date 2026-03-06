@@ -94,6 +94,7 @@ const PostView = () => {
   const [userReaction, setUserReaction] = useState<"approve" | "disapprove" | null>(null);
   const [reactionLoading, setReactionLoading] = useState(false);
   const [commentsExpanded, setCommentsExpanded] = useState(false);
+  const [shareSheetOpen, setShareSheetOpen] = useState(false);
 
   // Dynamic SEO for post
   useSeo({
@@ -528,23 +529,22 @@ const PostView = () => {
         : '';
     const shareText = snippet ? `${post.headline}\n\n${snippet}` : post.headline;
 
+    // Use native Web Share API on mobile devices and supported desktop browsers (like Safari)
     if (navigator.share) {
       try {
         await navigator.share({ title: post.headline, text: shareText, url });
         return;
-      } catch {
-        // Fall through to clipboard
+      } catch (err) {
+        // If the user dismissed the native share dialog (AbortError), do not fallback
+        // Otherwise, fall through to the custom ShareSheet
+        if (err instanceof Error && err.name === 'AbortError') {
+          return;
+        }
       }
     }
 
-    // Clipboard with execCommand fallback
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(url).then(() => {
-        toast.success("Post link copied to clipboard!");
-      }).catch(() => legacyCopyPost(url));
-    } else {
-      legacyCopyPost(url);
-    }
+    // Fallback for desktop: open custom ShareSheet modal
+    setShareSheetOpen(true);
   };
 
   const handleReport = async () => {
@@ -867,6 +867,30 @@ const PostView = () => {
           </section>
         </article>
       </main>
+
+      {post && (
+        <ShareSheet
+          open={shareSheetOpen}
+          onClose={() => setShareSheetOpen(false)}
+          post={{
+            id: post.id,
+            blogSlug: post.blogs.slug,
+            blogName: post.blogs.blog_name,
+            blogLogo: post.blogs.profile_photo_url,
+            isVerified: false, // Defaulting since it's not strictly queried in this view
+            headline: post.headline,
+            subtitle: post.subtitle || "",
+            byline: post.byline,
+            content: post.content,
+            publishedAt: post.published_at || new Date().toISOString(),
+            viewCount: post.view_count,
+            approvalCount: post.approval_count,
+            disapprovalCount: post.disapproval_count,
+            commentCount: post.comment_count,
+            isPinned: post.is_pinned
+          }}
+        />
+      )}
 
       <Footer />
     </div>

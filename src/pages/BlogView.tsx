@@ -192,8 +192,11 @@ const BlogView = () => {
       try {
         await navigator.share({ title: blog.blog_name, text: shareText, url });
         return;
-      } catch {
-        // Fall through to clipboard if user cancelled or share failed
+      } catch (err) {
+        // Fall through to clipboard only if the error isn't the user cancelling the dialog
+        if (err instanceof Error && err.name === 'AbortError') {
+          return;
+        }
       }
     }
     copyToClipboard(url);
