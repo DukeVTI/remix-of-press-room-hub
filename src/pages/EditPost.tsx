@@ -169,7 +169,7 @@ const EditPost = () => {
         .map((m: any) => ({
           id: m.id,
           file_url: m.file_url,
-          description: m.description,
+          description: m.description ?? "",  // coerce null → empty string
           media_type: m.media_type as "image" | "video" | "audio",
           order_position: m.order_position,
         }));
@@ -294,10 +294,10 @@ const EditPost = () => {
         newErrors.content = "Content must be at least 50 characters for publishing";
       }
 
-      // Check all media has descriptions
+      // Check all media has descriptions (null-safe)
       const activeExisting = existingMedia.filter(m => !m.isDeleted);
-      const existingMissingDesc = activeExisting.some((m) => !m.description.trim());
-      const newMissingDesc = newMedia.some((m) => !m.description.trim());
+      const existingMissingDesc = activeExisting.some((m) => !(m.description ?? "").trim());
+      const newMissingDesc = newMedia.some((m) => !(m.description ?? "").trim());
 
       if (existingMissingDesc || newMissingDesc) {
         newErrors.media = "All media must have accessibility descriptions for publishing";

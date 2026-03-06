@@ -7,10 +7,10 @@ import { Label } from "@/components/ui/label";
 import { CharacterCountInput } from "@/components/CharacterCountInput";
 import { MediaUploader } from "@/components/MediaUploader";
 import { Textarea } from "@/components/ui/textarea";
-import { 
-  ArrowLeft, 
-  Plus, 
-  X, 
+import {
+  ArrowLeft,
+  Plus,
+  X,
   Loader2,
   ImageIcon,
   Video,
@@ -51,26 +51,26 @@ const CreatePost = () => {
     description: "Write and publish a new article on your Press Room Publisher blog.",
     noindex: true,
   });
-  
+
   const { blogSlug } = useParams<{ blogSlug: string }>();
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
+
   // Auth state
   const [userId, setUserId] = useState<string | null>(null);
   const [userProfile, setUserProfile] = useState<{ first_name: string; last_name: string } | null>(null);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
-  
+
   // Blog data
   const [blog, setBlog] = useState<Blog | null>(null);
-  
+
   // Form data
   const [headline, setHeadline] = useState("");
   const [subtitle, setSubtitle] = useState("");
   const [byline, setByline] = useState("");
   const [content, setContent] = useState("");
   const [media, setMedia] = useState<MediaItem[]>([]);
-  
+
   // UI state
   const [isLoading, setIsLoading] = useState(false);
   const [isSavingDraft, setIsSavingDraft] = useState(false);
@@ -79,12 +79,12 @@ const CreatePost = () => {
   useEffect(() => {
     const init = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      
+
       if (!session) {
         navigate("/login");
         return;
       }
-      
+
       setUserId(session.user.id);
 
       // Fetch user profile for default byline
@@ -134,7 +134,7 @@ const CreatePost = () => {
   // Handle media file selection
   const handleMediaSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    
+
     if (media.length + files.length > MAX_MEDIA_FILES) {
       toast.error(`Maximum ${MAX_MEDIA_FILES} media files allowed`);
       return;
@@ -160,8 +160,8 @@ const CreatePost = () => {
       }
 
       // Create preview
-      const preview = type === "audio" 
-        ? "" 
+      const preview = type === "audio"
+        ? ""
         : URL.createObjectURL(file);
 
       const newMedia: MediaItem = {
@@ -222,8 +222,8 @@ const CreatePost = () => {
         newErrors.content = "Content must be at least 50 characters for publishing";
       }
 
-      // Check all media has descriptions
-      const missingDescriptions = media.some((m) => !m.description.trim());
+      // Check all media has descriptions (null-safe)
+      const missingDescriptions = media.some((m) => !(m.description ?? "").trim());
       if (missingDescriptions) {
         newErrors.media = "All media must have accessibility descriptions for publishing";
       }
@@ -237,7 +237,7 @@ const CreatePost = () => {
   const uploadMediaFiles = async (postId: string): Promise<boolean> => {
     for (let i = 0; i < media.length; i++) {
       const item = media[i];
-      
+
       // Update uploading state
       setMedia((prev) =>
         prev.map((m) =>
@@ -293,7 +293,7 @@ const CreatePost = () => {
   // Handle form submission
   const handleSubmit = async (status: "draft" | "published") => {
     const isDraft = status === "draft";
-    
+
     if (!validateForm(isDraft) || !userId || !blog) return;
 
     const loadingState = isDraft ? setIsSavingDraft : setIsLoading;
@@ -330,8 +330,8 @@ const CreatePost = () => {
       toast.success(
         isDraft ? "Draft saved successfully!" : "Post published successfully!",
         {
-          description: isDraft 
-            ? "You can continue editing later." 
+          description: isDraft
+            ? "You can continue editing later."
             : "Your post is now live.",
         }
       );
@@ -377,8 +377,8 @@ const CreatePost = () => {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <Link 
-                to={`/blog/${blogSlug}/manage`} 
+              <Link
+                to={`/blog/${blogSlug}/manage`}
                 className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
                 aria-label="Back to blog management"
               >
@@ -581,17 +581,28 @@ const CreatePost = () => {
                       ) : null}
                     </div>
                     <div className="flex-1 space-y-2">
-                      <span className="text-sm font-medium text-foreground truncate">
-                        {item.file.name}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        ({(item.file.size / 1024 / 1024).toFixed(2)} MB)
-                      </span>
-                      <div className="flex justify-between">
-                        <p className="text-xs text-muted-foreground">
-                          {item.description}
-                        </p>
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <span className="text-sm font-medium text-foreground truncate block">
+                            {item.file.name}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            ({(item.file.size / 1024 / 1024).toFixed(2)} MB)
+                          </span>
+                        </div>
                       </div>
+                      <Textarea
+                        value={item.description}
+                        onChange={(e) => updateMediaDescription(item.id, e.target.value)}
+                        placeholder="Add accessibility description (required to publish)..."
+                        rows={2}
+                        className={`text-sm resize-none ${!(item.description ?? "").trim() && errors.media ? "border-destructive" : ""}`}
+                        aria-label={`Accessibility description for ${item.file.name}`}
+                        disabled={isLoading || isSavingDraft}
+                      />
+                      {!(item.description ?? "").trim() && (
+                        <p className="text-xs text-amber-600">⚠ Description required to publish</p>
+                      )}
                     </div>
                     <Button
                       type="button"
