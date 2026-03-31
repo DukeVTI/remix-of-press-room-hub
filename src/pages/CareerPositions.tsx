@@ -5,10 +5,10 @@ import { Briefcase } from "lucide-react";
 
 const HEADER_IMG = "/images/career-header.jpg";
 
-export default function Career() {
+export default function CareerPositions() {
     useSeo({
-        title: "Career – Press Room Publisher",
-        description: "Join the diverse team behind Press Room Publisher. Reach out to our management to become part of the community.",
+        title: "Positions – Career – Press Room Publisher",
+        description: "Available positions at Press Room Publisher. Check back regularly for new openings.",
     });
 
     return (
@@ -20,7 +20,7 @@ export default function Career() {
             >
                 <div className="absolute inset-0 bg-black/60" />
                 <h1 className="relative z-10 text-white font-black tracking-[3px] uppercase" style={{ fontSize: "clamp(28px, 5vw, 48px)" }}>
-                    CAREER
+                    POSITIONS
                 </h1>
             </div>
 
@@ -31,19 +31,12 @@ export default function Career() {
                         <Briefcase className="w-8 h-8 text-[#00ad00]" aria-hidden="true" />
                     </div>
                     <p className="text-[#333] text-base leading-[2]">
-                        At PRESS ROOM PUBLISHER, every quality individual commitment toward the collective achievement of our
-                        team and overall success of the community goal are duly prioritized. To become a member of the diverse
-                        team and the great minds behind the scenes of our operations and success stories. You are warmly
-                        welcome to reach out to our management, especially in relations to positions advertised. Someone would
-                        readily be on hand to take care of your valued choice in this regard, and we would be glad to have you
-                        join us!
+                        Greetings to you and thanks so kindly for visiting this page to check out the available positions
+                        being advertised. Currently at Press Room Publisher, we are getting ready to publish the vacant
+                        positions for interested and qualified candidates. Therefore, you are encouraged to visit this page
+                        regularly, just so you're the first to find the official information once made public by the concerned
+                        department. We value your patience and understanding. Thank you.
                     </p>
-                    <Link
-                        to="/career/positions"
-                        className="inline-block bg-[#111] text-white py-3.5 px-11 font-bold text-sm tracking-[1.5px] uppercase no-underline rounded-sm transition-colors duration-200 hover:bg-[#333]"
-                    >
-                        POSITIONS
-                    </Link>
                     <Link
                         to="/connect"
                         className="inline-block bg-[#00ad00] text-white py-3.5 px-11 font-bold text-sm tracking-[1.5px] uppercase no-underline rounded-sm transition-colors duration-200 hover:bg-[#008f00]"
