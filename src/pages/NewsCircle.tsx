@@ -44,15 +44,21 @@ export default function NewsCircle() {
                     {/* Right: text */}
                     <div>
                         <p className="text-[#e0e0e0] text-[15px] leading-[1.9] mb-5">
-                            The acronym (PRPNC) literally stands for the PRESS ROOM PUBLISHER NEWS CIRCLE. It's an official
-                            digital media firepower domain, specifically set up to the exclusive reportage and unbiased
-                            documentation of latest update and trending news items related to project PRP and her subsidiaries.
+                            The acronym (PRPNC) literally stands for the PRESS ROOM PUBLISHER NEWS CIRCLE. It's the official
+                            news and verified information channel, specifically set up for exclusive reportage and public
+                            documentation of latest Press Room Publisher updates and trending news items related to everything
+                            project PRP.
+                        </p>
+                        <p className="text-[#e0e0e0] text-[15px] leading-[1.9] mb-5">
+                            The PRPNC is primarily the official news hub for Press Room Publisher. It is the verified space for
+                            authentic PRP news releases and varying official updates in the interest of the community we serve.
+                            Herein the news circle, visitors and users can easily access and read exclusively about the latest
+                            trending activities linked to Press Room Publisher, that may not be available elsewhere.
                         </p>
                         <p className="text-[#e0e0e0] text-[15px] leading-[1.9] mb-9">
-                            PRPNC is basically designed for the purpose of the official news hub for PRP's news releases and
-                            varying verified official updates in the interest of the community. In the news circle, visitors and
-                            users can easily access and read more details about the latest trending activities of Press Room
-                            Publisher, that may never be available on any other digital media platform.
+                            We urge you to always visit us here on PRP News Circle for the latest useful news and verification
+                            of information found anywhere about Press Room Publisher. Thank you for the choice of your
+                            relationship with us at Press Room Publisher. You're valued.
                         </p>
                         <Link
                             to="/dashboard"

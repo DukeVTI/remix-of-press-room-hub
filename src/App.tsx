@@ -32,6 +32,7 @@ import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import NewsCircle from "./pages/NewsCircle";
 import Career from "./pages/Career";
+import CareerPositions from "./pages/CareerPositions";
 import ConnectPage from "./pages/ConnectPage";
 import NotFound from "./pages/NotFound";
 import AdminDashboard from "./pages/AdminDashboard";
@@ -105,6 +106,7 @@ const App = () => {
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/news-circle" element={<NewsCircle />} />
           <Route path="/career" element={<Career />} />
+          <Route path="/career/positions" element={<CareerPositions />} />
           <Route path="/connect" element={<ConnectPage />} />
           {/* Admin routes */}
           <Route path="/admin/login" element={<AdminLogin />} />

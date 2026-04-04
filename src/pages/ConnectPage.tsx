@@ -57,7 +57,32 @@ export default function ConnectPage() {
             </div>
 
             <section className="bg-white py-16 px-6">
-                <div className="max-w-[1000px] mx-auto grid grid-cols-1 md:grid-cols-[1.4fr_1fr] gap-14 items-start">
+                <div className="max-w-[1000px] mx-auto">
+                    {/* ── Introductory note ── */}
+                    <div className="mb-12">
+                        <h2 className="text-[18px] font-extrabold text-[#111] mb-4 tracking-[1px] uppercase">
+                            PRESS ROOM PUBLISHER CONTACT ROUTES:
+                        </h2>
+                        <p className="text-[#333] text-[15px] leading-[1.9] mb-4">
+                            Thank you so kindly for your time to reach out to us at PRESS ROOM PUBLISHER. Please as best
+                            applied, we urge you to use the contact options listed below for the desired attention.
+                        </p>
+                        <p className="text-[#333] text-[15px] leading-[1.9] mb-1 font-semibold">
+                            General Inquiries:
+                        </p>
+                        <p className="text-[#333] text-[15px] leading-[1.9]">
+                            E-mail:{" "}
+                            <a
+                                href="mailto:hello.prp@broadcasterscommunity.com"
+                                className="text-[#00ad00] hover:underline"
+                                aria-label="Email Press Room Publisher at hello.prp@broadcasterscommunity.com"
+                            >
+                                hello.prp@broadcasterscommunity.com
+                            </a>
+                        </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-[1.4fr_1fr] gap-14 items-start">
                     {/* ── Contact form ── */}
                     <div>
                         <h2 className="text-[22px] font-extrabold text-[#111] mb-7">
@@ -126,7 +151,7 @@ export default function ConnectPage() {
                                         value={form.subject}
                                         onChange={handleChange}
                                         required
-                                        placeholder="How can we help you?"
+                                        placeholder="HERE, PLEASE WRITE PURPOSE OF YOUR MESSAGE"
                                         aria-label="Subject"
                                         className="w-full px-4 py-3 border border-[#ddd] rounded text-sm text-[#333] outline-none transition-colors duration-200 focus:border-[#00ad00] font-[inherit]"
                                     />
@@ -193,7 +218,8 @@ export default function ConnectPage() {
                             </div>
                         </div>
                     </div>
-                </div>
+                    </div>{/* end grid */}
+                </div>{/* end max-w wrapper */}
             </section>
         </MarketingLayout>
     );
