@@ -71,7 +71,9 @@ export default function ConnectPage() {
                             General Inquiries:
                         </p>
                         <p className="text-[#333] text-[15px] leading-[1.9]">
-                            E-mail:{" "}
+                            Email Press Room Publisher At:
+                        </p>
+                        <p className="text-[#333] text-[15px] leading-[1.9]">
                             <a
                                 href="mailto:hello.prp@broadcasterscommunity.com"
                                 className="text-[#00ad00] hover:underline"
