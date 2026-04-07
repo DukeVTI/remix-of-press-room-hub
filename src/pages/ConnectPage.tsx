@@ -73,6 +73,7 @@ export default function ConnectPage() {
                         <p className="text-[#333] text-[15px] leading-[1.9]">
                             Email Press Room Publisher At:
                         </p>
+                        <br/>
                         <p className="text-[#333] text-[15px] leading-[1.9]">
                             <a
                                 href="mailto:hello.prp@broadcasterscommunity.com"
