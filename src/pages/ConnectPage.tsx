@@ -67,21 +67,6 @@ export default function ConnectPage() {
                             Thank you so kindly for your time to reach out to us at PRESS ROOM PUBLISHER. Please as best
                             applied, we urge you to use the contact options listed below for the desired attention.
                         </p>
-                        <p className="text-[#333] text-[15px] leading-[1.9] mb-1 font-semibold">
-                            General Inquiries:
-                        </p>
-                        <p className="text-[#333] text-[15px] leading-[1.9]">
-                            <span>Email Press Room Publisher At:</span>
-                            <span className="block">
-                                <a
-                                    href="mailto:hello.prp@broadcasterscommunity.com"
-                                    className="text-[#00ad00] hover:underline"
-                                    aria-label="Email Press Room Publisher at hello.prp@broadcasterscommunity.com"
-                                >
-                                    hello.prp@broadcasterscommunity.com
-                                </a>
-                            </span>
-                        </p>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-[1.4fr_1fr] gap-14 items-start">
